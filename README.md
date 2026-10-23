@@ -1,2 +1,2 @@
-# AutoPago-React
+# Plataforma de Ticketing 
 Proyecto de Programacion Web
