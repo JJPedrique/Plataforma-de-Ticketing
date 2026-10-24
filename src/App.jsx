@@ -1,21 +1,26 @@
 import './App.css'
 import Header from './shared/components/Header'
 import Footer from './shared/components/Footer'
-import { TicketCheck } from "lucide-react";
+import SeleccionarEvento from './Features/Ticketing/pages/SeleccionarEvento';
+import EmitirPago from './Features/Ticketing/pages/EmitirPago';
+import { Route, Routes } from 'react-router-dom';
+import SeleccionarAsiento from './Features/Ticketing/pages/SeleccionarAsiento';
+import EmpezarReservas from './Features/Ticketing/pages/EmpezarReservas';
 
 function App() {
 
   return (
+
     <>
-      <Header/>
-      <main>
-        <div className="flex flex-col gap-1 place-items-center m-2">
-             <TicketCheck className="size-12 text-white bg-amber-500 p-2 rounded-3xl"/> 
-             <h1 className="text-2xl">Bienvenido a TIKETEKA</h1>
-        </div>
-      </main>
-      <Footer/>
+    
+    <Routes>
+      <Route path='/' element={<EmpezarReservas replace/>}/>
+      <Route path='/Eventos' element={<SeleccionarEvento/>} />  
+      <Route path='/Asientos' element={<SeleccionarAsiento/>} />  
+      <Route path='/Pagos' element={<EmitirPago/>}/>  
+    </Routes> 
     </>
+    
   )
 }
 
