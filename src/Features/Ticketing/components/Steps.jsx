@@ -7,7 +7,7 @@ function Steps({Number,Text}) {
         </div>
             <h2 className='text-2xl font-black'>{Text}</h2>
         </div>
-        <hr className='mt-1 mx-1 text-amber-400 border' />
+        
     </div> );
 }
 

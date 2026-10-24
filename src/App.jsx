@@ -1,6 +1,4 @@
 import './App.css'
-import Header from './shared/components/Header'
-import Footer from './shared/components/Footer'
 import SeleccionarEvento from './Features/Ticketing/pages/SeleccionarEvento';
 import EmitirPago from './Features/Ticketing/pages/EmitirPago';
 import { Route, Routes } from 'react-router-dom';
@@ -12,13 +10,12 @@ function App() {
   return (
 
     <>
-    
-    <Routes>
-      <Route path='/' element={<EmpezarReservas replace/>}/>
-      <Route path='/Eventos' element={<SeleccionarEvento/>} />  
-      <Route path='/Asientos' element={<SeleccionarAsiento/>} />  
-      <Route path='/Pagos' element={<EmitirPago/>}/>  
-    </Routes> 
+      <Routes>
+        <Route path='/' element={<EmpezarReservas replace/>}/>
+        <Route path='/Eventos' element={<SeleccionarEvento/>} />  
+        <Route path='/Asientos' element={<SeleccionarAsiento/>} />  
+        <Route path='/Pagos' element={<EmitirPago/>}/>  
+      </Routes> 
     </>
     
   )
