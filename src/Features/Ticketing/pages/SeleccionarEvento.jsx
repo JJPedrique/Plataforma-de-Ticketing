@@ -7,7 +7,7 @@ function SeleccionarEvento() {
     return ( 
     <>
         <Header/>  
-        <Steps Number='1' Text='Seleccionar Evento.'/>
+        <Steps Number='1' Text='Selecciona tu Evento.'/>
 
         <main className='px-6'>
             <FiltroEvento/>

@@ -16,7 +16,7 @@ function EmitirPago() {
 
         <div className='fixed bottom-0 left-0 w-full p-3 flex justify-between items-center'>
             <ButtonLink Path='/Asientos' Text='Atras' />
-            <ButtonLink Path='/' Text='Reservar' />
+            <ButtonLink Path='/Completado' Text='Reservar' />
         </div>
 
     </> );

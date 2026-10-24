@@ -5,7 +5,7 @@ function Steps({Number,Text}) {
         <div className='bg-amber-500 rounded-full m-1 w-10 h-10 flex items-center justify-center font-bold text-white'>
             <span>{Number}</span>
         </div>
-            <h2 className='text-2xl font-black'>{Text}</h2>
+            <h2 className='text-2xl font-semibold'>{Text}</h2>
         </div>
         
     </div> );

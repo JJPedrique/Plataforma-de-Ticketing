@@ -4,7 +4,7 @@ import EmitirPago from './Features/Ticketing/pages/EmitirPago';
 import { Route, Routes } from 'react-router-dom';
 import SeleccionarAsiento from './Features/Ticketing/pages/SeleccionarAsiento';
 import EmpezarReservas from './Features/Ticketing/pages/EmpezarReservas';
-
+import ReservaCompletada from './Features/Ticketing/pages/ReservaCompletada'
 function App() {
 
   return (
@@ -15,6 +15,7 @@ function App() {
         <Route path='/Eventos' element={<SeleccionarEvento/>} />  
         <Route path='/Asientos' element={<SeleccionarAsiento/>} />  
         <Route path='/Pagos' element={<EmitirPago/>}/>  
+        <Route path='/Completado' element={<ReservaCompletada/>}/>  
       </Routes> 
     </>
     
