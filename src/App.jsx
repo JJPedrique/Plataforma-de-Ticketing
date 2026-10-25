@@ -1,24 +1,17 @@
+import { Link } from 'react-router-dom';
 import './App.css'
-import SeleccionarEvento from './Features/Ticketing/pages/SeleccionarEvento';
-import EmitirPago from './Features/Ticketing/pages/EmitirPago';
-import { Route, Routes } from 'react-router-dom';
-import SeleccionarAsiento from './Features/Ticketing/pages/SeleccionarAsiento';
-import EmpezarReservas from './Features/Ticketing/pages/EmpezarReservas';
-import ReservaCompletada from './Features/Ticketing/pages/ReservaCompletada'
+import { TicketCheck } from "lucide-react";
+
 function App() {
 
   return (
-
     <>
-      <Routes>
-        <Route path='/' element={<EmpezarReservas replace/>}/>
-        <Route path='/Eventos' element={<SeleccionarEvento/>} />  
-        <Route path='/Asientos' element={<SeleccionarAsiento/>} />  
-        <Route path='/Pagos' element={<EmitirPago/>}/>  
-        <Route path='/Completado' element={<ReservaCompletada/>}/>  
-      </Routes> 
+      <div className="CenterDiv gap-3 rounded-2xl">
+          <TicketCheck className="size-24 text-white bg-amber-500 p-5 rounded-full"/>
+          <h1 className="font-bold text-5xl">Empieza a Comprar tus Tickets.</h1>
+          <Link to='/IniciarSesion'>Iniciar Sesion</Link>
+      </div> 
     </>
-    
   )
 }
 

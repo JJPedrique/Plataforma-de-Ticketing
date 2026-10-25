@@ -1,11 +1,9 @@
-import { Check, TicketCheck } from "lucide-react";
-import Header from "../../../shared/components/Header";
+import { Check } from "lucide-react";
 import ButtonLink from "../components/ButtonLink";
 
 function ReservaCompletada() {
     return ( 
         <>
-            <Header />
             <div className="CenterDiv gap-3 rounded-2xl">
                 <Check className="size-24 text-white bg-amber-500 p-5 rounded-full"/>
                 <h1 className="font-bold text-5xl">Reserva Hecha Exitosamente.</h1>
