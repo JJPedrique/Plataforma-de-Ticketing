@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import './App.css'
 import { TicketCheck } from "lucide-react";
+import './App.css'
 
 function App() {
 

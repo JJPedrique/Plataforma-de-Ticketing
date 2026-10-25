@@ -1,16 +1,15 @@
+import EventoCard from '../components/EventosCard';
 import Steps from '../components/Steps';
-import ButtonLink from "../components/ButtonLink";
 
 function SeleccionarEvento() {
     return ( 
     <>
         <Steps Number='1' Text='Selecciona tu Evento.'/>
-
-
-
-        <div className='fixed bottom-0 left-0 w-full p-3 flex justify-end items-center'>
-            <ButtonLink Path='/Cliente/Ticketing/Asiento' Text='Siguiente' />
+    
+        <div className='grid grid-cols-3 gap-3'>
+            {[1,2,3,4,5,6].map((i)=><EventoCard/>)}    
         </div>
+        
     </>);
 }
 

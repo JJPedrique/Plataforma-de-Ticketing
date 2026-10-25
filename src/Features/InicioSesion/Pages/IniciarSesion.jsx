@@ -6,7 +6,7 @@ function IniciarSesion() {
 
         <Link to='/Admin'>Entrar Como Admin</Link>    
         <Link to='/Operador'>Entrar Como Operador</Link>    
-        <Link to='/Cliente/Ticketing/Evento'>Entrar Como Cliente</Link>    
+        <Link to='/Cliente/Ticketing'>Entrar Como Cliente</Link>    
     </>);
 }
 

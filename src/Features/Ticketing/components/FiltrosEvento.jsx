@@ -39,3 +39,5 @@ export function FiltroEvento({ busqueda, onBuscar }) {
     </div>
   )
 }
+
+export default FiltroEvento;
