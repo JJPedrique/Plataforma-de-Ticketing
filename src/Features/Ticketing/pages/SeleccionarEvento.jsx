@@ -1,5 +1,6 @@
 import EventoCard from '../components/EventosCard';
 import Steps from '../components/Steps';
+import {seedData} from '../../../Data/Mock'
 
 function SeleccionarEvento() {
     return ( 
@@ -7,7 +8,12 @@ function SeleccionarEvento() {
         <Steps Number='1' Text='Selecciona tu Evento.'/>
     
         <div className='grid grid-cols-3 gap-3'>
-            {[1,2,3,4,5,6].map((i)=><EventoCard/>)}    
+            {seedData.events.map((i)=>
+                {
+                    const venues = seedData.venues.find(v => v.id === i.venue_id)
+                    return <EventoCard event={i} venue={venues}/>
+                }
+            )} 
         </div>
         
     </>);

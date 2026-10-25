@@ -10,15 +10,8 @@ function Ticketing() {
 
     return ( 
         <>
-            <div className="w-full">
-                {tab == 1? (<SeleccionarEvento/>):
-                tab == 2? ( <SeleccionarAsiento/>):
-                tab == 3? (<RealizarPago />):
-                (<ReservaCompletada />)}
-            </div>
-            
             {tab != 4 && 
-            <div className={`w-full items-center p-3 flex ${tab == 1 ? 'justify-end' : 'justify-between'}`}>
+            <div className={`w-full items-center p-5 flex ${tab == 1 ? 'justify-end' : 'justify-between'}`}>
                 {tab != 1 && 
                 <button className="flex gap-2" type="button" onClick={() => setTab(tab != 1 ? tab - 1 : tab)}>
                     <MoveLeft className="text-amber-500 font-bold"/>
@@ -31,6 +24,13 @@ function Ticketing() {
                     <MoveRight className="text-amber-500 font-bold"/>
                 </button>
             </div>}
+
+            <div className="w-full">
+                {tab == 1? (<SeleccionarEvento/>):
+                tab == 2? ( <SeleccionarAsiento/>):
+                tab == 3? (<RealizarPago />):
+                (<ReservaCompletada />)}
+            </div>
         </> 
     );
 }
