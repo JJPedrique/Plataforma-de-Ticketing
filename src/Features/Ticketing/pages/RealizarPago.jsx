@@ -19,7 +19,7 @@ function RealizarPago() {
             <div>
                 <h2 className='pb-3 font-bold'>Asientos</h2>
                 <div>
-                    
+                    <SillasCard/>
                 </div>
             </div>
             <div className='flex flex-col'>
