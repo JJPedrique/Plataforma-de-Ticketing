@@ -1,15 +1,15 @@
 export const seedData = {
   users: [
-    { id: 1, name: "Alice Admin", email: "alice@example.com", password_hash: "hash_123", role: "ADMIN", created_at: "2026-01-10T08:00:00Z" },
-    { id: 2, name: "Bob Operator", email: "bob@example.com", password_hash: "hash_123", role: "OPERATOR", created_at: "2026-01-11T09:15:00Z" },
-    { id: 3, name: "Charlie User", email: "charlie@example.com", password_hash: "hash_123", role: "USER", created_at: "2026-01-12T10:30:00Z" },
-    { id: 4, name: "Diana User", email: "diana@example.com", password_hash: "hash_123", role: "USER", created_at: "2026-01-13T11:45:00Z" },
-    { id: 5, name: "Eve User", email: "eve@example.com", password_hash: "hash_123", role: "USER", created_at: "2026-01-14T14:20:00Z" },
-    { id: 6, name: "Frank User", email: "frank@example.com", password_hash: "hash_123", role: "USER", created_at: "2026-01-15T16:10:00Z" },
-    { id: 7, name: "Grace User", email: "grace@example.com", password_hash: "hash_123", role: "USER", created_at: "2026-01-16T18:05:00Z" },
-    { id: 8, name: "Heidi User", email: "heidi@example.com", password_hash: "hash_123", role: "USER", created_at: "2026-01-17T19:50:00Z" },
-    { id: 9, name: "Ivan User", email: "ivan@example.com", password_hash: "hash_123", role: "USER", created_at: "2026-01-18T21:30:00Z" },
-    { id: 10, name: "Judy User", email: "judy@example.com", password_hash: "hash_123", role: "USER", created_at: "2026-01-19T23:15:00Z" }
+    { id: 1, name: "Alice Admin", email: "alice@example.com", password_hash: "hash_123", role: "admin", created_at: "2026-01-10T08:00:00Z" },
+    { id: 2, name: "Bob Operator", email: "bob@example.com", password_hash: "hash_123", role: "admin", created_at: "2026-01-11T09:15:00Z" },
+    { id: 3, name: "Charlie User", email: "charlie@example.com", password_hash: "hash_123", role: "client", created_at: "2026-01-12T10:30:00Z" },
+    { id: 4, name: "Diana User", email: "diana@example.com", password_hash: "hash_123", role: "client", created_at: "2026-01-13T11:45:00Z" },
+    { id: 5, name: "Eve User", email: "eve@example.com", password_hash: "hash_123", role: "client", created_at: "2026-01-14T14:20:00Z" },
+    { id: 6, name: "Frank User", email: "frank@example.com", password_hash: "hash_123", role: "client", created_at: "2026-01-15T16:10:00Z" },
+    { id: 7, name: "Grace User", email: "grace@example.com", password_hash: "hash_123", role: "client", created_at: "2026-01-16T18:05:00Z" },
+    { id: 8, name: "Heidi User", email: "heidi@example.com", password_hash: "hash_123", role: "client", created_at: "2026-01-17T19:50:00Z" },
+    { id: 9, name: "Ivan User", email: "ivan@example.com", password_hash: "hash_123", role: "client", created_at: "2026-01-18T21:30:00Z" },
+    { id: 10, name: "Judy User", email: "judy@example.com", password_hash: "hash_123", role: "client", created_at: "2026-01-19T23:15:00Z" }
   ],
   venues: [
     { id: 1, name: "Estadio Nacional", location: "Capital City", svg_layout_url: "/maps/estadio_nacional.svg" },
