@@ -39,7 +39,7 @@ function RecuperarContrasena() {
       onSubmit={handleSubmit}
       submitText={loading ? 'Enviando...' : 'Enviar enlace'}
       footer={
-        <Link to="/IniciarSesion" className="inline-flex items-center gap-1 font-medium text-amber-600 hover:text-amber-700">
+        <Link to="/IniciarSesion" className="inline-flex items-center gap-1 font-medium text-orange-600 hover:text-orange-700">
           <ArrowLeft className="h-4 w-4" />
           Volver a iniciar sesión
         </Link>

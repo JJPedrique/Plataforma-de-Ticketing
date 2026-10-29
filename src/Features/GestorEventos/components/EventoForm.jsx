@@ -166,7 +166,7 @@ export function EventoForm({ evento, onSubmit, onCancel }) {
         <div className="flex gap-3 pt-4">
           <button
             type="submit"
-            className="flex-1 bg-amber-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors"
+            className="flex-1 bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
           >
             {evento ? 'Guardar cambios' : 'Crear evento'}
           </button>

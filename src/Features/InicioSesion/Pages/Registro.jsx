@@ -53,7 +53,7 @@ function Registro() {
       footer={
         <>
           ¿Ya tienes cuenta?{' '}
-          <Link to="/IniciarSesion" className="font-medium text-amber-600 hover:text-amber-700">
+          <Link to="/IniciarSesion" className="font-medium text-orange-600 hover:text-orange-700">
             Iniciar sesión
           </Link>
         </>

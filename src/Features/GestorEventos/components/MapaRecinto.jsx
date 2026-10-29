@@ -83,11 +83,11 @@ export function MapaRecinto({ venueId, onClose }) {
           </div>
 
           {selectedSection && (
-            <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-              <p className="text-sm font-medium text-amber-900 mb-1">
+            <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+              <p className="text-sm font-medium text-orange-900 mb-1">
                 Sección seleccionada: {selectedSection.name}
               </p>
-              <p className="text-xs text-amber-700">
+              <p className="text-xs text-orange-700">
                 Capacidad: {selectedSection.capacity} asientos • ID: {selectedSection.id}
               </p>
             </div>

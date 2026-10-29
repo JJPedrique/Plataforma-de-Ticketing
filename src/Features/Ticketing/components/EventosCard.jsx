@@ -1,49 +1,57 @@
-import { Calendar, Clock, MapPin, ImageOff } from 'lucide-react';
+import { Calendar, Clock, MapPin, Ticket } from 'lucide-react';
 import { useState } from 'react';
 
 function EventoCard({event, venue}) {
   const [selected, isSelected] = useState(false)
   
   return (
-    <button onClick={()=>isSelected(!selected)}
-    className={`${selected && 'ring-2 ring-amber-500'} w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl`}>
-      {/* Contenedor de la Imagen / Placeholder */}
-      <div className="flex h-48 w-full flex-col items-center justify-center rounded-xl bg-gray-100 text-gray-400">
-        <ImageOff className="mb-2 h-10 w-10 stroke-[1.5]" />
-        <span className="text-xs font-medium">Sin imagen disponible</span>
+    <button 
+      onClick={()=>isSelected(!selected)}
+      className={`group relative w-full text-left rounded-2xl border bg-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+        selected 
+          ? 'border-orange-500 shadow-lg shadow-orange-500/10 ring-2 ring-orange-500/20' 
+          : 'border-gray-200 shadow-md hover:border-orange-200'
+      }`}
+    >
+      {selected && (
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
+          <Ticket className="h-3.5 w-3.5" />
+          Seleccionado
+        </div>
+      )}
+      
+      <div className="relative flex h-48 w-full items-center justify-center bg-linear-to-br from-orange-100 via-orange-50 to-amber-50 overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent"></div>
+        <Ticket className="relative h-16 w-16 text-orange-500/40" />
+        <div className="absolute bottom-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-lg text-xs font-medium text-gray-700">
+          {venue?.name}
+        </div>
       </div>
 
-      {/* Contenido principal */}
-      <div className="mt-5">
-        {/* Título del evento */}
-        <h1 className="text-xl font-bold tracking-tight text-gray-900">
+      <div className="p-5">
+        <h3 className="text-lg font-bold tracking-tight text-gray-900 line-clamp-2 mb-2 group-hover:text-orange-600 transition-colors">
           {event.title}
-        </h1>
+        </h3>
 
-        {/* Ubicación */}
-        <div className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-amber-600">
-          <MapPin className="h-4 w-4" />
-          <h2>{venue.name} | {venue.location}</h2>
+        <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
+          <MapPin className="h-4 w-4 text-orange-500 shrink-0" />
+          <span className="truncate">{venue?.name} • {venue?.location}</span>
         </div>
 
-        {/* Fecha y Hora */}
-        <div className="mt-3 flex items-center gap-4 text-xs font-medium text-gray-500">
-          <div className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-gray-400" />
-            <span>{`${event.event_date}`.slice(11,19)}</span>
-          </div>
-          <span className="text-gray-300">•</span>
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-4 text-xs text-gray-600 mb-3">
+          <div className="flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-gray-400" />
-            <span>{`${event.event_date}`.slice(0,10)}</span>
+            <span>{event.event_date ? event.event_date.slice(0,10).split('-').reverse().join('/') : 'N/A'}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-gray-400" />
+            <span>{event.event_date ? event.event_date.slice(11,16) : 'N/A'}</span>
           </div>
         </div>
 
-        {/* Descripción */}
-        <p className="mt-4 text-sm leading-relaxed text-gray-600 line-clamp-3">
+        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
           {event.description}
         </p>
-
       </div>
     </button>
   );

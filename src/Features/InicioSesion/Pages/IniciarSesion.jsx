@@ -50,11 +50,11 @@ function IniciarSesion() {
           <>
             <div className="mb-2">
               ¿No tienes cuenta?{" "}
-              <Link to="/Registro" className="font-medium text-amber-600 hover:text-amber-700">
+              <Link to="/Registro" className="font-medium text-orange-600 hover:text-orange-700">
                 Regístrate
               </Link>
             </div>
-            <Link to="/RecuperarContrasena" className="font-medium text-amber-600 hover:text-amber-700">
+            <Link to="/RecuperarContrasena" className="font-medium text-orange-600 hover:text-orange-700">
               ¿Olvidaste tu contraseña?
             </Link>
           </>
@@ -97,7 +97,7 @@ function IniciarSesion() {
               type="button"
             >
               <Shield className="h-3.5 w-3.5" />
-              Admin
+              Administrador
             </button>
             {/* <button
               onClick={() => quickLogin("bob@example.com", "hash_123")}

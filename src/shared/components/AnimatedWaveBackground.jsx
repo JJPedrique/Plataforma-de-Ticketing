@@ -43,35 +43,35 @@ export default function AnimatedWaveBackground({ children }) {
   const waveColors = ["#ffa200","#ffc800"];
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden flex flex-col justify-center items-center" style={{ backgroundColor: '#ffeed6' }}>
-      {/* SVG Wave Background */}
-      <div className="absolute inset-0 w-full h-full">
-        <svg
-          className="w-full h-full preserve-3d"
-          viewBox="0 0 1440 600"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            {waveColors.map((color, i) => (
-              <linearGradient key={i} id={`wave-grad-${i}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor={color} stopOpacity="1" />
-                <stop offset="100%" stopColor={color} stopOpacity="0.7" />
-              </linearGradient>
+    <div className="relative min-h-dvh w-full">
+      <div className="fixed inset-0 w-screen h-screen overflow-hidden -z-10" style={{ backgroundColor: '#ffeed6' }}>
+        {/* SVG Wave Background */}
+        <div className="absolute inset-0 w-full h-full">
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 1440 600"
+            preserveAspectRatio="none"
+          >
+            <defs>
+              {waveColors.map((color, i) => (
+                <linearGradient key={i} id={`wave-grad-${i}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor={color} stopOpacity="1" />
+                  <stop offset="100%" stopColor={color} stopOpacity="0.7" />
+                </linearGradient>
+              ))}
+            </defs>
+            {waveColors.map((_, i) => (
+              <path
+                key={i}
+                d={generatePath(i)}
+                fill={`url(#wave-grad-${i})`}
+                className="transition-all duration-75 ease-linear"
+              />
             ))}
-          </defs>
-          {waveColors.map((_, i) => (
-            <path
-              key={i}
-              d={generatePath(i)}
-              fill={`url(#wave-grad-${i})`}
-              className="transition-all duration-75 ease-linear"
-            />
-          ))}
-        </svg>
+          </svg>
+        </div>
       </div>
-
-      {/* Content Container */}
-      <div className="relative z-10 w-full max-w-5xl px-6 py-12">
+      <div className="relative z-0 min-h-dvh flex flex-col">
         {children}
       </div>
     </div>

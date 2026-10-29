@@ -1,15 +1,15 @@
-import { ImageOff } from 'lucide-react';
 import Steps from '../components/Steps';
 import ExampleKonvas from '../components/ExampleKonvas';
 
 function SeleccionarAsiento() {
     return ( 
     <>
-        <Steps Number='2' Text='Elige tu Asiento.' />
-        
-        <div >
-         <ExampleKonvas></ExampleKonvas>
+        <div className="mb-6">
+            <Steps Number='2' Text='Elige tu asiento.' />
+            <p className="ml-16 -mt-4 text-sm text-gray-600">Selecciona los asientos que deseas reservar</p>
         </div>
+        
+        <ExampleKonvas />
 
     </> );
 }

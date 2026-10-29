@@ -5,19 +5,19 @@ const SESSION_KEY = 'ticketing_session';
 export const authService = {
   validatePassword: (password) => {
     if (!password || password.length < 8) {
-      throw new Error('La contraseña debe tener al menos 8 caracteres');
+      throw new Error('La contraseña debe tener al menos 8 caracteres.');
     }
     if (!/[A-Z]/.test(password)) {
-      throw new Error('La contraseña debe contener al menos una letra mayúscula');
+      throw new Error('La contraseña debe contener al menos una letra mayúscula.');
     }
     if (!/[a-z]/.test(password)) {
-      throw new Error('La contraseña debe contener al menos una letra minúscula');
+      throw new Error('La contraseña debe contener al menos una letra minúscula.');
     }
     if (!/[0-9]/.test(password)) {
-      throw new Error('La contraseña debe contener al menos un número');
+      throw new Error('La contraseña debe contener al menos un número.');
     }
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      throw new Error('La contraseña debe contener al menos un símbolo (!@#$%^&*...)');
+      throw new Error('La contraseña debe contener al menos un símbolo (!@#$%^&*...).');
     }
     return true;
   },
@@ -49,7 +49,7 @@ export const authService = {
     authService.validatePassword(password);
     const existing = getUsuarioByEmail(email);
     if (existing) {
-      throw new Error('El correo electrónico ya está registrado');
+      throw new Error('El correo electrónico ya está registrado.');
     }
     const newUser = {
       id: usuarios.length + 1,
@@ -84,24 +84,24 @@ export const authService = {
 
   resetPassword: (token, newPassword) => {
     if (!token || !newPassword) {
-      throw new Error('Token y nueva contraseña son obligatorios');
+      throw new Error('El token y la nueva contraseña son obligatorios.');
     }
     authService.validatePassword(newPassword);
     const data = localStorage.getItem(`recovery_${token}`);
     if (!data) {
-      throw new Error('Token inválido o expirado');
+      throw new Error('Token inválido o expirado.');
     }
     const parsed = JSON.parse(data);
     if (Date.now() > parsed.expiresAt) {
       localStorage.removeItem(`recovery_${token}`);
-      throw new Error('El token ha expirado');
+      throw new Error('El token ha expirado.');
     }
     const user = usuarios.find((u) => u.id === parsed.userId);
     if (user) {
       user.password_hash = `hash_${Date.now()}`;
     }
     localStorage.removeItem(`recovery_${token}`);
-    return { success: true, message: 'Contraseña restablecida correctamente' };
+    return { success: true, message: 'Contraseña restablecida correctamente.' };
   },
 
   getSession: () => {

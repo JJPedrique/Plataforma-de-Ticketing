@@ -70,7 +70,7 @@ function GestionEventos() {
         </div>
         <button
           onClick={handleCreate}
-          className="flex items-center gap-2 bg-amber-500 text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors"
+          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-4 py-2.5 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
         >
           <Plus className="h-4 w-4" />
           Nuevo evento
@@ -143,7 +143,7 @@ function GestionEventos() {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => handleConfigMapa(evento.venue_id)}
-                        className="p-2 text-gray-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                         title="Configurar mapa de recinto"
                         aria-label="Configurar mapa de recinto"
                       >
@@ -151,7 +151,7 @@ function GestionEventos() {
                       </button>
                       <button
                         onClick={() => handleConfigPrecios(evento.venue_id)}
-                        className="p-2 text-gray-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                         title="Configurar precios por zona"
                         aria-label="Configurar precios por zona"
                       >

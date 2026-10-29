@@ -71,7 +71,7 @@ export function PreciosZona({ venueId, onClose }) {
                         type="number"
                         value={item.precio}
                         onChange={(e) => handlePrecioChange(item.sectionId, e.target.value)}
-                        className="w-28 pl-7 pr-3 py-2 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-28 pl-7 pr-3 py-2 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         min="0"
                         step="0.01"
                       />
@@ -89,7 +89,7 @@ export function PreciosZona({ venueId, onClose }) {
           <div className="mt-6 flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 bg-amber-500 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-amber-600 transition-colors"
+              className="flex-1 bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 transition-colors"
             >
               Guardar precios
             </button>

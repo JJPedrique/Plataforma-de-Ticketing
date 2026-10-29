@@ -6,7 +6,7 @@ export function NoEncontrada() {
     <section className="py-24 text-center">
       <title>Página no encontrada · Cartelera</title>
       <p className="text-7xl font-black text-primary">404</p>
-      <h1 className="mt-4 text-2xl font-bold">Esta función no Existe</h1>
+      <h1 className="mt-4 text-2xl font-bold">Esta página no existe</h1>
     </section>
   )
 }

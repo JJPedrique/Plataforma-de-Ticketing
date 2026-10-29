@@ -25,7 +25,7 @@ function Dashboard() {
         </div>
         <Link
           to="/Admin/Eventos"
-          className="flex items-center gap-2 bg-amber-500 text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors"
+          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-4 py-2.5 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
         >
           <Plus className="h-4 w-4" />
           Gestionar Eventos
@@ -88,7 +88,7 @@ function Dashboard() {
             <h2 className="text-lg font-semibold text-gray-900">Eventos Recientes</h2>
             <Link
               to="/Admin/Eventos"
-              className="flex items-center gap-1 text-sm font-medium text-amber-600 hover:text-amber-700"
+              className="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700"
             >
               Ver todos
               <ArrowRight className="h-4 w-4" />
@@ -134,8 +134,8 @@ function Dashboard() {
               to="/Admin/Eventos"
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <Plus className="h-4 w-4 text-amber-600" />
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Plus className="h-4 w-4 text-orange-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-900">Crear Evento</p>

@@ -1,4 +1,4 @@
-import { TicketCheck, Home, LogOut, User, ChevronDown } from "lucide-react";
+import { TicketCheck, Home, LogOut, User, ChevronDown, Ticket } from "lucide-react";
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { authService } from '../../Features/InicioSesion/services/authService'
@@ -73,9 +73,34 @@ function Header() {
             <Home className="h-4 w-4" />
             <span className="hidden sm:inline">Inicio</span>
           </NavLink>
+          {session && (
+            <NavLink
+              to="/Cliente/Ticketing"
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-orange-100 text-orange-700'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                }`
+              }
+            >
+              <TicketCheck className="h-4 w-4" />
+              <span className="hidden sm:inline">Comprar boletos</span>
+            </NavLink>
+          )}
 
           {session ? (
-            <div className="relative">
+            <>
+              {session.role === 'client' && (
+                <Link
+                  to="/Cliente/Historial"
+                  className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                >
+                  <Ticket className="h-4 w-4" />
+                  Mis tickets
+                </Link>
+              )}
+              <div className="relative">
               <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
@@ -113,6 +138,16 @@ function Header() {
                       </div>
                     </div>
                     <div className="py-1">
+                      {session.role === 'client' && (
+                        <Link
+                          to="/Cliente/Historial"
+                          onClick={() => setShowMenu(false)}
+                          className="w-full px-4 py-2 flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors md:hidden"
+                        >
+                          <Ticket className="h-4 w-4" />
+                          <span>Mis tickets</span>
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="w-full px-4 py-2 flex items-center gap-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -125,6 +160,7 @@ function Header() {
                 </>
               )}
             </div>
+            </>
           ) : (
             <div className="flex items-center gap-2">
               <Link

@@ -9,6 +9,7 @@ import RestablecerContrasena from '../Features/InicioSesion/Pages/RestablecerCon
 import Dashboard from '../Features/GestorEventos/Pages/Dashboard'
 import GestionEventos from '../Features/GestorEventos/Pages/GestionEventos'
 import Ticketing from '../Features/Ticketing/pages/Ticketing'
+import HistorialTickets from '../Features/Ticketing/pages/HistorialTickets'
 
 // M8 · El mapa de la app: qué componente se pinta para cada URL (como app.routes.ts en Angular)
 export const router = createBrowserRouter([
@@ -27,6 +28,8 @@ export const router = createBrowserRouter([
       { path: '/Organizador/Eventos', Component: GestionEventos },
       { path: '/Operador', Component: IniciarSesion },
       { path: '/Cliente/Ticketing', Component: Ticketing },
+      { path: '/Cliente/Historial', Component: HistorialTickets },
+      { path: '/MisTickets', Component: HistorialTickets },
       { path: '*', Component: NoEncontrada }, // 404: cualquier ruta que no coincida
     ],
   },
