@@ -10,14 +10,14 @@ const metodosPago = [
   { id: 'paypal', nombre: 'PayPal', icon: Wallet, descripcion: 'Cuenta PayPal o saldo' },
 ];
 
-function RealizarPago({event, onReservar }) {
+function RealizarPago({event, seats = [], onReservar }) {
 
   const [metodoSeleccionado, setMetodoSeleccionado] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [tiempoRestante, setTiempoRestante] = useState(300);
   
-  const asientosSeleccionados = [
+  const asientosSeleccionados = seats.length > 0 ? seats : [
     { fila: 'A', asiento: '12', precio: 85.00 },
     { fila: 'A', asiento: '13', precio: 85.00 },
   ];
@@ -215,14 +215,14 @@ function RealizarPago({event, onReservar }) {
               </h2>
             </div>
             <div className="p-4">
-              <div className="space-y-2 mb-4">
+              <div className={`${asientosSeleccionados.length > 6 ? 'max-h-65 overflow-y-auto pr-1' : ''} space-y-2 mb-4`}>
                 {asientosSeleccionados.map((asiento, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                  <div key={asiento.id || idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-sm text-gray-900">Fila {asiento.fila} - Asiento {asiento.asiento}</span>
+                      <span className="text-sm text-gray-900">{asiento.fila || `Fila ${asiento.row}`} - {asiento.asiento || `Asiento ${asiento.seat}`}</span>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">${asiento.precio.toFixed(2)}</span>
+                    <span className="text-sm font-medium text-gray-900">${(asiento.precio || 85).toFixed(2)}</span>
                   </div>
                 ))}
               </div>

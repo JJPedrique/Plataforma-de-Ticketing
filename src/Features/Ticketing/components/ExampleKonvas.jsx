@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Stage, Layer, Circle, Text, Group, Rect } from 'react-konva';
 import { Info, Download } from 'lucide-react';
 
@@ -13,7 +13,7 @@ function getColor(status) {
   return '#22c55e';
 }
 
-function generateItems() {
+function generateItems(eventKey) {
   const items = [];
   let j = 30;
   let g = 1;
@@ -30,7 +30,7 @@ function generateItems() {
     items.push({
       x: g * 30,
       y: j,
-      id: 'Silla' + i + 'fila' + fila,
+      id: (eventKey ? `${eventKey}-` : '') + 'Silla' + i + 'fila' + fila,
       status: i % 12 === 0 ? 'ocupado' : 'normal',
       row: fila,
       seat: g,
@@ -40,13 +40,22 @@ function generateItems() {
   return items;
 }
 
-const ExampleKonvas = () => {
+const ExampleKonvas = ({ event, seats = [], onChangeSeats }) => {
   const stageRef = React.useRef(null);
-  const [items, setItems] = useState(generateItems());
+  const [items, setItems] = useState(() => generateItems(event?.event?.event_id || event?.id));
   const [hoveredSeat, setHoveredSeat] = useState(null);
   const [selectedCount, setSelectedCount] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const key = event?.event?.event_id || event?.id;
+    setItems(generateItems(key));
+    setSelectedCount(0);
+    if (onChangeSeats) {
+      onChangeSeats([]);
+    }
+  }, [event?.event?.event_id, event?.id]);
   
 
   const handleSeatClick = (clickedItem) => {
@@ -65,8 +74,12 @@ const ExampleKonvas = () => {
         }
         return item;
       });
-      const count = updated.filter((item) => item.status === 'seleccionado').length;
+      const selected = updated.filter((item) => item.status === 'seleccionado');
+      const count = selected.length;
       setSelectedCount(count);
+      if (onChangeSeats) {
+        onChangeSeats(selected.map((s) => ({ id: s.id, row: s.row, seat: s.seat, fila: `Fila ${s.row}`, asiento: `${s.seat}`, precio: 85.00 })));
+      }
       return updated;
     });
   };
