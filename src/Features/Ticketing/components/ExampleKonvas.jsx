@@ -45,6 +45,9 @@ const ExampleKonvas = () => {
   const [items, setItems] = useState(generateItems());
   const [hoveredSeat, setHoveredSeat] = useState(null);
   const [selectedCount, setSelectedCount] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  
 
   const handleSeatClick = (clickedItem) => {
     if (clickedItem.status === 'ocupado') {
@@ -78,6 +81,12 @@ const ExampleKonvas = () => {
       link.click();
       document.body.removeChild(link);
     }
+  };
+
+  const changeZoom = (factor) => {
+    setZoom((currentZoom) =>
+      Math.min(3, Math.max(0.5, currentZoom * factor))
+    );
   };
 
   return (
@@ -122,7 +131,17 @@ const ExampleKonvas = () => {
 
         <div className="overflow-x-auto">
           <div className="flex justify-center min-w-250">
-            <Stage width={1000} height={500} ref={stageRef}>
+              <div style={{ marginBottom: 8 }}>
+        <button onClick={() => changeZoom(1.2)}>+</button>
+        <button onClick={() => changeZoom(1 / 1.2)}>-</button>
+        <button onClick={() => setZoom(1)}>Reset</button>
+        <span style={{ marginLeft: 8 }}>{Math.round(zoom * 100)}%</span>
+      </div>
+            <Stage width={1000} height={500} ref={stageRef} scaleX={zoom} scaleY={zoom} draggable
+        onDragEnd={(event) =>
+          setPosition({ x: event.target.x(), y: event.target.y() })
+        }
+            >
               <Layer>
                 {/* <Text text="" fontSize={15} /> */}
                 {items.map((item) => (
@@ -166,6 +185,7 @@ const ExampleKonvas = () => {
           <Info className="h-4 w-4" />
           <span>Haz clic en un asiento para seleccionarlo o deseleccionarlo</span>
         </div>
+        
         {selectedCount > 0 && (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-sm font-medium">
             <span>{selectedCount} {selectedCount === 1 ? 'asiento seleccionado' : 'asientos seleccionados'}</span>
