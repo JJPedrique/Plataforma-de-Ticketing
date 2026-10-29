@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, CreditCard, Wallet, Building2, Coins, ShieldCheck, Ticket, Timer, ArrowLeft, Lock } from 'lucide-react';
 import Steps from '../components/Steps';
-import { seedData } from '../../../Data/Mock';
 
 const metodosPago = [
   { id: 'tarjeta', nombre: 'Tarjeta de crédito/débito', icon: CreditCard, descripcion: 'Visa, Mastercard, American Express' },
@@ -11,9 +10,8 @@ const metodosPago = [
   { id: 'paypal', nombre: 'PayPal', icon: Wallet, descripcion: 'Cuenta PayPal o saldo' },
 ];
 
-function RealizarPago({ onReservar }) {
-  const event = seedData.events.find(v => v.id === 1);
-  const venue = seedData.venues.find(v => v.id === event?.venue_id);
+function RealizarPago({event, onReservar }) {
+
   const [metodoSeleccionado, setMetodoSeleccionado] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [procesando, setProcesando] = useState(false);
@@ -190,20 +188,20 @@ function RealizarPago({ onReservar }) {
               </h2>
             </div>
             <div className="p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">{event?.title}</h3>
-              <p className="text-sm text-gray-600 mb-3">{event?.description}</p>
+              <h3 className="font-semibold text-gray-900 mb-2">{event?.event.title}</h3>
+              <p className="text-sm text-gray-600 mb-3">{event?.event.description}</p>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2 text-gray-600">
                   <MapPin className="h-4 w-4 text-gray-400" />
-                  <span>{venue?.name} • {venue?.location}</span>
+                  <span>{event?.venue.name} • {event?.venue.location}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-600">
                   <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>{event?.event_date ? new Date(event.event_date).toLocaleDateString('es-ES') : 'N/A'}</span>
+                  <span>{event?.event.event_date ? new Date(event?.event.event_date).toLocaleDateString('es-ES') : 'N/A'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-600">
                   <Clock className="h-4 w-4 text-gray-400" />
-                  <span>{event?.event_date ? event.event_date.slice(11,16) : 'N/A'}</span>
+                  <span>{event?.event.event_date ? event.event.event_date.slice(11,16) : 'N/A'}</span>
                 </div>
               </div>
             </div>
