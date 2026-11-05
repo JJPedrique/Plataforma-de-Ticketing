@@ -1,79 +1,50 @@
-import React, { useEffect, useState, useRef } from 'react';
-
-export default function AnimatedWaveBackground({ children }) {
-  const [time, setTime] = useState(0);
-
-  useEffect(() => {
-    let animationFrameId;
-    const animate = () => {
-      setTime((prev) => prev + 0.03);
-      animationFrameId = requestAnimationFrame(animate);
-    };
-    animate();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, []);
-
-  const generatePath = (layerIndex) => {
-    const width = 1440;
-    const height = 600;
-    const points = [];
-    const step = 15;
-    const layerOffset = layerIndex * 1.5;
-    const amp = 23 * (1 - layerIndex * 0.15);
-    const freq = 0.009 * (1 + layerIndex * 0.2);
-    const speed = 3;
-    const isUp = 'up' === 'up';
-
-    const baseHeight = isUp 
-      ? height - (layerIndex + 1) * (height / (2 + 2))
-      : (layerIndex + 1) * (height / (2 + 2));
-
-    for (let x = 0; x <= width + step; x += step) {
-      const y = baseHeight + 
-        Math.sin(x * freq + time * speed * 0.05 + layerOffset) * amp +
-        Math.cos((x * freq * 0.5) - time * speed * 0.03) * (amp * 0.5);
-      points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
-    }
-
-    return isUp
-      ? `M 0,${height} L ${points.join(' L ')} L ${width},${height} Z`
-      : `M 0,0 L ${points.join(' L ')} L ${width},0 Z`;
-  };
-
-  const waveColors = ["#ffa200","#ffc800"];
-
+const AnimatedWaveBackground = ({children}) => {
   return (
-    <div className="relative min-h-dvh w-full">
-      <div className="fixed inset-0 w-screen h-screen overflow-hidden -z-10" style={{ backgroundColor: '#ffeed6' }}>
-        {/* SVG Wave Background */}
-        <div className="absolute inset-0 w-full h-full">
-          <svg
-            className="w-full h-full"
-            viewBox="0 0 1440 600"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              {waveColors.map((color, i) => (
-                <linearGradient key={i} id={`wave-grad-${i}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor={color} stopOpacity="1" />
-                  <stop offset="100%" stopColor={color} stopOpacity="0.7" />
-                </linearGradient>
-              ))}
-            </defs>
-            {waveColors.map((_, i) => (
-              <path
-                key={i}
-                d={generatePath(i)}
-                fill={`url(#wave-grad-${i})`}
-                className="transition-all duration-75 ease-linear"
-              />
-            ))}
-          </svg>
-        </div>
+    <>
+    <div className="fixed top-1/2 left-1/2 w-full h-full">
+      <style>
+        {`
+          .wave-pattern,
+          .before-wave-pattern::before {
+            background-color: #fffadb;
+            background-image: 
+              url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='198'%3e%3cdefs%3e%3clinearGradient id='a' x1='50%25' x2='50%25' y1='-10.959%25' y2='100%25'%3e%3cstop stop-color='%23fcc900' stop-opacity='.25' offset='0%25'/%3e%3cstop stop-color='%23fcc900' offset='100%25'/%3e%3c/linearGradient%3e%3c/defs%3e%3cpath fill='url(%23a)' fill-rule='evenodd' d='M.005 121C311 121 409.898-.25 811 0c400 0 500 121 789 121v77H0s.005-48 .005-77z'/%3e%3c/svg%3e"),
+              url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='198'%3e%3cdefs%3e%3clinearGradient id='a' x1='50%25' x2='50%25' y1='-10.959%25' y2='100%25'%3e%3cstop stop-color='%23fcc900' stop-opacity='.25' offset='0%25'/%3e%3cstop stop-color='%23fcc900' offset='100%25'/%3e%3c/linearGradient%3e%3c/defs%3e%3cpath fill='url(%23a)' fill-rule='evenodd' d='M.005 121C311 121 409.898-.25 811 0c400 0 500 121 789 121v77H0s.005-48 .005-77z'/%3e%3c/svg%3e"),
+              url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='198'%3e%3cdefs%3e%3clinearGradient id='a' x1='50%25' x2='50%25' y1='-10.959%25' y2='100%25'%3e%3cstop stop-color='%23fcc900' stop-opacity='.25' offset='0%25'/%3e%3cstop stop-color='%23fcc900' offset='100%25'/%3e%3c/linearGradient%3e%3c/defs%3e%3cpath fill='url(%23a)' fill-rule='evenodd' d='M.005 121C311 121 409.898-.25 811 0c400 0 500 121 789 121v77H0s.005-48 .005-77z'/%3e%3c/svg%3e");
+            background-repeat: repeat-x;
+            background-size: 1600px 50%;
+            background-position: 0 130%, -50px 130%, 500px 130%;
+            animation: 60s waves linear infinite forwards;
+          }
+
+          @keyframes waves {
+            to {background-position: 1600px 130%, 3150px 130%, 5300px 130%;}
+          }
+        `}
+      </style>
+
+      {/* Contenedor principal (.box) */}
+      <div 
+        className="
+          before:absolute before:content-[''] 
+          before:w-full before:h-full
+          before:-translate-x-1/2 before:-translate-y-1/2 
+          before:blur-0 before:opacity-100 
+          before:transition-all before:duration-450 before:ease-[cubic-bezier(0.23,1,0.32,1)]
+        
+          before-wave-pattern
+        "
+      >
+        {/* Contenedor interno (.box-inner) */}
+        <div className="relative w-full h-full wave-pattern"/>
       </div>
-      <div className="relative z-0 min-h-dvh flex flex-col">
+
+    </div>
+     <div className="relative z-0 min-h-dvh flex flex-col">
         {children}
       </div>
-    </div>
+    </>
   );
-}
+};
+
+export default AnimatedWaveBackground;

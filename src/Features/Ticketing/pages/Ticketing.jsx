@@ -1,4 +1,3 @@
-import { MoveLeft, MoveRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SeleccionarEvento from "./SeleccionarEvento";
@@ -15,7 +14,6 @@ function Ticketing() {
 
     const [event,setEvent] = useState(null)
     const [seats,setSeats] = useState([])
-    const [pay,setPay] = useState(null)
 
     useEffect(() => {
         if (!session) {
@@ -30,7 +28,7 @@ function Ticketing() {
     return ( 
         <>
             {tab != 4 && 
-            <div className={`w-full items-center p-5 flex ${tab == 1 ? 'justify-end' : 'justify-between'}`}>
+            <div className={`z-10 w-full items-center p-5 flex ${tab == 1 ? 'justify-end' : 'justify-between'}`}>
                 {tab == 1 && <NextStep isDisabled={!event} LoR={false} Text={"Siguiente"} onClick={() => setTab(tab != 4 ? tab + 1 : tab)}/>}
 
                 {tab == 2 && <>
