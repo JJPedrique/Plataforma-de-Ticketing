@@ -4,7 +4,7 @@ import {seedData} from '../../../Data/Mock'
  
 import FiltroEvento from '../components/FiltrosEvento';
 
-function SeleccionarEvento({selected, onClick}) {
+function SeleccionarEvento({selected, onChangeEvent}) {
 
     const DATA = seedData.events.filter((event) => event.is_active).map((event) => ({
     event: event,venue: seedData.venues.find((venue) => venue.id === event.venue_id)}));

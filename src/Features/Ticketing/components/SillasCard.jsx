@@ -1,6 +1,6 @@
 import { Armchair } from "lucide-react";
 
-function SillasCard() {
+function SillasCard({seat}) {
   return (
     <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-amber-300 hover:shadow-md">
       {/* Icono con contenedor estilizado */}
