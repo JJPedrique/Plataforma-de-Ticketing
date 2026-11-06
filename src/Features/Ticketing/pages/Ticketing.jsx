@@ -16,17 +16,24 @@ function Ticketing() {
     const [seats,setSeats] = useState([])
 
     useEffect(() => {
-        if (!session) {
-            navigate('/IniciarSesion');
-        }
+        if (!session) {navigate('/IniciarSesion');}
     }, [session, navigate]);
 
-    useEffect(() => {
-        setSeats([])
+    useEffect(() => {setSeats([])
     }, [event])
 
-    if (!session) {
-        return null;
+    if (!session) {return null;}
+
+    function onEventChange(event){
+        setEvent((prev) => (prev === event ? null : event));
+        setSeats([]);
+        window.scrollTo({top: 0,behavior: "smooth"});
+    }
+
+    function onSeatsChange(seat,isSelected){
+        if(isSelected){setSeats(prev => [...prev,seat]);
+        }else{setSeats(prev => prev.filter(s => s.id !== seat.id));}
+        window.scrollTo({top: 0,behavior: "smooth"});  
     }
 
     return ( 
@@ -44,13 +51,8 @@ function Ticketing() {
             </div>}
 
             <div className="w-full">
-                {tab == 1? (<SeleccionarEvento selected={event} onClick={(i) => {
-                    if (event && event !== i) {
-                        setSeats([])
-                    }
-                    setEvent((prev) => (prev === i ? null : i))
-                }}/>):
-                tab == 2? ( <SeleccionarAsiento event={event} seats={seats} onChangeSeats={setSeats}/>):
+                {tab == 1? (<SeleccionarEvento event={event} onClick={(i)=>onEventChange(i)}/>):
+                tab == 2? ( <SeleccionarAsiento event={event} seats={seats} onClick={(i,j) => onSeatsChange(i,j)}/>):
                 tab == 3? (<RealizarPago event={event} seats={seats} onReservar={() => setTab(4)} />):
                 (<ReservaCompletada />)}
             </div>

@@ -52,7 +52,7 @@ function Canvas({onClick}) {
                                 ("oklch(72.3% 0.219 149.579)")}`}  
                         x={i.x*48} y={i.y*48} radius={15}
                         style={{ cursor: i.status === 'Ocupado' ? 'not-allowed' : 'pointer' }}
-                        onClick={() => onClick(i) } onTap={() => SelectSeat(i)}/>)}
+                        onClick={() => onClick(i)}/>)}
                 </Layer>
             </Stage>
             </div>

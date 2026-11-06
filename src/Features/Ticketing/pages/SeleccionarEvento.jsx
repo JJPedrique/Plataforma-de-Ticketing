@@ -19,7 +19,7 @@ function SeleccionarEvento({selected, onClick}) {
             {DATA.map((i)=> <EventoCard
                 key={i.event.id} Data={i} 
                 isSelected={i.event.id===selected?.event.id} 
-                onClick={(() => onClick(i))}/>)
+                onClick={(i)=>onClick(i)}/>)
             } 
         </div>
         

@@ -3,14 +3,13 @@ import Steps from '../components/Steps';
 import Canvas from '../components/Canvas';
 import { Armchair } from 'lucide-react';
 
-function SeleccionarAsiento() {
-    const [selectedSeats,setSelectedSeats] = useState([]);
+function SeleccionarAsiento({seats, onClick}) {
     function SelectSeat(seat){
         if(seat.status==="Ocupado"){return;}
-        if(seat.status==="Disponible"){seat.status="Seleccionado";
-            setSelectedSeats(prev => [...prev, seat]);
+        if(seat.status==="Disponible"){seat.status="Seleccionado";            
+            onClick(seat,true);
         }else{seat.status="Disponible";
-            setSelectedSeats(prev => prev.filter(s => s.id !== seat.id));
+            onClick(seat,false);
         }
     }
  
@@ -44,12 +43,12 @@ function SeleccionarAsiento() {
                 </div>
                 </div>
                 
-                <Canvas onClick={SelectSeat}/>
+                <Canvas onClick={(i) => SelectSeat(i)}/>
 
             </div>
             
            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col h-96">
-                {selectedSeats.length === 0 ? (
+                {seats.length === 0 ? (
                     <div className="flex flex-col items-center justify-center gap-3 p-4 h-full">
                         <h3 className="font-semibold text-gray-900">No hay asientos registrados</h3>
                         <hr className="border text-stone-200 w-full" />
@@ -61,7 +60,7 @@ function SeleccionarAsiento() {
                         <h3 className="font-semibold text-gray-900 sticky top-0 bg-white py-1 z-10">Asientos registrados</h3>
                          <hr className="border text-stone-200 w-full" />
                         <div className='flex flex-col gap-3 overflow-y-auto'>
-                            {selectedSeats.map((i) => (
+                            {seats.map((i) => (
                                 <div key={i.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg w-full shrink-0">
                                     <div className="flex items-center gap-2">
                                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
