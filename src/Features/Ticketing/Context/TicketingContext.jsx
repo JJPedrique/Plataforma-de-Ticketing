@@ -1,28 +1,36 @@
 import { createContext, useState } from 'react';
 
-export const ThemeContext = createContext();
+export const TicketingContext = createContext();
 
-export const ThemeProvider = ({ children }) => {
+export const TicketingProvider = ({ children }) => {
     
     const [event,setEvent] = useState(null);
     const [seats,setSeats] = useState([]);
     const [pay, setPay] = useState(null);
 
-    const onEventChange = (event) => {
-        
+    function onEventChange(event){
+        setEvent((prev) => (prev === event ? null : event));
+        setSeats([]);
+        window.scrollTo({top: 0,behavior: "smooth"});
     }
 
-    const onSeatChange = (seat) =>{
-
+    function onSeatChange(seat){
+        if(seat.status==="Ocupado"){return;}
+        if(seat.status==="Disponible"){seat.status="Seleccionado";            
+            setSeats(prev => [...prev,seat]);
+        }else{seat.status="Disponible";
+            setSeats(prev => prev.filter(s => s.id !== seat.id));
+        }
+        window.scrollTo({top: 0,behavior: "smooth"});
     }
-
+    
     const onPayChange = (pay) =>{
 
     }
 
     return (
-        <ThemeContext.Provider value={{ event, seats, pay, onEventChange, onSeatChange, onPayChange }}>
+        <TicketingContext.Provider value={{ event, seats, pay, onEventChange, onSeatChange, onPayChange }}>
             {children}
-        </ThemeContext.Provider>
+        </TicketingContext.Provider>
     );
 };

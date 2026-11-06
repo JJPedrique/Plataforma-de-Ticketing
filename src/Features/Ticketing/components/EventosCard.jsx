@@ -1,17 +1,19 @@
 import { Calendar, Clock, MapPin, Ticket } from 'lucide-react';
+import { useContext } from 'react';
+import { TicketingContext } from '../Context/TicketingContext';
 
-function EventoCard({Data,isSelected,onClick}) {
-    
+function EventoCard({Data}) {
+  const { event, onEventChange } = useContext(TicketingContext);
+
   return (
-    <button 
-      onClick={onClick}
+    <button onClick={() => onEventChange(Data)}
       className={`group relative w-full text-left rounded-2xl border bg-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-        isSelected 
+        Data.event.id===event?.event?.id 
           ? 'border-orange-500 shadow-lg shadow-orange-500/10 ring-2 ring-orange-500/20' 
           : 'border-gray-200 shadow-md hover:border-orange-200'
       }`}
     >
-      {isSelected && (
+      { Data.event.id===event?.event?.id  && (
         <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
           <Ticket className="h-3.5 w-3.5" />
           Seleccionado

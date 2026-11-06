@@ -1,6 +1,7 @@
 import { Minus, Plus, SquareSquare } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { Layer, Stage, Circle } from "react-konva";
+import { TicketingContext } from "../Context/TicketingContext";
 
 function generateItems(width,height) {
     const items = [];
@@ -31,7 +32,8 @@ function Canvas({onClick}) {
         return () => resizeObserver.disconnect();
     },[]);
 
-    const [seats,setSeats] = useState(generateItems(25,10));
+    const [items,setItems] = useState(generateItems(25,10));
+    const {onSeatChange} = useContext(TicketingContext);
 
     return ( <>
         <div className="overflow-x-auto bord">
@@ -45,14 +47,14 @@ function Canvas({onClick}) {
             <div ref={containerRef} className="flex justify-center min-w-250">
             <Stage width={dimensions.width} height={dimensions.height} scaleX={zoom} scaleY={zoom} className="bg-stone-200 rounded" draggable>
                 <Layer>
-                    {seats.map(i =>
+                    {items.map(i =>
                         <Circle key={i.id}
                         fill={`${i.status=="Seleccionado" ? ("oklch(70.5% 0.213 47.604)"): 
                                 i.status=="Ocupado" ? ("oklch(70.7% 0.022 261.325)"): 
                                 ("oklch(72.3% 0.219 149.579)")}`}  
                         x={i.x*48} y={i.y*48} radius={15}
                         style={{ cursor: i.status === 'Ocupado' ? 'not-allowed' : 'pointer' }}
-                        onClick={() => onClick(i)}/>)}
+                        onClick={() => onSeatChange(i)} onTap={() => onSeatChange(i)}/>)}
                 </Layer>
             </Stage>
             </div>

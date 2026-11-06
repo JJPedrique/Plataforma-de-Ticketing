@@ -1,3 +1,5 @@
+import { CreditCard, Wallet, Building2, Coins } from 'lucide-react';
+
 export const seedData = {
   users: [
     { id: 1, name: "Alice Admin", email: "alice@example.com", password_hash: "hash_123", role: "admin", created_at: "2026-01-10T08:00:00Z" },
@@ -94,5 +96,12 @@ export const seedData = {
     { id: 8, reservation_id: 8, event_seat_id: 8 },
     { id: 9, reservation_id: 9, event_seat_id: 9 },
     { id: 10, reservation_id: 10, event_seat_id: 10 }
+  ],
+  metodosPago: [
+  { id: 'tarjeta', nombre: 'Tarjeta de crédito/débito', icon: CreditCard, descripcion: 'Visa, Mastercard, American Express' },
+  { id: 'zelle', nombre: 'Zelle', icon: Wallet, descripcion: 'Transferencia inmediata' },
+  { id: 'pagomovil', nombre: 'Pago Móvil', icon: Building2, descripcion: 'Banco venezolano' },
+  { id: 'binance', nombre: 'Binance Pay', icon: Coins, descripcion: 'Criptomonedas' },
+  { id: 'paypal', nombre: 'PayPal', icon: Wallet, descripcion: 'Cuenta PayPal o saldo' },
   ]
 };

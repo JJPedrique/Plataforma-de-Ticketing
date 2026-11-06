@@ -1,14 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, CreditCard, Wallet, Building2, Coins, ShieldCheck, Ticket, Timer, ArrowLeft, Lock } from 'lucide-react';
+import { Calendar, Clock, MapPin, CreditCard, ShieldCheck, Ticket, Timer, ArrowLeft, Lock } from 'lucide-react';
 import Steps from '../components/Steps';
-
-const metodosPago = [
-  { id: 'tarjeta', nombre: 'Tarjeta de crédito/débito', icon: CreditCard, descripcion: 'Visa, Mastercard, American Express' },
-  { id: 'zelle', nombre: 'Zelle', icon: Wallet, descripcion: 'Transferencia inmediata' },
-  { id: 'pagomovil', nombre: 'Pago Móvil', icon: Building2, descripcion: 'Banco venezolano' },
-  { id: 'binance', nombre: 'Binance Pay', icon: Coins, descripcion: 'Criptomonedas' },
-  { id: 'paypal', nombre: 'PayPal', icon: Wallet, descripcion: 'Cuenta PayPal o saldo' },
-];
+import {seedData} from '../../../Data/Mock';
 
 function RealizarPago({event, seats = [], onReservar }) {
 
@@ -95,7 +88,7 @@ function RealizarPago({event, seats = [], onReservar }) {
               </button>
               <div>
                 <h2 className='font-semibold text-gray-900'>Formulario de pago</h2>
-                <p className="text-sm text-gray-600">Método: {metodosPago.find(m => m.id === metodoSeleccionado)?.nombre}</p>
+                <p className="text-sm text-gray-600">Método: {seedData.metodosPago.find(m => m.id === metodoSeleccionado)?.nombre}</p>
               </div>
             </div>
             <form onSubmit={handleConfirmarPago} className="p-6 space-y-4">
@@ -255,7 +248,7 @@ function RealizarPago({event, seats = [], onReservar }) {
             </div>
             <div className="p-4">
               <div className="space-y-2">
-                {metodosPago.map((metodo) => {
+                {seedData.metodosPago.map((metodo) => {
                   const Icon = metodo.icon;
                   const seleccionado = metodoSeleccionado === metodo.id;
                   return (

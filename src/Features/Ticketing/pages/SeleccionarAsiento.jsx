@@ -1,18 +1,12 @@
-import { useState } from 'react';
 import Steps from '../components/Steps';
 import Canvas from '../components/Canvas';
 import { Armchair } from 'lucide-react';
+import { useContext } from 'react';
+import { TicketingContext } from '../Context/TicketingContext';
 
-function SeleccionarAsiento({seats, onClick}) {
-    function SelectSeat(seat){
-        if(seat.status==="Ocupado"){return;}
-        if(seat.status==="Disponible"){seat.status="Seleccionado";            
-            onClick(seat,true);
-        }else{seat.status="Disponible";
-            onClick(seat,false);
-        }
-    }
- 
+function SeleccionarAsiento() {
+    const {seats} = useContext(TicketingContext);
+
     return ( 
     <>
         <Steps Number='2' Text='Elige tu asiento.' subText='Selecciona los asientos que deseas reservar' />
@@ -21,29 +15,29 @@ function SeleccionarAsiento({seats, onClick}) {
         
             <div className=" bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border-b border-gray-100">
-                <div>
-                    <h3 className="font-semibold text-gray-900">Mapa de asientos</h3>
-                    <p className="text-sm text-gray-600">Selecciona tus asientos haciendo clic sobre ellos</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-4 text-xs">
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                        <span className="text-gray-600">Disponible</span>
+                    <div>
+                        <h3 className="font-semibold text-gray-900">Mapa de asientos</h3>
+                        <p className="text-sm text-gray-600">Selecciona tus asientos haciendo clic sobre ellos</p>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-                        <span className="text-gray-600">Seleccionado</span>
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4 text-xs">
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                            <span className="text-gray-600">Disponible</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-4 h-4 rounded-full bg-orange-500"></div>
+                            <span className="text-gray-600">Seleccionado</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-4 h-4 rounded-full bg-gray-400"></div>
+                            <span className="text-gray-600">Ocupado</span>
+                        </div>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-4 h-4 rounded-full bg-gray-400"></div>
-                        <span className="text-gray-600">Ocupado</span>
-                    </div>
-                    </div>
-                </div>
                 </div>
                 
-                <Canvas onClick={(i) => SelectSeat(i)}/>
+                <Canvas/>
 
             </div>
             
