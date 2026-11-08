@@ -22,3 +22,17 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Ignorar todos los node_modules (raíz y subcarpetas)
+node_modules/
+**/node_modules/
+
+# Archivos de build y caché
+dist/
+**/dist/
+.vite/
+**/.vite/
+
+# Variables de entorno
+.env
+*.env
