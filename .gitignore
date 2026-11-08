@@ -7,10 +7,66 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
+# Node / Frontend (React + Vite)
+node_modules/
+**/node_modules/
+dist/
+**/dist/
 dist-ssr
+.vite/
+**/.vite/
 *.local
+
+# Python / Backend
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / archivos de caché de Python
+__pycache__/
+/**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribución / Empaquetado de Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing / Cobertura en Python (pytest, unittest)
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.nox/
+.hypothesis/
+
+# Jupyter Notebooks y Type Checkers
+.ipynb_checkpoints
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# Base de datos local de pruebas y SQLite
+*.sqlite3
+*.db
 
 # Editor directories and files
 .vscode/*
@@ -23,16 +79,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Ignorar todos los node_modules (raíz y subcarpetas)
-node_modules/
-**/node_modules/
-
-# Archivos de build y caché
-dist/
-**/dist/
-.vite/
-**/.vite/
-
 # Variables de entorno
 .env
 *.env
+!.env.example
