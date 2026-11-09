@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "install:client": "npm install --prefix client",
-    "install:server": "cd server && .\\venv\\Scripts\\python -m pip install -r requirements.txt",
+    "install:server": "python -m venv server/venv && .\\server\\venv\\Scripts\\python.exe -m pip install -r server/requirements.txt",
     "install": "concurrently \"npm run install:client\" \"npm run install:server\"",
     "dev:client": "npm run dev --prefix client",
     "dev:server": "cd server && .\\venv\\Scripts\\uvicorn main:app --reload",
