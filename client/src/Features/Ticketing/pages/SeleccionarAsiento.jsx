@@ -11,7 +11,7 @@ function SeleccionarAsiento() {
     <>
         <Steps Number='2' Text='Elige tu asiento.' subText='Selecciona los asientos que deseas reservar' />
  
-        <div className='grid md:grid-cols-2 gap-4'>
+        <div className='grid lg:grid-cols-2 gap-4'>
         
             <div className=" bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border-b border-gray-100">

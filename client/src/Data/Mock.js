@@ -105,3 +105,7 @@ export const seedData = {
   { id: 'paypal', nombre: 'PayPal', icon: Wallet, descripcion: 'Cuenta PayPal o saldo' },
   ]
 };
+
+export const seedData2 = {
+  
+};
