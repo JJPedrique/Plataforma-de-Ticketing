@@ -14,14 +14,10 @@ export const TicketingProvider = ({ children }) => {
         window.scrollTo({top: 0,behavior: "smooth"});
     }
 
-    function onSeatChange(seat){
-        if(seat.status==="Ocupado"){return;}
-        if(seat.status==="Disponible"){seat.status="Seleccionado";            
-            setSeats(prev => [...prev,seat]);
-        }else{seat.status="Disponible";
-            setSeats(prev => prev.filter(s => s.id !== seat.id));
-        }
-        window.scrollTo({top: 0,behavior: "smooth"});
+    function onSeatChange(zone, seat) {
+        if (!seats.some(s => s.seat.id === seat.id)) {setSeats(prev => [...prev, { zone: zone.name, seat: seat }]);
+        } else {setSeats(prev => prev.filter(s => s.seat.id !== seat.id));}
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }
     
     const onPayChange = (pay) =>{

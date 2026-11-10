@@ -2,18 +2,18 @@ import { Calendar, Clock, MapPin, Ticket } from 'lucide-react';
 import { useContext } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
 
-function EventoCard({Data}) {
+function EventoCard({Data, isDisabled=false}) {
   const { event, onEventChange } = useContext(TicketingContext);
 
   return (
-    <button onClick={() => onEventChange(Data)}
+    <button disabled={isDisabled} onClick={() => onEventChange(Data)}
       className={`group relative w-full text-left rounded-2xl border bg-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-        Data.event.id===event?.event?.id 
+        Data.id===event?.id 
           ? 'border-orange-500 shadow-lg shadow-orange-500/10 ring-2 ring-orange-500/20' 
           : 'border-gray-200 shadow-md hover:border-orange-200'
       }`}
     >
-      { Data.event.id===event?.event?.id  && (
+      { Data.id===event?.id  && (
         <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
           <Ticket className="h-3.5 w-3.5" />
           Seleccionado
@@ -30,7 +30,7 @@ function EventoCard({Data}) {
 
       <div className="p-5">
         <h3 className="text-lg font-bold tracking-tight text-gray-900 line-clamp-2 mb-2 group-hover:text-orange-600 transition-colors">
-          {Data.event.title}
+          {Data.title}
         </h3>
 
         <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
@@ -41,16 +41,16 @@ function EventoCard({Data}) {
         <div className="flex items-center gap-4 text-xs text-gray-600 mb-3">
           <div className="flex items-center gap-1.5">
             <Calendar className="h-3.5 w-3.5 text-gray-400" />
-            <span>{Data.event.event_date ? Data.event.event_date.slice(0,10).split('-').reverse().join('/') : 'N/A'}</span>
+            <span>{Data.start_date ? Data.start_date.slice(0,10).split('-').reverse().join('/') : 'N/A'}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5 text-gray-400" />
-            <span>{Data.event.event_date ? Data.event.event_date.slice(11,16) : 'N/A'}</span>
+            <span>{Data.start_date ? Data.start_date.slice(11,16) : 'N/A'}</span>
           </div>
         </div>
 
         <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-          {Data.event.description}
+          {Data.description}
         </p>
       </div>
     </button>

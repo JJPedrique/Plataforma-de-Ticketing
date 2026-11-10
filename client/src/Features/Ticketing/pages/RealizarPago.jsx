@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, CreditCard, ShieldCheck, Ticket, Timer, ArrowLeft, Lock } from 'lucide-react';
 import Steps from '../components/Steps';
 import {seedData} from '../../../Data/Mock';
+import EventoCard from '../components/EventoCard';
+import SillasCard from '../components/SillaCard';
 
 function RealizarPago({event, seats = [], onReservar }) {
 
@@ -173,32 +175,7 @@ function RealizarPago({event, seats = [], onReservar }) {
 
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-gray-100">
-              <h2 className='font-semibold text-gray-900 flex items-center gap-2'>
-                <Calendar className="h-4 w-4 text-orange-500" />
-                Datos del evento
-              </h2>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">{event?.event.title}</h3>
-              <p className="text-sm text-gray-600 mb-3">{event?.event.description}</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span>{event?.venue.name} • {event?.venue.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>{event?.event.event_date ? new Date(event?.event.event_date).toLocaleDateString('es-ES') : 'N/A'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Clock className="h-4 w-4 text-gray-400" />
-                  <span>{event?.event.event_date ? event.event.event_date.slice(11,16) : 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <EventoCard Data={event} isDisabled={true}/>
 
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-100">
@@ -208,16 +185,8 @@ function RealizarPago({event, seats = [], onReservar }) {
               </h2>
             </div>
             <div className="p-4">
-              <div className={`${asientosSeleccionados.length > 6 ? 'max-h-65 overflow-y-auto pr-1' : ''} space-y-2 mb-4`}>
-                {asientosSeleccionados.map((asiento, idx) => (
-                  <div key={asiento.id || idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-sm text-gray-900">{asiento.fila || `Fila ${asiento.row}`} - {asiento.asiento || `Asiento ${asiento.seat}`}</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">${(asiento.precio || 85).toFixed(2)}</span>
-                  </div>
-                ))}
+              <div className={`${seats.length > 6 ? 'max-h-65 overflow-y-auto pr-1' : ''} space-y-2 mb-4`}>
+                {seats.map(i => <SillasCard key={i} Data={i}/>)}
               </div>
               <div className="pt-3 border-t border-gray-100 space-y-2">
                 <div className="flex justify-between text-sm text-gray-600">

@@ -1,11 +1,15 @@
 import Steps from '../components/Steps';
 import Canvas from '../components/Canvas';
 import { Armchair } from 'lucide-react';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
+import { GetSeatsById } from '../services/Asientos';
+import SillasCard from '../components/SillaCard';
 
 function SeleccionarAsiento() {
-    const {seats} = useContext(TicketingContext);
+    const {event,seats} = useContext(TicketingContext);
+
+    const [EventSeats,setSeats] = useState(GetSeatsById(event.id));
 
     return ( 
     <>
@@ -37,7 +41,7 @@ function SeleccionarAsiento() {
                     </div>
                 </div>
                 
-                <Canvas/>
+                <Canvas Data={EventSeats}/>
 
             </div>
             
@@ -54,18 +58,7 @@ function SeleccionarAsiento() {
                         <h3 className="font-semibold text-gray-900 sticky top-0 bg-white py-1 z-10">Asientos registrados</h3>
                          <hr className="border text-stone-200 w-full" />
                         <div className='flex flex-col gap-3 overflow-y-auto'>
-                            {seats.map((i) => (
-                                <div key={i.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg w-full shrink-0">
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
-                                            <Armchair className="size-6" />
-                                        </div>
-                                        <span className="text-sm text-gray-900">
-                                            Fila {i.y} - Asiento {i.x}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
+                            {seats.map((i) => (<SillasCard key={i} Data={i}/>))}
                         </div>
                     </div>
                 )}
