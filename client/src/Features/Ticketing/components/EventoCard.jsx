@@ -35,7 +35,7 @@ function EventoCard({Data, isDisabled=false}) {
 
         <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
           <MapPin className="h-4 w-4 text-orange-500 shrink-0" />
-          <span className="truncate">{Data.venue?.name} • {Data.venue?.location}</span>
+          <span className="truncate">{Data.venue?.name} • {Data.venue?.address}</span>
         </div>
 
         <div className="flex items-center gap-4 text-xs text-gray-600 mb-3">
@@ -45,7 +45,8 @@ function EventoCard({Data, isDisabled=false}) {
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5 text-gray-400" />
-            <span>{Data.start_date ? Data.start_date.slice(11,16) : 'N/A'}</span>
+            <span>{Data.start_date ? Data.start_date.slice(11,16) : 'N/A'}</span>-
+            <span>{Data.end_date ? Data.end_date.slice(11,16) : 'N/A'}</span>
           </div>
         </div>
 

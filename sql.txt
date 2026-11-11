@@ -1,0 +1,48 @@
+1. Seleccionar Evento
+
+SELECT e.id EventId, v.id VenueId, e.title Event,e.description Description,e.start_date Start,e.end_date End,
+    v.name Venue, v.address Address, v.city City, v.img_url Image
+FROM Events e
+JOIN Venues v ON e.venue_id = v.id
+
+2. Seleccionar Asiento
+
+SELECT s.id SeatId, s.row_label Row, s.seat_number Number, s.coord_x X, s.coord_y Y,
+    z.name Zone, z.color_code Color, ep.price Price
+FROM Seats s
+JOIN Zones z ON s.zone_id = z.id
+JOIN EventPricing ep ON ep.zone_id = z.id
+WHERE z.venue_id == [EVENTS.VenueId] AND ep.event_id == [EVENTS.EventId] 
+
+2.1 Se reserva la orden
+
+DECLARE SeatReserved INT;
+
+SELECT t.seat_id INTO SeatReserved
+FROM Tickets t
+JOIN Orders o ON t.order_id = o.id
+WHERE t.event_id = [EVENTS.EventId] AND o.status IN ("pending","completed") AND s.seat_id in ([SEATS.ids])
+LIMIT 1
+
+IF SeatReserved IS NULL THEN
+	INSERT INTO Orders (user_id,total_amount, status)
+	VALUES (user_id,total_amount, "pending")
+ENF IF;
+
+3. Seleccionar Metodo Pago
+
+SELECT pm.id PayId, pm.name, pm.description
+FROM PayMethods pm
+
+4. Se Completa la orden
+
+	UPDATE Orders o
+	SET o.status = "completed"
+	WHERE  
+
+
+Enum order_status
+	pending
+	completed
+	failed
+	refunded
