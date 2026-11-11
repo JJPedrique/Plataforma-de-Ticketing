@@ -40,7 +40,7 @@ function Modal({ isOpen, onClose, title, children, footer, preventCloseOnOverlay
                 </div>
 
                 <div className="px-6 py-4 overflow-y-auto max-h-[60vh]">{children}</div>
-                {footer && (<div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-3 rounded-b-xl">{footer}</div>)}
+                {footer && (<div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-center gap-3 rounded-b-xl">{footer}</div>)}
             </div>
         </div> 
     );

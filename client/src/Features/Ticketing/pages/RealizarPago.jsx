@@ -1,19 +1,35 @@
-import { useState, useEffect, useContext } from 'react';
-import { CreditCard, ShieldCheck, Ticket, } from 'lucide-react';
+import { useState, useContext } from 'react';
+import { CreditCard, Ticket, } from 'lucide-react';
 import Steps from '../components/Steps';
 import EventoCard from '../components/EventoCard';
 import SillasCard from '../components/SillaCard';
 import { TicketingContext } from '../Context/TicketingContext';
 import PagoCard from '../components/PagoCard';
 import { GetPagosAll } from '../services/Pagos';
+import Modal from '../../../shared/components/Modal';
+import FormCreditCard from '../components/FormCreditCard';
+import FormCriptoCard from '../components/FormCriptoCard';
+import FormWalletCard from '../components/FormWalletCard';
 
 function RealizarPago({ onReservar }) {
   const [payMedthods,setPayMethods] = useState(GetPagosAll());
-  const {event,seats,pay} = useContext(TicketingContext);
+  const {event,seats,pay,onPayChange} = useContext(TicketingContext);
  
   const subtotal = seats.reduce((acc, a) => acc + a.price, 0);
   const comision = subtotal*0.01;
   const total = subtotal + comision;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+
+  function RealizarPago(Pay){
+    onPayChange(Pay);
+    setIsModalOpen(true);
+  }
+
+  function CancelarPago(){
+    onPayChange(null);
+    setIsModalOpen(false);
+  }
 
   return (
     <>
@@ -63,32 +79,29 @@ function RealizarPago({ onReservar }) {
             
             <div className="p-4">
               <div className="space-y-2">
-                {payMedthods.map(method =><PagoCard key={method.id} Data={method}/>)}
+                {payMedthods.map(method => <PagoCard key={method.id} Data={method} onClick={()=>RealizarPago(method)}/>)}
               </div>
-
-              {pay && 
-                <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <ShieldCheck className="h-5 w-5 text-orange-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-orange-900">Pago seguro</p>
-                      <p className="text-xs text-orange-700 mt-1"> Los asientos se mantendrán reservados por 5 minutos una vez iniciado el pago </p>
-                    </div>
-                  </div>
-                </div>
-              }
-
-              <button
-                disabled={!pay}
-                className={`w-full mt-6 py-3 px-4 rounded-xl font-semibold transition-all ${
-                  pay ? 'bg-linear-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}>
-                Continuar con el pago
-              </button>
             </div>
           </div>
         </div>
       </div>
+
+
+      <Modal isOpen={isModalOpen} onClose={()=>CancelarPago()}
+        title={pay?.name} 
+        
+        children={
+          pay?.name === "Tarjetas de Crédito y Débito" ? (<FormCreditCard/>) :
+          pay?.name === "Criptomonedas y Monedas Estables (Stablecoins)" ? (<FormCriptoCard/>) :         
+          pay?.name === "Monederos Digitales y Billeteras (e-Wallets)" ? (<FormWalletCard/>) :         
+          (<h1>Yahany Fia</h1>)}
+        
+        footer={<div>           
+                    <button onClick={onReservar}
+                    className="w-full mt-3 py-3 px-4 rounded-xl font-semibold transition-all bg-linear-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25">
+                      Continuar con el pago
+                    </button>  
+                </div>}/>       
     </>
   );
 }

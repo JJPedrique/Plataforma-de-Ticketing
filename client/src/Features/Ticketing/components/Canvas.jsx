@@ -5,7 +5,6 @@ import { TicketingContext } from "../Context/TicketingContext";
 
 function Canvas({ Data }) {
     const {seats,onSeatChange} = useContext(TicketingContext);
-    console.log(seats);
     
     const containerRef = useRef(null);
     const [zoom, setZoom] = useState(0.5);

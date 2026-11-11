@@ -37,7 +37,7 @@ function ReservaCompletada() {
                         Volver al inicio
                     </Link>
                     <Link 
-                        to="/Cliente/Ticketing" 
+                        to="/Cliente/Ticketing" reloadDocument
                         className="px-6 py-2.5 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
                     >
                         Comprar más boletos

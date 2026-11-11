@@ -107,11 +107,9 @@ const generateMockDB = () => {
 
   // Los IDs de los métodos de pago pasan a ser enteros para cumplir con el 'serial'
   const payMethods = [
-    { id: 1, name: 'Tarjeta de crédito/débito', description: 'Visa, Mastercard, American Express', is_Active: true },
-    { id: 2, name: 'Zelle', description: 'Transferencia inmediata', is_Active: true },
-    { id: 3, name: 'Pago Móvil', description: 'Banco venezolano', is_Active: true },
-    { id: 4, name: 'Binance Pay', description: 'Criptomonedas', is_Active: true },
-    { id: 5, name: 'PayPal', description: 'Cuenta PayPal o saldo', is_Active: true },
+    { id: 1, name: 'Tarjetas de Crédito y Débito', description: 'Visa, Mastercard, American Express', is_Active: true },
+    { id: 2, name: 'Criptomonedas y Monedas Estables (Stablecoins)', description: 'Binance Pay o similares', is_Active: true },
+    { id: 3, name: 'Monederos Digitales y Billeteras (e-Wallets)', description: 'Cuenta PayPal o saldo', is_Active: true },
   ];
 
   return {
