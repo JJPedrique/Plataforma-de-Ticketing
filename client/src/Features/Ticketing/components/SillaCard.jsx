@@ -15,12 +15,13 @@ function SillasCard({Data}) {
           <span className="font-semibold text-slate-800">{Data.zone}</span>
         </div>
 
-        <div className="flex justify-between pt-1 text-slate-600">
+        <div className="flex items-center justify-between pb-1">
           <div>
             <span className="font-medium text-slate-700">Fila: {Data.seat.row_label}</span>
             <span className="text-xs text-slate-400"> - </span>
             <span className="font-medium text-slate-700">Numero: {Data.seat.seat_number}</span>
           </div>
+          <span className="font-semibold text-slate-800">{Data.price.toFixed(2)} $</span>
         </div>
       </div>
     </div>

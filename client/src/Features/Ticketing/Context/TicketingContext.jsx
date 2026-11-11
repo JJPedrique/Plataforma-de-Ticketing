@@ -11,17 +11,15 @@ export const TicketingProvider = ({ children }) => {
     function onEventChange(event){
         setEvent((prev) => (prev === event ? null : event));
         setSeats([]);
-        window.scrollTo({top: 0,behavior: "smooth"});
     }
 
     function onSeatChange(zone, seat) {
-        if (!seats.some(s => s.seat.id === seat.id)) {setSeats(prev => [...prev, { zone: zone.name, seat: seat }]);
+        if (!seats.some(s => s.seat.id === seat.id)) {setSeats(prev => [...prev, { zone: zone.name, price: zone.price ,seat: seat }]);
         } else {setSeats(prev => prev.filter(s => s.seat.id !== seat.id));}
-        window.scrollTo({ top: 0, behavior: "smooth" });
     }
     
     const onPayChange = (pay) =>{
-
+        setPay((prev) => (prev === pay ? null : pay));
     }
 
     return (

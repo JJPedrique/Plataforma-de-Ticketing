@@ -2,7 +2,7 @@ import EventoCard from '../components/EventoCard';
 import Steps from '../components/Steps';
 import FiltroEvento from '../components/FiltrosEvento';
 import { useState } from 'react';
-import { GetEventAll, GetEventByName } from '../services/Evento';
+import { GetEventAll, GetEventByName } from '../services/Eventos';
 
 function SeleccionarEvento() {
 

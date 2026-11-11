@@ -35,7 +35,7 @@ function Ticketing() {
             <div className="w-full">
                 {tab == 1? (<SeleccionarEvento/>):
                 tab == 2? ( <SeleccionarAsiento/>):
-                tab == 3? (<RealizarPago event={event} seats={seats} onReservar={() => setTab(4)} />):
+                tab == 3? (<RealizarPago onReservar={() => setTab(4)} />):
                 (<ReservaCompletada />)}
             </div>
         </>

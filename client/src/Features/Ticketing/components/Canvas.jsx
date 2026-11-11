@@ -5,8 +5,8 @@ import { TicketingContext } from "../Context/TicketingContext";
 
 function Canvas({ Data }) {
     const {seats,onSeatChange} = useContext(TicketingContext);
-
-
+    console.log(seats);
+    
     const containerRef = useRef(null);
     const [zoom, setZoom] = useState(0.5);
     const [dimensions, setDimensions] = useState({ width: 0, height: 400 });
@@ -58,7 +58,7 @@ function Canvas({ Data }) {
                 <Stage width={dimensions.width} height={dimensions.height} scaleX={zoom} scaleY={zoom} className="bg-stone-200 rounded cursor-grab active:cursor-grabbing" draggable>
                     <Layer>
                         {Data.zones.map((zone, index) => (
-                            <Group key={zone.name} x={50} y={index * (getMaxHeight(zone.seats) * SEAT_SPACING + (PADDING * 2) + TITLE_HEIGHT + SEAT_SPACING + ZONE_GAP)}>
+                            <Group key={index} x={50} y={index * (getMaxHeight(zone.seats) * SEAT_SPACING + (PADDING * 2) + TITLE_HEIGHT + SEAT_SPACING + ZONE_GAP)}>
                                 <Rect x={0} y={0} fill="white" cornerRadius={16}
                                     shadowColor="black" shadowBlur={10} shadowOpacity={0.05} shadowOffsetY={4}
                                     width={getMaxWidth(zone.seats) * SEAT_SPACING + (PADDING * 2) + SEAT_SPACING} 
@@ -75,7 +75,7 @@ function Canvas({ Data }) {
                                         x={PADDING + (seat.coord_x * SEAT_SPACING)} 
                                         y={PADDING + TITLE_HEIGHT + (seat.coord_y * SEAT_SPACING)} 
                                         radius={SEAT_RADIUS}
-                                        fill="red" 
+                                        fill={seats.some(mySeat => mySeat.seat.id === seat.id)? "oklch(70.5% 0.213 47.604)":"oklch(72.3% 0.219 149.579)"} 
                                         onClick={() => onSeatChange(zone,seat)} 
                                         onTap={() => onSeatChange(zone,seat)}
                                         
@@ -101,11 +101,10 @@ function Canvas({ Data }) {
                     </Layer>
                 </Stage>
                 {tooltip.show && (
-                    <div className="absolute z-150 pointer-events-none bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap transition-none"
-                        style={{top: tooltip.y + 15, left: tooltip.x + 15,}}>
-                            {tooltip.text}
-                    </div>
-                )}
+                <div className="absolute z-150 pointer-events-none bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap transition-none"
+                    style={{top: tooltip.y + 15, left: tooltip.x + 15,}}>
+                        {tooltip.text}
+                </div>)}
             </div>
         </div>
     );

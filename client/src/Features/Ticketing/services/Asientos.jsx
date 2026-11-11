@@ -16,6 +16,7 @@ export function GetSeatsById(eventId) {
             .filter(zone => zone.venue_id === venue.id)
             .map(zone => ({
                 ...zone,
+                price: BDD.eventsPricing.find(price => price.zone_id == zone.id).price,
                 seats: BDD.seats.filter(seat => seat.zone_id === zone.id)
             }))
     };

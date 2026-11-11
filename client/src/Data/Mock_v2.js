@@ -14,7 +14,7 @@ const generateMockDB = () => {
         email: `${role}${i}@ejemplo.com`,
         password_hash: 'hashed_password_123',
         created_at: new Date().toISOString(),
-        isActive: true 
+        is_Active: true 
       });
       userId++;
     }
@@ -28,8 +28,8 @@ const generateMockDB = () => {
       name: `Lugar de Eventos ${i}`,
       address: `Avenida Principal ${i}`,
       city: 'Maracaibo',
-      svg_layout_url: `https://midominio.com/layouts/venue_${i}.svg`,
-      isActive: true 
+      img_url: `https://midominio.com/layouts/venue_${i}.png`,
+      is_Active: true 
     });
   }
 
@@ -38,14 +38,13 @@ const generateMockDB = () => {
   for (let i = 1; i <= 3; i++) {
     events.push({
       id: i,
-      organizer_id: i + 3, // Asigna los IDs 4, 5 y 6 (que corresponden a los 'organizer')
+      organizer_id: i + 3, // Asigna los IDs 4, 5 y 6 (organizers)
       venue_id: i, // 1 Lugar por evento
       title: `Gran Evento ${i}`,
       description: `Descripción detallada para el evento ${i}`,
       start_date: new Date(Date.now() + 86400000 * i).toISOString(),
       end_date: new Date(Date.now() + 86400000 * i + 10800000).toISOString(),
-      is_published: true,
-      isActive: true 
+      is_Active: true 
     });
   }
 
@@ -62,7 +61,7 @@ const generateMockDB = () => {
         venue_id: venue.id,
         name: zoneNames[z],
         color_code: zoneColors[z],
-        isActive: true 
+        is_Active: true 
       });
     }
   });
@@ -80,8 +79,7 @@ const generateMockDB = () => {
         id: pricingId++,
         event_id: event.id,
         zone_id: zone.id,
-        price: prices[index], // Asigna 100, 50 y 25 respectivamente
-        isActive: true 
+        price: prices[index]
       });
     });
   });
@@ -99,17 +97,25 @@ const generateMockDB = () => {
           zone_id: zone.id,
           row_label: rowLabel,
           seat_number: num.toString(),
-          coord_x: num, // Coordenada X simulada para SVG
-          coord_y: row, // Coordenada Y simulada para SVG
-          is_accessible: num === 1 || num === 25, // Asientos de los extremos accesibles
-          isActive: true 
+          coord_x: num,
+          coord_y: row,
+          is_Active: true 
         });
       }
     }
   });
 
+  // Los IDs de los métodos de pago pasan a ser enteros para cumplir con el 'serial'
+  const payMethods = [
+    { id: 1, name: 'Tarjeta de crédito/débito', description: 'Visa, Mastercard, American Express', is_Active: true },
+    { id: 2, name: 'Zelle', description: 'Transferencia inmediata', is_Active: true },
+    { id: 3, name: 'Pago Móvil', description: 'Banco venezolano', is_Active: true },
+    { id: 4, name: 'Binance Pay', description: 'Criptomonedas', is_Active: true },
+    { id: 5, name: 'PayPal', description: 'Cuenta PayPal o saldo', is_Active: true },
+  ];
+
   return {
-    users, events, eventsPricing, venues, zones, seats,
+    users, events, eventsPricing, venues, zones, seats, payMethods,
     orders: [], // Vacío según el requerimiento
     tickets: [], // Vacío según el requerimiento
   };

@@ -11,6 +11,7 @@ function SeleccionarAsiento() {
 
     const [EventSeats,setSeats] = useState(GetSeatsById(event.id));
 
+
     return ( 
     <>
         <Steps Number='2' Text='Elige tu asiento.' subText='Selecciona los asientos que deseas reservar' />
@@ -58,7 +59,7 @@ function SeleccionarAsiento() {
                         <h3 className="font-semibold text-gray-900 sticky top-0 bg-white py-1 z-10">Asientos registrados</h3>
                          <hr className="border text-stone-200 w-full" />
                         <div className='flex flex-col gap-3 overflow-y-auto'>
-                            {seats.map((i) => (<SillasCard key={i} Data={i}/>))}
+                            {seats.map((i) => (<SillasCard key={i.seat.id} Data={i}/>))}
                         </div>
                     </div>
                 )}
