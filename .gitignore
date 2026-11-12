@@ -63,6 +63,7 @@ MANIFEST
 *.sqlite3
 
 # Editors and operating systems
+.vscode
 .vscode/*
 !.vscode/extensions.json
 .idea/

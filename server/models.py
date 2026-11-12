@@ -15,7 +15,7 @@ class RoleType(enum.Enum):
 
 class OrderStatus(enum.Enum):
     PENDING = "pending"
-    COMPLETED = "completed"
+    COMPLETED = "completed" 
     CANCELLED = "cancelled"
 
 # --- MODELS ---
