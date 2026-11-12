@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { Layout } from '../core/layout/Layout'
 import { NoEncontrada } from '../core/layout/NoEncontrada'
-import App from '../App'
+import App from '../Features/Static/Pages/App'
 import IniciarSesion from '../Features/InicioSesion/Pages/IniciarSesion'
 import Registro from '../Features/InicioSesion/Pages/Registro'
 import RecuperarContrasena from '../Features/InicioSesion/Pages/RecuperarContrasena'

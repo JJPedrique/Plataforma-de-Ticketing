@@ -20,6 +20,18 @@ function Ticketing() {
 
     const { event, seats, pay } = useContext(TicketingContext);
 
+    function Reservar(){
+
+    }
+
+    function Completar(){
+
+    }
+
+    function Cancelar(){
+
+    }
+
     return ( 
         <>   
             {tab != 4 && 
@@ -32,8 +44,8 @@ function Ticketing() {
                 {tab == 3 && <NextStep LoR={true} Text={"Anterior"} onClick={() => setTab(tab != 1 ? tab - 1 : tab)}/>}                
             </div>}
 
-            <div className="w-full">
-                {tab == 1? (<SeleccionarEvento/>):
+            <div className="w-full">{
+                tab == 1? (<SeleccionarEvento/>):
                 tab == 2? ( <SeleccionarAsiento/>):
                 tab == 3? (<RealizarPago onReservar={() => setTab(4)} />):
                 (<ReservaCompletada />)}

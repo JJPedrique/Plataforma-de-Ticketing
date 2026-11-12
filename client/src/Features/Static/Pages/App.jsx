@@ -3,7 +3,6 @@ import {
   TicketCheck, Calendar, MapPin, ArrowRight, Zap, 
   Search, ShieldCheck, Smartphone, CheckCircle2, Users, Music
 } from "lucide-react";
-import './App.css'
 
 function App() {
   return (

@@ -39,8 +39,8 @@ function RealizarPago({ onReservar }) {
       </div>
 
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+
         <div className="lg:col-span-1 space-y-4">
-          
           <EventoCard Data={event} isDisabled={true}/>
 
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
@@ -69,7 +69,7 @@ function RealizarPago({ onReservar }) {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden h-full">
             <div className="p-4 border-b border-gray-100">
               <h2 className='font-semibold text-gray-900 flex items-center gap-2'>
                 <CreditCard className="h-4 w-4 text-orange-500" />Método de pago
@@ -82,6 +82,11 @@ function RealizarPago({ onReservar }) {
                 {payMedthods.map(method => <PagoCard key={method.id} Data={method} onClick={()=>RealizarPago(method)}/>)}
               </div>
             </div>
+            <div className="p-4 flex justify-center w-full">
+              <span className='border-t w-75 flex justify-center text-stone-300'>
+                more comming soon...
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -91,17 +96,10 @@ function RealizarPago({ onReservar }) {
         title={pay?.name} 
         
         children={
-          pay?.name === "Tarjetas de Crédito y Débito" ? (<FormCreditCard/>) :
-          pay?.name === "Criptomonedas y Monedas Estables (Stablecoins)" ? (<FormCriptoCard/>) :         
-          pay?.name === "Monederos Digitales y Billeteras (e-Wallets)" ? (<FormWalletCard/>) :         
-          (<h1>Yahany Fia</h1>)}
-        
-        footer={<div>           
-                    <button onClick={onReservar}
-                    className="w-full mt-3 py-3 px-4 rounded-xl font-semibold transition-all bg-linear-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25">
-                      Continuar con el pago
-                    </button>  
-                </div>}/>       
+          pay?.name === "Tarjetas de Crédito y Débito" ? (<FormCreditCard onReservar={onReservar}/>) :
+          pay?.name === "Criptomonedas y Monedas Estables (Stablecoins)" ? (<FormCriptoCard onReservar={onReservar}/>) :         
+          pay?.name === "Monederos Digitales y Billeteras (e-Wallets)" ? (<FormWalletCard onReservar={onReservar}/>) :         
+          (<h1>Yahany Fia</h1>)}/>       
     </>
   );
 }
