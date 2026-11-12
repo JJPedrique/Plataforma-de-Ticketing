@@ -27,7 +27,10 @@ LIMIT 1
 IF SeatReserved IS NULL THEN
 	INSERT INTO Orders (user_id,total_amount, status)
 	VALUES (user_id,total_amount, "pending")
+	RETURN [ORDERS CREADA.id]
 ENF IF;
+
+RETURN -1;
 
 3. Seleccionar Metodo Pago
 
@@ -38,11 +41,4 @@ FROM PayMethods pm
 
 	UPDATE Orders o
 	SET o.status = "completed"
-	WHERE  
-
-
-Enum order_status
-	pending
-	completed
-	failed
-	refunded
+	WHERE o.id = [ORDERS CREADA.ID]

@@ -164,7 +164,7 @@ function App() {
             </ul>
           </div>
           <div className="w-full md:w-1/2">
-            <div className="relative aspect-square md:aspect-4/3 rounded-2xl bg-linear-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-xl flex items-center justify-center overflow-hidden">
+            <div className="relative aspect-square md:aspect-4/3 rounded-2xl bg-linear-to-br from-orange-100 to-orange-100 shadow-xl flex items-center justify-center overflow-hidden">
                {/* Simulación de un teléfono o pantalla segura */}
               <div className="absolute inset-x-8 inset-y-12 bg-gray-100 rounded-3xl shadow-2xl flex flex-col items-center justify-center p-6">
                 <ShieldCheck className="h-16 w-16 text-green-500 mb-4" />
