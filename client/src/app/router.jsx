@@ -15,6 +15,7 @@ import Politicas from '../Features/Static/Pages/Politicas'
 import AcercaDeNosotros from '../Features/Static/Pages/AcercaDeNosotros'
 import PreguntasFrecuentes from '../Features/Static/Pages/PreguntasFrecuentes'
 import Contacto from '../Features/Static/Pages/Contacto'
+import Perfil from '../Features/Usuarios/Pages/Perfil'
 
 // M8 · El mapa de la app: qué componente se pinta para cada URL (como app.routes.ts en Angular)
 export const router = createBrowserRouter([
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
       { path: '/AcercaDeNosotros', Component: AcercaDeNosotros },
       { path: '/PreguntasFrecuentes', Component: PreguntasFrecuentes },
       { path: '/Contacto', Component: Contacto },
+      { path: '/Perfil', Component: Perfil },
       { path: '*', Component: NoEncontrada }, // 404: cualquier ruta que no coincida
     ],
   },

@@ -24,7 +24,7 @@ export const authService = {
 
   login: (email, password) => {
     const user = getUsuarioByEmail(email);
-    if (!user) {
+    if (!user || user.is_active === false) {
       throw new Error('Credenciales inválidas');
     }
     if (!password || password.length < 4) {
@@ -35,6 +35,7 @@ export const authService = {
       name: user.name,
       email: user.email,
       role: user.role,
+      is_active: user.is_active !== false,
       token: `mock-token-${user.id}-${Date.now()}`,
       expiresAt: Date.now() + 1000 * 60 * 60 * 24, // 24 horas
     };
@@ -57,6 +58,7 @@ export const authService = {
       email,
       password_hash: `hash_${Date.now()}`,
       role: 'client',
+      is_active: true,
       created_at: new Date().toISOString(),
     };
     usuarios.push(newUser);
@@ -65,6 +67,7 @@ export const authService = {
       name: newUser.name,
       email: newUser.email,
       role: newUser.role,
+      is_active: true,
       token: `mock-token-${newUser.id}-${Date.now()}`,
       expiresAt: Date.now() + 1000 * 60 * 60 * 24,
     };
@@ -112,7 +115,39 @@ export const authService = {
       localStorage.removeItem(SESSION_KEY);
       return null;
     }
+    const user = usuarios.find((u) => u.id === parsed.id);
+    if (user && user.is_active === false) {
+      localStorage.removeItem(SESSION_KEY);
+      return null;
+    }
     return parsed;
+  },
+
+  updateProfile: ({ name }) => {
+    const session = authService.getSession();
+    if (!session) throw new Error('No hay sesión activa');
+    const trimmedName = (name || '').trim();
+    if (!trimmedName) throw new Error('El nombre es obligatorio');
+
+    const user = usuarios.find((u) => u.id === session.id);
+    if (user) {
+      user.name = trimmedName;
+    }
+
+    const updatedSession = { ...session, name: trimmedName };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(updatedSession));
+    return updatedSession;
+  },
+
+  deactivateAccount: () => {
+    const session = authService.getSession();
+    if (!session) throw new Error('No hay sesión activa');
+    const user = usuarios.find((u) => u.id === session.id);
+    if (user) {
+      user.is_active = false;
+    }
+    localStorage.removeItem(SESSION_KEY);
+    return { success: true };
   },
 
   logout: () => {

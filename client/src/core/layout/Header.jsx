@@ -138,6 +138,14 @@ function Header() {
                       </div>
                     </div>
                     <div className="py-1">
+                      <Link
+                        to="/Perfil"
+                        onClick={() => setShowMenu(false)}
+                        className="w-full px-4 py-2 flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>Ver perfil</span>
+                      </Link>
                       {session.role === 'client' && (
                         <Link
                           to="/Cliente/Historial"
