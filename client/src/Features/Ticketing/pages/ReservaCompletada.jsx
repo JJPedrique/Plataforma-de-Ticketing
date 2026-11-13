@@ -1,7 +1,7 @@
 import { CheckCircle, Mail, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function ReservaCompletada() {
+function ReservaCompletada({Repetir}) {
     return ( 
         <>
             <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
@@ -36,12 +36,12 @@ function ReservaCompletada() {
                     >
                         Volver al inicio
                     </Link>
-                    <Link 
-                        to="/Cliente/Ticketing" reloadDocument
+                    <button 
+                        onClick={Repetir}
                         className="px-6 py-2.5 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
                     >
                         Comprar más boletos
-                    </Link>
+                    </button>
                 </div>
             </div>        
         </> 

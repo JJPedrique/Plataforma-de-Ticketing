@@ -30,31 +30,22 @@ function Ticketing() {
         setIdOrder(orderID);
         seats.map(s => AddTikets({event_id:event.id,order_id:orderID,seat_id:s.seat.id}));
         setTab(3);
-
-        console.log(BDD.orders)
-        console.log(BDD.tickets)
     }
 
     function Completar(){
         console.log("Completado");
         UpdateOrden(idOrder,"completed");
-        setReset(); setTab(1);
-
-        console.log(BDD.orders)
-        console.log(BDD.tickets)
+        setReset(); setTab(4);
     }
 
     function Cancelar(){
         console.log("Cancelado");
         UpdateOrden(idOrder,"cancelled");    
         setTab(2);
-
-        console.log(BDD.orders)
-        console.log(BDD.tickets)
     }
 
     function Reset(){
-        reset();
+        setReset();
         setTab(1);
     }
 
@@ -74,7 +65,7 @@ function Ticketing() {
                 tab == 1? (<SeleccionarEvento/>):
                 tab == 2? ( <SeleccionarAsiento/>):
                 tab == 3? (<RealizarPago onReservar={Completar}/>):
-                (<ReservaCompletada/>)}
+                (<ReservaCompletada Repetir={Reset}/>)}
             </div>
         </>
     );
