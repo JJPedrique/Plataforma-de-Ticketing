@@ -1,16 +1,14 @@
 import { Minus, Plus, SquareSquare } from "lucide-react";
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Layer, Stage, Circle, Text, Group, Rect } from "react-konva";
-import { TicketingContext } from "../Context/TicketingContext";
 
-function Canvas({ Data }) {
-    const {seats,onSeatChange} = useContext(TicketingContext);
-    
+function Canvas({ Data,Blocked, seats, onSeatChange}) {
+  
     const containerRef = useRef(null);
     const [zoom, setZoom] = useState(0.5);
     const [dimensions, setDimensions] = useState({ width: 0, height: 400 });
     const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, text: "" });
-
+ 
     useEffect(() => {
         const updateDimensions = () => {
             if (containerRef.current) {
@@ -70,30 +68,56 @@ function Canvas({ Data }) {
                                 />
 
                                 {zone.seats.map(seat => (
-                                    <Circle key={seat.id}
-                                        x={PADDING + (seat.coord_x * SEAT_SPACING)} 
-                                        y={PADDING + TITLE_HEIGHT + (seat.coord_y * SEAT_SPACING)} 
-                                        radius={SEAT_RADIUS}
-                                        fill={seats.some(mySeat => mySeat.seat.id === seat.id)? "oklch(70.5% 0.213 47.604)":"oklch(72.3% 0.219 149.579)"} 
-                                        onClick={() => onSeatChange(zone,seat)} 
-                                        onTap={() => onSeatChange(zone,seat)}
-                                        
-                                        onMouseEnter={(e) => {
-                                            const stage = e.target.getStage();
-                                            stage.container().style.cursor = 'pointer';
-                                            const pos = stage.getPointerPosition();
-                                            setTooltip({ show: true, x: pos.x, y: pos.y, text: zone.name + " - Fila : " + seat.row_label + " - Asiento : " + seat.seat_number });
-                                        }}
-                                        onMouseMove={(e) => {
-                                            const stage = e.target.getStage();
-                                            const pos = stage.getPointerPosition();
-                                            setTooltip(prev => ({ ...prev, x: pos.x, y: pos.y }));
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.target.getStage().container().style.cursor = 'grab';
-                                            setTooltip({ show: false, x: 0, y: 0, text: "" });
-                                        }}
-                                    />
+                                    Blocked.some(b => b.id === seat.id) ? (
+                                        <Circle key={seat.id}
+                                            x={PADDING + (seat.coord_x * SEAT_SPACING)} 
+                                            y={PADDING + TITLE_HEIGHT + (seat.coord_y * SEAT_SPACING)} 
+                                            radius={SEAT_RADIUS}
+    
+                                            fill={"oklch(44.6% 0.03 256.802)"} 
+                                            
+                                            onMouseEnter={(e) => {
+                                                const stage = e.target.getStage();
+                                                stage.container().style.cursor = 'pointer';
+                                                const pos = stage.getPointerPosition();
+                                                setTooltip({ show: true, x: pos.x, y: pos.y, text: zone.name + " - Fila : " + seat.row_label + " - Asiento : " + seat.seat_number });
+                                            }}
+                                            onMouseMove={(e) => {
+                                                const stage = e.target.getStage();
+                                                const pos = stage.getPointerPosition();
+                                                setTooltip(prev => ({ ...prev, x: pos.x, y: pos.y }));
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.target.getStage().container().style.cursor = 'grab';
+                                                setTooltip({ show: false, x: 0, y: 0, text: "" });
+                                            }}
+                                        />) : (
+                                        <Circle key={seat.id}
+                                            x={PADDING + (seat.coord_x * SEAT_SPACING)} 
+                                            y={PADDING + TITLE_HEIGHT + (seat.coord_y * SEAT_SPACING)} 
+                                            radius={SEAT_RADIUS}
+    
+                                            fill={seats.some(mySeat => mySeat.seat.id === seat.id)? "oklch(70.5% 0.213 47.604)":"oklch(72.3% 0.219 149.579)"} 
+                                            onClick={() => onSeatChange(zone,seat)} 
+                                            onTap={() => onSeatChange(zone,seat)}
+                                            
+                                            onMouseEnter={(e) => {
+                                                const stage = e.target.getStage();
+                                                stage.container().style.cursor = 'pointer';
+                                                const pos = stage.getPointerPosition();
+                                                setTooltip({ show: true, x: pos.x, y: pos.y, text: zone.name + " - Fila : " + seat.row_label + " - Asiento : " + seat.seat_number });
+                                            }}
+                                            onMouseMove={(e) => {
+                                                const stage = e.target.getStage();
+                                                const pos = stage.getPointerPosition();
+                                                setTooltip(prev => ({ ...prev, x: pos.x, y: pos.y }));
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.target.getStage().container().style.cursor = 'grab';
+                                                setTooltip({ show: false, x: 0, y: 0, text: "" });
+                                            }}
+                                        />
+                                    )
                                 ))}
                             </Group>                        
                         ))}

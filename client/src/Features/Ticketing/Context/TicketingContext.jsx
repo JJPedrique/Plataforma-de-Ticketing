@@ -1,29 +1,48 @@
-import { createContext, useState } from 'react';
+import { createContext, useMemo, useState } from 'react';
 
 export const TicketingContext = createContext();
 
 export const TicketingProvider = ({ children }) => {
-    
-    const [event,setEvent] = useState(null);
-    const [seats,setSeats] = useState([]);
+    const [event, setEvent] = useState(null);
+    const [seats, setSeats] = useState([]);
     const [pay, setPay] = useState(null);
 
-    function onEventChange(event){
-        setEvent((prev) => (prev === event ? null : event));
+    function setReset(){
+        setEvent(null);
+        setSeats([]);
+        setPay(null);
+    }
+
+    function onEventChange(newEvent) {
+        setEvent((prev) => (prev === newEvent ? null : newEvent));
         setSeats([]);
     }
 
     function onSeatChange(zone, seat) {
-        if (!seats.some(s => s.seat.id === seat.id)) {setSeats(prev => [...prev, { zone: zone.name, price: zone.price ,seat: seat }]);
-        } else {setSeats(prev => prev.filter(s => s.seat.id !== seat.id));}
-    }
-    
-    const onPayChange = (pay) =>{
-        setPay((prev) => (prev === pay ? null : pay));
+        setSeats((prev) => {
+            const exists = prev.some((s) => s.seat.id === seat.id);
+            if (exists) {
+                return prev.filter((s) => s.seat.id !== seat.id);
+            }
+            return [...prev, { zone: zone.name, price: zone.price, seat }];
+        });
     }
 
+    const onPayChange = (newPay) => {
+        setPay((prev) => (prev === newPay ? null : newPay));
+    };
+
+    const totalAmount = useMemo(() => {
+        const subtotal = seats.reduce((acc, a) => acc + a.price, 0);
+        const comision = subtotal * 0.01;
+        const total = subtotal + comision;
+        return { subtotal, comision, total };
+    }, [seats]);
+
     return (
-        <TicketingContext.Provider value={{ event, seats, pay, onEventChange, onSeatChange, onPayChange }}>
+        <TicketingContext.Provider
+            value={{ event, seats, pay, totalAmount, onEventChange, onSeatChange, onPayChange, setReset }}
+        >
             {children}
         </TicketingContext.Provider>
     );

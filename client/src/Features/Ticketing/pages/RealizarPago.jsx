@@ -13,12 +13,8 @@ import FormWalletCard from '../components/FormWalletCard';
 
 function RealizarPago({ onReservar }) {
   const [payMedthods,setPayMethods] = useState(GetPagosAll());
-  const {event,seats,pay,onPayChange} = useContext(TicketingContext);
+  const {event,seats,totalAmount,pay,onPayChange} = useContext(TicketingContext);
  
-  const subtotal = seats.reduce((acc, a) => acc + a.price, 0);
-  const comision = subtotal*0.01;
-  const total = subtotal + comision;
-
   const [isModalOpen, setIsModalOpen] = useState(false);  
 
   function RealizarPago(Pay){
@@ -55,13 +51,13 @@ function RealizarPago({ onReservar }) {
               </div>
               <div className="pt-3 border-t border-gray-100 space-y-2">
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Subtotal</span><span>${subtotal.toFixed(2)}</span>
+                  <span>Subtotal</span><span>${totalAmount.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Comisión</span><span>${comision.toFixed(2)}</span>
+                  <span>Comisión</span><span>${totalAmount.comision.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-base font-semibold text-gray-900 pt-2 border-t border-gray-100">
-                  <span>Total a pagar</span><span className="text-orange-600">${total.toFixed(2)}</span>
+                  <span>Total a pagar</span><span className="text-orange-600">${totalAmount.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>

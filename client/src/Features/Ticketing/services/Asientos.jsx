@@ -21,3 +21,21 @@ export function GetSeatsById(eventId) {
             }))
     };
 }
+
+export function GetReservedSeats(eventId) {
+  // 1. Obtener todos los tickets asociados al evento X
+  const eventTickets = BDD.tickets.filter(ticket => ticket.event_id === eventId);
+
+  // 2. Filtrar los tickets cuyas órdenes estén "pending" o "completed"
+  const validTickets = eventTickets.filter(ticket => {
+    const order = BDD.orders.find(o => o.id === ticket.order_id);
+    return order && (order.status === 'pending' || order.status === 'completed');
+  });
+
+  // 3. Mapear los tickets válidos para obtener la información de las sillas
+  const reservedSeats = validTickets
+    .map(ticket => BDD.seats.find(seat => seat.id === ticket.seat_id))
+    .filter(seat => seat !== undefined); // Elimina posibles nulos si hay inconsistencias en los mocks
+
+  return reservedSeats;
+}

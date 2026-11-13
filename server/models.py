@@ -89,7 +89,7 @@ class Order(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     total_amount: Mapped[Optional[Decimal]] = mapped_column(Numeric(10, 2))
     status: Mapped[Optional[OrderStatus]] = mapped_column(Enum(OrderStatus))
-    pay_method_id: Mapped[int] = mapped_column(ForeignKey("pay_methods.id"), nullable=False)
+    pay_method_id: Mapped[int] = mapped_column(ForeignKey("pay_methods.id"), nullable=True)
     pay_methods_ref: Mapped[Optional[str]] = mapped_column(String(100))
     created_at: Mapped[Optional[datetime]] = mapped_column(DateTime, default=datetime.utcnow)
 

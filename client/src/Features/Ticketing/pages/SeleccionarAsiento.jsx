@@ -3,14 +3,14 @@ import Canvas from '../components/Canvas';
 import { Armchair } from 'lucide-react';
 import { useContext, useState } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
-import { GetSeatsById } from '../services/Asientos';
+import { GetReservedSeats, GetSeatsById } from '../services/Asientos';
 import SillasCard from '../components/SillaCard';
 
 function SeleccionarAsiento() {
-    const {event,seats} = useContext(TicketingContext);
+    const {event,seats,onSeatChange} = useContext(TicketingContext);
 
     const [EventSeats,setSeats] = useState(GetSeatsById(event.id));
-
+    const [reservedSeats,setReservedSeats] = useState(GetReservedSeats(event.id));
 
     return ( 
     <>
@@ -42,7 +42,7 @@ function SeleccionarAsiento() {
                     </div>
                 </div>
                 
-                <Canvas Data={EventSeats}/>
+                <Canvas Data={EventSeats} Blocked={reservedSeats} seats={seats} onSeatChange={onSeatChange}/>
 
             </div>
             
