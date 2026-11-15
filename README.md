@@ -1,28 +1,51 @@
 # Plataforma de Ticketing
 
-### Requerimientos funcionales
-<ol>
-    <li>Iniciar Sesion</li>
-    <ul>
-        <li>Registrar Cuenta</li>
-    </ul> 
-    <li>Gestor de lugar (venues)</li>
-    <ul>
-        <li>Gestor de zonas</li>
-        <li>Gestor de sillas</li>
-    </ul>
-    <li>Gestor de eventos (event)</li>
-    <ul>
-        <li>Gestor de precios por zona del evento</li>
-    </ul>    
-    <li>Ticketing</li>
-    <ul>
-        <li>Elegir evento</li>
-        <li>Elegir sillas</li>
-        <li>Elegir metodo de Pago</li>
-    </ul> 
-</ol>
+![Estado de CI](https://img.shields.io/badge/CI-no_configurado-lightgrey)
+![Pruebas](https://img.shields.io/badge/tests-no_configurados-lightgrey)
+![Cobertura](https://img.shields.io/badge/coverage-no_disponible-lightgrey)
+![Licencia](https://img.shields.io/badge/license-no_especificada-lightgrey)
 
-### BDD
+Plataforma web para gestionar eventos y sus recintos y para ofrecer un flujo de selección de asientos y compra de entradas. Reúne en un mismo proyecto una interfaz React y una API basada en FastAPI.
 
-<img src="Tiketing.png">
+## Tabla de contenidos
+
+- [Características principales](#características-principales)
+- [Stack tecnológico](#stack-tecnológico)
+- [Requisitos previos e instalación](#requisitos-previos-e-instalación)
+- [Variables de entorno y configuración](#variables-de-entorno-y-configuración)
+- [Uso y guía rápida](#uso-y-guía-rápida)
+- [Pruebas](#pruebas)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Contribución y licencia](#contribución-y-licencia)
+
+## Características principales
+
+- Registro, inicio de sesión, recuperación de contraseña y gestión de perfil.
+- Gestión de eventos y precios asociados a zonas.
+- Organización de recintos, zonas y asientos.
+- Flujo de compra con selección de evento, asiento y método de pago.
+- Consulta del historial de entradas.
+- Interfaz con rutas protegidas según autenticación y rol.
+
+## Stack tecnológico
+
+- **Backend:** Python, FastAPI, SQLAlchemy, Pydantic.
+- **Frontend:** React, Vite, React Router, Tailwind CSS, Konva y Axios.
+- **Base de datos:** PostgreSQL mediante Psycopg.
+- **DevOps y herramientas:** npm, entornos virtuales de Python y Oxlint.
+
+## Requisitos previos e instalación
+
+Necesitas Git, Node.js 20.19+ (o 22.12+), npm, Python 3.10+ y una instancia de PostgreSQL disponible. Docker no es necesario para la configuración actual del proyecto.
+
+Clona el repositorio e instala las dependencias:
+
+```bash
+git clone https://github.com/JJPedrique/Plataforma-de-Ticketing.git
+cd Plataforma-de-Ticketing
+
+npm install --prefix client
+
+python -m venv server/venv
+source server/venv/bin/activate
+python -m pip install -r server/requirements.txt
