@@ -4,25 +4,14 @@ import SeleccionarEvento from "./SeleccionarEvento";
 import SeleccionarAsiento from "./SeleccionarAsiento";
 import RealizarPago from "./RealizarPago";
 import ReservaCompletada from "./ReservaCompletada";
-import { authService } from "../../Auth/services/authService";
 import NextStep from "../components/NextStep";
 import { TicketingContext } from "../Context/TicketingContext";
 import { AddOrder, AddTikets, UpdateOrden,  } from "../services/Pagos";
-import { BDD } from "../../../Data/Mock_v2";
 
 function Ticketing() {
-    const navigate = useNavigate();
     const [tab, setTab] = useState(1);
-    const session = authService.getSession();
     const [idOrder,setIdOrder] = useState(null);
-
-    useEffect(() => {
-        if (!session) {navigate('/IniciarSesion');}
-    }, [session, navigate]);
-    if (!session) {return null;}
-
     const { event, seats,totalAmount, setReset } = useContext(TicketingContext);
-
 
     function Reservar(){
         console.log("Rerservado");

@@ -1,27 +1,13 @@
 import { Calendar, MapPin, Ticket, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { seedData } from '../../../Data/Mock';
-import { authService } from '../../Auth/services/authService';
+import { useAuth } from '../../Auth/Context/AuthContext';
 
 function HistorialTickets() {
-  const navigate = useNavigate();
-  const session = authService.getSession();
-  
-  useEffect(() => {
-    if (!session) {
-      navigate('/IniciarSesion');
-    }
-  }, [session, navigate]);
-
-  if (!session) {
-    return null;
-  }
-
-  const userId = session.id;
+  const {user} = useAuth();
 
   const reservasUsuario = seedData.reservations
-    .filter((r) => r.user_id === userId)
+    .filter((r) => r.user_id === user?.id)
     .map((reserva) => {
       const evento = seedData.events.find((e) => e.id === reserva.event_id);
       const venue = evento ? seedData.venues.find((v) => v.id === evento.venue_id) : null;

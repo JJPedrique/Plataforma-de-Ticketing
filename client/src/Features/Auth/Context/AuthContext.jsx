@@ -7,22 +7,24 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simula la verificación de un token guardado (ej. localStorage o cookie HttpOnly)
     const token = localStorage.getItem('token');
-    if (token) {
-      // Aquí normalmente harías un fetch/axios a tu endpoint /api/auth/me
-      setUser({ id: 1, name: 'Jose', role: 'admin' });
+    const savedUser = localStorage.getItem('user');
+
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
     }
     setLoading(false);
   }, []);
 
   const login = (userData, token) => {
     localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 

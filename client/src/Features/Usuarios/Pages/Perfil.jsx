@@ -17,16 +17,6 @@ function Perfil() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  useEffect(() => {
-    const current = authService.getSession();
-    if (!current) {
-      navigate('/IniciarSesion');
-      return;
-    }
-    setSession(current);
-    setName(current.name || '');
-  }, [navigate]);
-
   const initials = useMemo(() => {
     const base = session?.name || 'U';
     return base

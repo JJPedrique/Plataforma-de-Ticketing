@@ -1,11 +1,11 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Shield, UserCog, User } from "lucide-react";
+import { Mail, Lock, Shield, User } from "lucide-react";
 import { AuthForm, InputField } from "../components/AuthForm";
-import { authService } from "../services/authService";
+import { useAuth } from "../Context/AuthContext";
 
 function IniciarSesion() {
-
+  const {login,logout,user} = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -22,18 +22,10 @@ function IniciarSesion() {
     setLoading(true);
 
     try {
-      const session = authService.login(formData.email, formData.password);
-
-      if (session.role === "admin") {
-        navigate("/Admin");
-      } else {
-        navigate("/Cliente/Ticketing");
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+      login({ id: 1, name: 'Jose',email:formData.email, password:formData.password, role: 'ORGANIZER' },"log");
+      navigate("/Inicio");
+    } catch (err) {setError(err.message);
+    } finally {setLoading(false);}
   };
 
   const quickLogin = (email, pass) => {

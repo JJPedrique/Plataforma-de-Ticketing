@@ -36,7 +36,7 @@ function Registro() {
         email: formData.email,
         password: formData.password,
       });
-      navigate('/Cliente/Ticketing');
+      navigate('/Ticketing');
     } catch (err) {
       setError(err.message);
     } finally {

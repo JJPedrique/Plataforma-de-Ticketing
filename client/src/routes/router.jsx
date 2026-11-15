@@ -62,19 +62,31 @@ export const router = createBrowserRouter([
     
       // Rutas protegidas con restricción de rol
       {
-        element: <ProtectedRoute allowedRoles={["customer"]} />,
+        element: <ProtectedRoute allowedRoles={["CUSTOMER"]} />,
         children: [
           { path: '/Ticketing', element: <Ticketing/> },
           { path: '/MisTickets', element: <HistorialTickets/> },
         ],
-      }, 
+      },
+
+      // Rutas compartidas entre ORGANIZER y ADMIN
       {
-        element: <ProtectedRoute allowedRoles={["admin","organizer"]} />,
+        element: <ProtectedRoute allowedRoles={["ORGANIZER", "ADMIN"]} />,
         children: [
-          { path: '/Dashboard', element: <Dashboard/>},
-          { path: '/GestorEventos', element: <GestionEventos/> },
+          { path: '/Dashboard', element: <Dashboard /> },
+          { path: '/GestorEventos', element: <GestionEventos /> },
         ],
-      },       
+      },
+
+      // Rutas exclusivas de ADMIN
+      {
+        element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
+        children: [
+          { path: '/GestorUsuarios', element: <GestionEventos /> },
+          { path: '/GestorLugares', element: <GestionEventos /> },
+          { path: '/GestorMetodosPago', element: <GestionEventos /> },
+        ],
+      },      
     ],
   },
 ])
