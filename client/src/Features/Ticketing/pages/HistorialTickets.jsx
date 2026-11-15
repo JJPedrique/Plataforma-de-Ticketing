@@ -77,7 +77,7 @@ function HistorialTickets() {
           <h2 className="text-lg font-semibold text-gray-900 mb-2">No tienes compras aún</h2>
           <p className="text-gray-600 mb-6">Cuando compres tus primeros boletos, aparecerán aquí</p>
           <Link
-            to="/Cliente/Ticketing"
+            to="/Ticketing"
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all"
           >
             Comprar boletos

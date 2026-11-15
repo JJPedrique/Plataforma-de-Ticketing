@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Shield, UserCog, User } from "lucide-react";
 import { AuthForm, InputField } from "../components/AuthForm";
 import { authService } from "../services/authService";
 
 function IniciarSesion() {
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");

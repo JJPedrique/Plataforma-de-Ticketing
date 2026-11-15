@@ -18,7 +18,7 @@ function Footer() {
             <h3 className="text-sm font-semibold text-gray-900 mb-3">Plataforma</h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/Inicio" className="text-gray-600 hover:text-orange-700">Inicio</Link></li>
-              <li><Link to="/Cliente/Ticketing" className="text-gray-600 hover:text-orange-700">Eventos y boletos</Link></li>
+              <li><Link to="/Ticketing" className="text-gray-600 hover:text-orange-700">Eventos y boletos</Link></li>
               <li><Link to="/MisTickets" className="text-gray-600 hover:text-orange-700">Mis tickets</Link></li>
             </ul>
           </div>

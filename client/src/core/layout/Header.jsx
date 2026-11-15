@@ -75,7 +75,7 @@ function Header() {
           </NavLink>
           {session && (
             <NavLink
-              to="/Cliente/Ticketing"
+              to="/Ticketing"
               className={({ isActive }) =>
                 `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive
@@ -93,7 +93,7 @@ function Header() {
             <>
               {session.role === 'client' && (
                 <Link
-                  to="/Cliente/Historial"
+                  to="/MisTickets"
                   className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                 >
                   <Ticket className="h-4 w-4" />
@@ -148,7 +148,7 @@ function Header() {
                       </Link>
                       {session.role === 'client' && (
                         <Link
-                          to="/Cliente/Historial"
+                          to="/MisTickets"
                           onClick={() => setShowMenu(false)}
                           className="w-full px-4 py-2 flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors md:hidden"
                         >

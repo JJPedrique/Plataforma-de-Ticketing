@@ -25,7 +25,7 @@ function App() {
         </p>
         <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
           <Link
-            to='/Cliente/Ticketing'
+            to='/Ticketing'
             className="group inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 hover:scale-[1.02] active:scale-[0.98]"
           >
             Ver Eventos

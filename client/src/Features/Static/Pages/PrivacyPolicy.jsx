@@ -8,7 +8,7 @@ function PrivacyPolicy() {
       {/* NAVEGACIÓN */}
       <div className="pt-8 mb-4">
         <Link 
-          to="/" 
+          to="/Inicio" 
           className="inline-flex items-center gap-2 text-gray-500 hover:text-orange-600 transition-colors font-medium"
         >
           <ArrowLeft className="h-5 w-5" />

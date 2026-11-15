@@ -24,7 +24,7 @@ function Dashboard() {
           <p className="mt-1 text-sm text-gray-600">Panel de administración y gestión de eventos</p>
         </div>
         <Link
-          to="/Admin/Eventos"
+          to="/GestorEventos"
           className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-4 py-2.5 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
         >
           <Plus className="h-4 w-4" />
@@ -87,7 +87,7 @@ function Dashboard() {
           <div className="flex items-center justify-between p-6 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900">Eventos Recientes</h2>
             <Link
-              to="/Admin/Eventos"
+              to="/GestorEventos"
               className="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700"
             >
               Ver todos
@@ -131,7 +131,7 @@ function Dashboard() {
           </div>
           <div className="p-4 space-y-2">
             <Link
-              to="/Admin/Eventos"
+              to="/GestorEventos"
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <div className="p-2 bg-orange-100 rounded-lg">
@@ -143,7 +143,7 @@ function Dashboard() {
               </div>
             </Link>
             <Link
-              to="/Admin/Eventos"
+              to="/GestorEventos"
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -155,7 +155,7 @@ function Dashboard() {
               </div>
             </Link>
             <Link
-              to="/Cliente/Ticketing"
+              to="/Ticketing"
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <div className="p-2 bg-green-100 rounded-lg">
