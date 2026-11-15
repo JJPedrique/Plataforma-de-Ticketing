@@ -4,7 +4,7 @@ import SeleccionarEvento from "./SeleccionarEvento";
 import SeleccionarAsiento from "./SeleccionarAsiento";
 import RealizarPago from "./RealizarPago";
 import ReservaCompletada from "./ReservaCompletada";
-import { authService } from "../../InicioSesion/services/authService";
+import { authService } from "../../Auth/services/authService";
 import NextStep from "../components/NextStep";
 import { TicketingContext } from "../Context/TicketingContext";
 import { AddOrder, AddTikets, UpdateOrden,  } from "../services/Pagos";

@@ -1,7 +1,7 @@
 import { TicketCheck, Home, LogOut, User, ChevronDown, Ticket } from "lucide-react";
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { authService } from '../../Features/InicioSesion/services/authService'
+import { authService } from '../../Features/Auth/services/authService'
 
 function Header() {
   const navigate = useNavigate()

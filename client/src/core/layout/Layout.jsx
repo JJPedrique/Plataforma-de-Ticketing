@@ -3,10 +3,13 @@ import Header from './Header'
 import Footer from './Footer'
 import AnimatedWaveBackground from '../../shared/components/AnimatedWaveBackground'
 import { TicketingProvider } from '../../Features/Ticketing/Context/TicketingContext'
+import { useAuth } from '../../Features/Auth/Context/AuthContext'
 
 // M8 · Ruta "padre": lo que se repite en todas las páginas (antes estaba en App).
 // <Outlet /> es el hueco donde se pinta la ruta hija, como <router-outlet> en Angular.
 export function Layout() {
+  const { user, loading } = useAuth();
+
   return (
     <AnimatedWaveBackground>
       <Header />

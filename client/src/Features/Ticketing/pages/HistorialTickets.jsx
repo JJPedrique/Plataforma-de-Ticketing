@@ -2,7 +2,7 @@ import { Calendar, MapPin, Ticket, Clock, CheckCircle, XCircle, AlertCircle } fr
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { seedData } from '../../../Data/Mock';
-import { authService } from '../../InicioSesion/services/authService';
+import { authService } from '../../Auth/services/authService';
 
 function HistorialTickets() {
   const navigate = useNavigate();
