@@ -23,11 +23,17 @@ function Header() {
   }
 
   const getRoleLabel = (role) => {
-    if (role === 'ADMIN') return 'Administrador'
-    if (role === 'CUSTOMER') return 'Cliente'
-    if (role === 'ORGANIZER') return 'Organizador'
+    const r = String(role || '').toUpperCase()
+    if (r === 'ADMIN') return 'Administrador'
+    if (r === 'CUSTOMER' || r === 'USER' || r === 'CLIENT') return 'Cliente'
+    if (r === 'ORGANIZER') return 'Organizador'
     return role
   }
+
+  const normalizedRole = String(user?.role || '').toUpperCase()
+  const isCustomer = ['CUSTOMER', 'USER', 'CLIENT'].includes(normalizedRole)
+  const isOrganizer = normalizedRole === 'ORGANIZER'
+  const isAdmin = normalizedRole === 'ADMIN'
 
   return (
     <header className="sticky top-0 z-30 bg-background/85 backdrop-blur border-b border-gray-200 shadow-sm">
@@ -82,7 +88,7 @@ function Header() {
                       </div>
                     </div>
                     <div className="py-1">
-                      {user?.role === "CUSTOMER" && (<>
+                      {isCustomer && (<>
                         <NavLink to="/Ticketing" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
@@ -96,7 +102,7 @@ function Header() {
                         </NavLink>
                       </>)}
 
-                      {user?.role === "ORGANIZER" && (<>
+                      {isOrganizer && (<>
                         <NavLink to="/Dashboard" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
@@ -109,7 +115,7 @@ function Header() {
                         </NavLink>                                          
                       </>)}    
 
-                      {user?.role === "ADMIN" && (<>
+                      {isAdmin && (<>
                         <NavLink to="/GestorUsuarios" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
