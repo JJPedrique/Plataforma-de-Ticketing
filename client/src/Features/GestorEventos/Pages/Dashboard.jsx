@@ -25,7 +25,7 @@ function Dashboard() {
         </div>
         <Link
           to="/GestorEventos"
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-4 py-2.5 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+          className="flex items-center gap-2 bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold px-4 py-2.5 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
         >
           <Plus className="h-4 w-4" />
           Gestionar Eventos

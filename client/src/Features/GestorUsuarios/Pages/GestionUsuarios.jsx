@@ -1,18 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Pencil, Trash2, Users, Search, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Users, Search, X, Eye, EyeOff } from 'lucide-react';
 import { usersApi } from '../../../shared/api/adminApi';
+import { authService } from '../../Auth/services/authService';
 
 const emptyForm = { first_name: '', last_name: '', email: '', password: '', role: 'user', is_active: true };
+
+const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
 
 export default function GestionUsuarios() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [modalError, setModalError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const load = async () => {
     try {
@@ -28,29 +33,54 @@ export default function GestionUsuarios() {
 
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setShowForm(true); };
+  const openCreate = () => { setEditing(null); setForm(emptyForm); setShowPassword(false); setModalError(''); setShowForm(true); };
   const openEdit = (u) => {
     setEditing(u);
     setForm({ first_name: u.first_name || '', last_name: u.last_name || '', email: u.email || '', password: '', role: u.role || 'user', is_active: u.is_active !== false });
+    setShowPassword(false);
+    setModalError('');
     setShowForm(true);
   };
 
   const save = async (e) => {
     e.preventDefault();
+    const payloadBase = {
+      first_name: form.first_name.trim(),
+      last_name: form.last_name.trim(),
+      email: form.email.trim().toLowerCase(),
+      role: form.role,
+      is_active: form.is_active,
+    };
+    if (!payloadBase.first_name || !payloadBase.last_name || !payloadBase.email) {
+      setModalError('Complete todos los campos obligatorios.');
+      return;
+    }
+    if (!editing && !form.password) {
+      setModalError('La contraseña es obligatoria para crear un usuario.');
+      return;
+    }
+    if (form.password) {
+      try {
+        authService.validatePassword(form.password);
+      } catch (err) {
+        setModalError(err.message || 'La contraseña no cumple con los requisitos.');
+        return;
+      }
+    }
     try {
       setSaving(true);
-      setError('');
+      setModalError('');
       if (editing) {
-        const payload = { first_name: form.first_name, last_name: form.last_name, email: form.email, role: form.role, is_active: form.is_active };
+        const payload = { ...payloadBase };
         if (form.password) payload.password = form.password;
         await usersApi.update(editing.id, payload);
       } else {
-        await usersApi.create(form);
+        await usersApi.create({ ...payloadBase, password: form.password });
       }
       setShowForm(false);
       await load();
     } catch (e2) {
-      setError(e2.message || 'No se pudo guardar el usuario.');
+      setModalError(e2.message || 'No se pudo guardar el usuario.');
     } finally {
       setSaving(false);
     }
@@ -174,48 +204,85 @@ export default function GestionUsuarios() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => !saving && setShowForm(false)}>
-          <div className="bg-white rounded-xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{editing ? 'Editar usuario' : 'Crear usuario'}</h2>
-            <form onSubmit={save} className="space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => !saving && (setShowForm(false), setModalError(''))}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="usuario-modal-title">
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <h2 id="usuario-modal-title" className="text-xl font-semibold text-gray-900">{editing ? 'Editar usuario' : 'Crear usuario'}</h2>
+                <p className="text-sm text-gray-600 mt-1">Completa la información para gestionar el acceso y rol del usuario.</p>
+              </div>
+              <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700" aria-label="Cerrar modal">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={save} className="space-y-4" noValidate>
+              {modalError && (
+                <div className="border border-red-200 bg-red-50 text-red-800 rounded-lg px-4 py-3 text-sm" role="alert">
+                  {modalError}
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                  <input required value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                  <label htmlFor="user-first-name" className="block text-sm font-medium text-gray-700 mb-1.5">Nombre</label>
+                  <input id="user-first-name" name="first_name" required aria-required="true" aria-label="Nombre" autoComplete="given-name" placeholder="Ej. Ana" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} className={inputClassName} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
-                  <input required value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                  <label htmlFor="user-last-name" className="block text-sm font-medium text-gray-700 mb-1.5">Apellido</label>
+                  <input id="user-last-name" name="last_name" required aria-required="true" aria-label="Apellido" autoComplete="family-name" placeholder="Ej. Pérez" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} className={inputClassName} />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Correo</label>
-                <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <label htmlFor="user-email" className="block text-sm font-medium text-gray-700 mb-1.5">Correo electrónico</label>
+                <input id="user-email" name="email" required aria-required="true" aria-label="Correo electrónico" type="email" autoComplete="email" placeholder="usuario@correo.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputClassName} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
-                  <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                  <label htmlFor="user-role" className="block text-sm font-medium text-gray-700 mb-1.5">Rol</label>
+                  <select id="user-role" name="role" aria-label="Rol del usuario" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className={inputClassName}>
                     <option value="user">Usuario (cliente)</option>
                     <option value="organizer">Organizador</option>
                     <option value="admin">Administrador</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                  <select value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                  <label htmlFor="user-status" className="block text-sm font-medium text-gray-700 mb-1.5">Estado</label>
+                  <select id="user-status" name="is_active" aria-label="Estado del usuario" value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className={inputClassName}>
                     <option value="true">Activo</option>
                     <option value="false">Inactivo</option>
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{editing ? 'Nueva contraseña (opcional)' : 'Contraseña'}</label>
-                <input required={!editing} type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder={editing ? 'Dejar vacío para no cambiar' : ''} />
+                <label htmlFor="user-password" className="block text-sm font-medium text-gray-700 mb-1.5">{editing ? 'Nueva contraseña (opcional)' : 'Contraseña'}</label>
+                <div className="relative">
+                  <input
+                    id="user-password"
+                    name="password"
+                    required={!editing}
+                    aria-required={!editing}
+                    aria-label={editing ? 'Nueva contraseña (opcional)' : 'Contraseña'}
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    minLength={8}
+                    maxLength={128}
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    className={`${inputClassName} pr-10`}
+                    placeholder={editing ? 'Dejar vacío para no cambiar (mín. 8, mayúscula, minúscula, número y símbolo)' : 'Mínimo 8 caracteres, mayúscula, minúscula, número y símbolo'}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} disabled={saving} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60">{saving ? 'Guardando...' : 'Guardar'}</button>
+              <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} disabled={saving} className="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700">Cancelar</button>
+                <button type="submit" disabled={saving} className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60 font-medium">{saving ? 'Guardando...' : (editing ? 'Guardar cambios' : 'Crear usuario')}</button>
               </div>
             </form>
           </div>

@@ -4,6 +4,12 @@ import { eventsApi, usersApi, venuesApi } from '../../../shared/api/adminApi';
 
 const emptyForm = { title: '', description: '', organizer_id: '', venue_id: '', start_date: '', end_date: '', is_active: true };
 
+const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
+
+// Roles permitidos para ser asignados como organizador de un evento.
+// Modificar este arreglo para ampliar o restringir el filtro (ej. ['organizer', 'admin']).
+const EVENT_ORGANIZER_ROLES = ['organizer'];
+
 function toInputDateTime(value) {
   if (!value) return '';
   const d = new Date(value);
@@ -18,6 +24,7 @@ export default function GestionEventos() {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [modalError, setModalError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -50,34 +57,46 @@ export default function GestionEventos() {
 
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setShowForm(true); };
+  const openCreate = () => { setEditing(null); setForm(emptyForm); setModalError(''); setShowForm(true); };
   const openEdit = (ev) => {
     setEditing(ev);
     setForm({
       title: ev.title || '', description: ev.description || '', organizer_id: ev.organizer_id || '', venue_id: ev.venue_id || '',
       start_date: toInputDateTime(ev.start_date), end_date: toInputDateTime(ev.end_date), is_active: ev.is_active !== false,
     });
+    setModalError('');
     setShowForm(true);
   };
 
   const save = async (e) => {
     e.preventDefault();
+    const title = form.title.trim();
+    if (!title) {
+      setModalError('El título del evento es obligatorio.');
+      return;
+    }
     if (!form.venue_id || !form.organizer_id) {
-      setError('Debes seleccionar un organizador y un lugar. Si no existen, créalos primero en sus gestores.');
+      setModalError('Seleccione un organizador y un lugar. Si no existen, créelos primero en sus gestores.');
+      return;
+    }
+    if (form.start_date && form.end_date && new Date(form.start_date) >= new Date(form.end_date)) {
+      setModalError('La fecha y hora de inicio debe ser anterior a la fecha y hora de fin.');
       return;
     }
     try {
-      setSaving(true); setError('');
+      setSaving(true); setModalError('');
       const payload = {
-        ...form,
+        title,
+        description: form.description.trim(),
         organizer_id: Number(form.organizer_id),
         venue_id: Number(form.venue_id),
         start_date: form.start_date ? new Date(form.start_date).toISOString() : null,
         end_date: form.end_date ? new Date(form.end_date).toISOString() : null,
+        is_active: form.is_active,
       };
       if (editing) await eventsApi.update(editing.id, payload); else await eventsApi.create(payload);
       setShowForm(false); await load();
-    } catch (e2) { setError(e2.message || 'No se pudo guardar el evento.'); }
+    } catch (e2) { setModalError(e2.message || 'No se pudo guardar el evento.'); }
     finally { setSaving(false); }
   };
 
@@ -169,29 +188,50 @@ export default function GestionEventos() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4 overflow-y-auto" onClick={() => !saving && setShowForm(false)}>
-          <div className="bg-white rounded-xl w-full max-w-2xl p-6 my-4" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{editing ? 'Editar evento' : 'Crear evento'}</h2>
-            <form onSubmit={save} className="space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4 overflow-y-auto" onClick={() => !saving && (setShowForm(false), setModalError(''))}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 my-4" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="evento-modal-title">
+            <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
-                <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <h2 id="evento-modal-title" className="text-xl font-semibold text-gray-900">{editing ? 'Editar evento' : 'Crear evento'}</h2>
+                <p className="text-sm text-gray-600 mt-1">Configura la información del evento, su organizador, lugar y horario.</p>
+              </div>
+              <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700" aria-label="Cerrar modal">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={save} className="space-y-4" noValidate>
+              {modalError && (
+                <div className="border border-red-200 bg-red-50 text-red-800 rounded-lg px-4 py-3 text-sm" role="alert">
+                  {modalError}
+                </div>
+              )}
+              <div>
+                <label htmlFor="event-title" className="block text-sm font-medium text-gray-700 mb-1.5">Título del evento</label>
+                <input id="event-title" name="title" required aria-required="true" aria-label="Título del evento" placeholder="Ej. Concierto de verano" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClassName} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" rows={3} />
+                <label htmlFor="event-description" className="block text-sm font-medium text-gray-700 mb-1.5">Descripción</label>
+                <textarea id="event-description" name="description" aria-label="Descripción del evento" placeholder="Describe brevemente el evento, artistas, actividades o detalles relevantes" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClassName} rows={3} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Organizador</label>
-                  <select required value={form.organizer_id} onChange={(e) => setForm({ ...form, organizer_id: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                  <label htmlFor="event-organizer" className="block text-sm font-medium text-gray-700 mb-1.5">Organizador</label>
+                  <select id="event-organizer" name="organizer_id" required aria-required="true" aria-label="Organizador del evento" value={form.organizer_id} onChange={(e) => setForm({ ...form, organizer_id: e.target.value })} className={inputClassName}>
                     <option value="">Selecciona un organizador</option>
-                    {users.filter(u => u.is_active).map(u => <option key={u.id} value={u.id}>{`${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email} ({u.role})</option>)}
+                    {users
+                      .filter((u) => {
+                        const role = String(u.role || '').toLowerCase();
+                        const allowedRoles = EVENT_ORGANIZER_ROLES.map((r) => String(r).toLowerCase());
+                        const isAllowedRole = allowedRoles.includes(role);
+                        const isCurrentSelection = editing && String(u.id) === String(form.organizer_id);
+                        return u.is_active && (isAllowedRole || isCurrentSelection);
+                      })
+                      .map(u => <option key={u.id} value={u.id}>{`${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email} ({u.role})</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Lugar</label>
-                  <select required value={form.venue_id} onChange={(e) => setForm({ ...form, venue_id: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                  <label htmlFor="event-venue" className="block text-sm font-medium text-gray-700 mb-1.5">Lugar</label>
+                  <select id="event-venue" name="venue_id" required aria-required="true" aria-label="Lugar del evento" value={form.venue_id} onChange={(e) => setForm({ ...form, venue_id: e.target.value })} className={inputClassName}>
                     <option value="">Selecciona un lugar</option>
                     {venues.filter(v => v.is_active).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
                   </select>
@@ -199,23 +239,24 @@ export default function GestionEventos() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Inicio</label>
-                  <input type="datetime-local" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                  <label htmlFor="event-start" className="block text-sm font-medium text-gray-700 mb-1.5">Fecha y hora de inicio</label>
+                  <input id="event-start" name="start_date" type="datetime-local" aria-label="Fecha y hora de inicio" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} className={inputClassName} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Fin</label>
-                  <input type="datetime-local" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                  <label htmlFor="event-end" className="block text-sm font-medium text-gray-700 mb-1.5">Fecha y hora de fin</label>
+                  <input id="event-end" name="end_date" type="datetime-local" aria-label="Fecha y hora de fin" min={form.start_date || undefined} value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className={inputClassName} />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <select value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
-                  <option value="true">Activo</option><option value="false">Inactivo</option>
+                <label htmlFor="event-status" className="block text-sm font-medium text-gray-700 mb-1.5">Estado</label>
+                <select id="event-status" name="is_active" aria-label="Estado del evento" value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className={inputClassName}>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
                 </select>
               </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} disabled={saving} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60">{saving ? 'Guardando...' : 'Guardar'}</button>
+              <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} disabled={saving} className="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700">Cancelar</button>
+                <button type="submit" disabled={saving || !canCreate} className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60 font-medium">{saving ? 'Guardando...' : (editing ? 'Guardar cambios' : 'Crear evento')}</button>
               </div>
             </form>
           </div>

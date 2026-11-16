@@ -4,10 +4,13 @@ import { venuesApi } from '../../../shared/api/adminApi';
 
 const emptyForm = { name: '', address: '', city: '', img_url: '', is_active: true };
 
+const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
+
 export default function GestionLugares() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [modalError, setModalError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -33,16 +36,27 @@ export default function GestionLugares() {
 
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setShowForm(true); };
-  const openEdit = (v) => { setEditing(v); setForm({ name: v.name || '', address: v.address || '', city: v.city || '', img_url: v.img_url || '', is_active: v.is_active !== false }); setShowForm(true); };
+  const openCreate = () => { setEditing(null); setForm(emptyForm); setModalError(''); setShowForm(true); };
+  const openEdit = (v) => { setEditing(v); setForm({ name: v.name || '', address: v.address || '', city: v.city || '', img_url: v.img_url || '', is_active: v.is_active !== false }); setModalError(''); setShowForm(true); };
 
   const save = async (e) => {
     e.preventDefault();
+    const payload = {
+      name: form.name.trim(),
+      address: form.address.trim(),
+      city: form.city.trim(),
+      img_url: form.img_url.trim(),
+      is_active: form.is_active,
+    };
+    if (!payload.name) {
+      setModalError('El nombre del lugar es obligatorio.');
+      return;
+    }
     try {
-      setSaving(true); setError('');
-      if (editing) await venuesApi.update(editing.id, form); else await venuesApi.create(form);
+      setSaving(true); setModalError('');
+      if (editing) await venuesApi.update(editing.id, payload); else await venuesApi.create(payload);
       setShowForm(false); await load();
-    } catch (e2) { setError(e2.message || 'No se pudo guardar el lugar.'); }
+    } catch (e2) { setModalError(e2.message || 'No se pudo guardar el lugar.'); }
     finally { setSaving(false); }
   };
 
@@ -120,37 +134,51 @@ export default function GestionLugares() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => !saving && setShowForm(false)}>
-          <div className="bg-white rounded-xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{editing ? 'Editar lugar' : 'Crear lugar'}</h2>
-            <form onSubmit={save} className="space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => !saving && (setShowForm(false), setModalError(''))}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="lugar-modal-title">
+            <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <h2 id="lugar-modal-title" className="text-xl font-semibold text-gray-900">{editing ? 'Editar lugar' : 'Crear lugar'}</h2>
+                <p className="text-sm text-gray-600 mt-1">Ingresa los datos del recinto o sede para asociarlo a eventos.</p>
+              </div>
+              <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700" aria-label="Cerrar modal">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={save} className="space-y-4" noValidate>
+              {modalError && (
+                <div className="border border-red-200 bg-red-50 text-red-800 rounded-lg px-4 py-3 text-sm" role="alert">
+                  {modalError}
+                </div>
+              )}
+              <div>
+                <label htmlFor="venue-name" className="block text-sm font-medium text-gray-700 mb-1.5">Nombre del lugar</label>
+                <input id="venue-name" name="name" required aria-required="true" aria-label="Nombre del lugar" placeholder="Ej. Teatro Nacional" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClassName} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
-                  <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                  <label htmlFor="venue-city" className="block text-sm font-medium text-gray-700 mb-1.5">Ciudad</label>
+                  <input id="venue-city" name="city" aria-label="Ciudad" placeholder="Ej. San José" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputClassName} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                  <select value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
-                    <option value="true">Activo</option><option value="false">Inactivo</option>
+                  <label htmlFor="venue-status" className="block text-sm font-medium text-gray-700 mb-1.5">Estado</label>
+                  <select id="venue-status" name="is_active" aria-label="Estado del lugar" value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className={inputClassName}>
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <label htmlFor="venue-address" className="block text-sm font-medium text-gray-700 mb-1.5">Dirección</label>
+                <input id="venue-address" name="address" aria-label="Dirección" placeholder="Ej. Avenida Central, Calle 3" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputClassName} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">URL de imagen</label>
-                <input value={form.img_url} onChange={(e) => setForm({ ...form, img_url: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="https://..." />
+                <label htmlFor="venue-img" className="block text-sm font-medium text-gray-700 mb-1.5">URL de imagen</label>
+                <input id="venue-img" name="img_url" type="url" aria-label="URL de imagen" placeholder="https://ejemplo.com/lugar.jpg" value={form.img_url} onChange={(e) => setForm({ ...form, img_url: e.target.value })} className={inputClassName} />
               </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} disabled={saving} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60">{saving ? 'Guardando...' : 'Guardar'}</button>
+              <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} disabled={saving} className="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700">Cancelar</button>
+                <button type="submit" disabled={saving} className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60 font-medium">{saving ? 'Guardando...' : (editing ? 'Guardar cambios' : 'Crear lugar')}</button>
               </div>
             </form>
           </div>

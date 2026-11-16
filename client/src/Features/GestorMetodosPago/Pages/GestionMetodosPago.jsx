@@ -4,10 +4,13 @@ import { payMethodsApi } from '../../../shared/api/adminApi';
 
 const emptyForm = { name: '', description: '', is_active: true };
 
+const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
+
 export default function GestionMetodosPago() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [modalError, setModalError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -31,16 +34,25 @@ export default function GestionMetodosPago() {
 
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setShowForm(true); };
-  const openEdit = (m) => { setEditing(m); setForm({ name: m.name || '', description: m.description || '', is_active: m.is_active !== false }); setShowForm(true); };
+  const openCreate = () => { setEditing(null); setForm(emptyForm); setModalError(''); setShowForm(true); };
+  const openEdit = (m) => { setEditing(m); setForm({ name: m.name || '', description: m.description || '', is_active: m.is_active !== false }); setModalError(''); setShowForm(true); };
 
   const save = async (e) => {
     e.preventDefault();
+    const payload = {
+      name: form.name.trim(),
+      description: form.description.trim(),
+      is_active: form.is_active,
+    };
+    if (!payload.name) {
+      setModalError('El nombre del método de pago es obligatorio.');
+      return;
+    }
     try {
-      setSaving(true); setError('');
-      if (editing) await payMethodsApi.update(editing.id, form); else await payMethodsApi.create(form);
+      setSaving(true); setModalError('');
+      if (editing) await payMethodsApi.update(editing.id, payload); else await payMethodsApi.create(payload);
       setShowForm(false); await load();
-    } catch (e2) { setError(e2.message || 'No se pudo guardar el método de pago.'); }
+    } catch (e2) { setModalError(e2.message || 'No se pudo guardar el método de pago.'); }
     finally { setSaving(false); }
   };
 
@@ -120,27 +132,41 @@ export default function GestionMetodosPago() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => !saving && setShowForm(false)}>
-          <div className="bg-white rounded-xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">{editing ? 'Editar método de pago' : 'Crear método de pago'}</h2>
-            <form onSubmit={save} className="space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => !saving && (setShowForm(false), setModalError(''))}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="metodo-modal-title">
+            <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+                <h2 id="metodo-modal-title" className="text-xl font-semibold text-gray-900">{editing ? 'Editar método de pago' : 'Crear método de pago'}</h2>
+                <p className="text-sm text-gray-600 mt-1">Define los métodos disponibles para completar órdenes de compra.</p>
+              </div>
+              <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700" aria-label="Cerrar modal">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={save} className="space-y-4" noValidate>
+              {modalError && (
+                <div className="border border-red-200 bg-red-50 text-red-800 rounded-lg px-4 py-3 text-sm" role="alert">
+                  {modalError}
+                </div>
+              )}
+              <div>
+                <label htmlFor="pay-name" className="block text-sm font-medium text-gray-700 mb-1.5">Nombre del método</label>
+                <input id="pay-name" name="name" required aria-required="true" aria-label="Nombre del método de pago" placeholder="Ej. Tarjeta de crédito" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClassName} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" rows={3} />
+                <label htmlFor="pay-description" className="block text-sm font-medium text-gray-700 mb-1.5">Descripción</label>
+                <textarea id="pay-description" name="description" aria-label="Descripción del método de pago" placeholder="Describe brevemente cómo se utiliza este método" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClassName} rows={3} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <select value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className="w-full border border-gray-300 rounded-lg px-3 py-2">
-                  <option value="true">Activo</option><option value="false">Inactivo</option>
+                <label htmlFor="pay-status" className="block text-sm font-medium text-gray-700 mb-1.5">Estado</label>
+                <select id="pay-status" name="is_active" aria-label="Estado del método de pago" value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className={inputClassName}>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
                 </select>
               </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} disabled={saving} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60">{saving ? 'Guardando...' : 'Guardar'}</button>
+              <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} disabled={saving} className="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700">Cancelar</button>
+                <button type="submit" disabled={saving} className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60 font-medium">{saving ? 'Guardando...' : (editing ? 'Guardar cambios' : 'Crear método')}</button>
               </div>
             </form>
           </div>
