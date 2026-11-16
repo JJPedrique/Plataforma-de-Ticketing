@@ -77,12 +77,6 @@ function Header() {
                       </div>
                     </div>
                     <div className="py-1">
-                      <Link className="w-full px-4 py-2 flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      to="/Perfil" onClick={() => setShowMenu(false)}>
-                        <User className="h-4 w-4" />
-                        <span>Ver perfil</span>
-                      </Link>
-
                       {user?.role === "CUSTOMER" && (<>
                         <NavLink to="/Ticketing" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
@@ -132,6 +126,15 @@ function Header() {
                           <span className="hidden sm:inline">Gestor de Metodos de Pago</span>
                         </NavLink>                     
                       </>)}          
+
+                        
+                      <Link className="w-full px-4 py-2 flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      to="/Perfil" onClick={() => setShowMenu(false)}>
+                        <User className="h-4 w-4" />
+                        <span>Ver perfil</span>
+                      </Link>
+                        
+                       <div className="m-3 border-b border-gray-300"></div>
 
                       <button onClick={()=>logout()}
                         className="w-full px-4 py-2 flex items-center gap-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
