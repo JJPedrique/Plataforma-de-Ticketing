@@ -16,7 +16,8 @@ function Perfil() {
   const { user, login, logout, refreshUser } = useAuth();
   const [session, setSession] = useState(() => user || authService.getSession());
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(session?.name || '');
+  const [firstName, setFirstName] = useState(session?.first_name || '');
+  const [lastName, setLastName] = useState(session?.last_name || '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -34,12 +35,14 @@ function Perfil() {
         if (!mounted) return;
         const finalSession = refreshed || current;
         setSession(finalSession);
-        setName(finalSession.name || '');
+        setFirstName(finalSession.first_name || '');
+        setLastName(finalSession.last_name || '');
         if (login && refreshed) login(refreshed);
       } catch {
         if (!mounted) return;
         setSession(current);
-        setName(current.name || '');
+        setFirstName(current.first_name || '');
+        setLastName(current.last_name || '');
       }
     })();
     return () => { mounted = false; };
@@ -48,12 +51,15 @@ function Perfil() {
   useEffect(() => {
     if (user) {
       setSession(user);
-      if (!isEditing) setName(user.name || '');
+      if (!isEditing) {
+        setFirstName(user.first_name || '');
+        setLastName(user.last_name || '');
+      }
     }
   }, [user, isEditing]);
 
   const initials = useMemo(() => {
-    const base = session?.name || 'U';
+    const base = session?.name || `${session?.first_name || ''} ${session?.last_name || ''}`.trim() || 'U';
     return base
       .split(' ')
       .filter(Boolean)
@@ -61,18 +67,20 @@ function Perfil() {
       .join('')
       .toUpperCase()
       .slice(0, 2);
-  }, [session?.name]);
+  }, [session?.name, session?.first_name, session?.last_name]);
 
   if (!session) return null;
 
   const handleStartEdit = () => {
-    setName(session.name || '');
+    setFirstName(session.first_name || '');
+    setLastName(session.last_name || '');
     setMessage({ type: '', text: '' });
     setIsEditing(true);
   };
 
   const handleCancelEdit = () => {
-    setName(session.name || '');
+    setFirstName(session.first_name || '');
+    setLastName(session.last_name || '');
     setIsEditing(false);
     setMessage({ type: '', text: '' });
   };
@@ -80,16 +88,27 @@ function Perfil() {
   const handleSave = async (e) => {
     e.preventDefault();
     setMessage({ type: '', text: '' });
-    const trimmed = name.trim();
-    if (!trimmed) {
-      setMessage({ type: 'error', text: 'Ingresa tu nombre para continuar.' });
+
+    const cleanFirstName = authService.normalizePersonName(firstName);
+    const cleanLastName = authService.normalizePersonName(lastName);
+
+    try {
+      authService.validatePersonName(cleanFirstName, 'nombre');
+      authService.validatePersonName(cleanLastName, 'apellido');
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message });
       return;
     }
+
     try {
       setSaving(true);
-      const updated = await authService.updateProfile({ name: trimmed });
+      const updated = await authService.updateProfile({
+        firstName: cleanFirstName,
+        lastName: cleanLastName,
+      });
       setSession(updated);
-      setName(updated.name);
+      setFirstName(updated.first_name || '');
+      setLastName(updated.last_name || '');
       if (login) login(updated);
       if (refreshUser) await refreshUser();
       setIsEditing(false);
@@ -166,29 +185,59 @@ function Perfil() {
 
           <form onSubmit={handleSave} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="md:col-span-2">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-1.5">Nombre completo</label>
+              <div>
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-900 mb-1.5">Nombre</label>
                 {isEditing ? (
                   <input
-                    id="name"
-                    name="name"
+                    id="firstName"
+                    name="firstName"
                     type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoComplete="name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    autoComplete="given-name"
+                    required
+                    minLength={2}
+                    maxLength={100}
+                    pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
+                    title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
                     className="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
-                    placeholder="Tu nombre completo"
+                    placeholder="Tu nombre"
                   />
                 ) : (
-                  <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-900">
-                    {session.name}
+                  <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-900 min-h-12.5 flex items-center">
+                    {session.first_name || '—'}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-900 mb-1.5">Apellido</label>
+                {isEditing ? (
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    autoComplete="family-name"
+                    required
+                    minLength={2}
+                    maxLength={100}
+                    pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
+                    title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
+                    className="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
+                    placeholder="Tu apellido"
+                  />
+                ) : (
+                  <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-900 min-h-12.5 flex items-center">
+                    {session.last_name || '—'}
                   </div>
                 )}
               </div>
 
               <div className="md:col-span-2">
                 <span className="block text-sm font-medium text-gray-900 mb-1.5">Correo electrónico</span>
-                <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700">
+                <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700 min-h-12.5 flex items-center">
                   {session.email}
                 </div>
                 <p className="text-sm text-gray-500 mt-1.5">Usamos este correo para iniciar sesión y enviarte notificaciones importantes.</p>

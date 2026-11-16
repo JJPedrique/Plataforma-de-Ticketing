@@ -75,8 +75,8 @@ export const authService = {
     if (cleaned.length > 100) {
       throw new Error(`El ${fieldLabel} no puede exceder 100 caracteres.`);
     }
-    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$/.test(cleaned)) {
-      throw new Error(`El ${fieldLabel} solo puede contener letras, espacios, apóstrofes y guiones.`);
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+$/.test(cleaned)) {
+      throw new Error(`El ${fieldLabel} solo puede contener letras, números, espacios, apóstrofes y guiones.`);
     }
     return cleaned;
   },
@@ -149,19 +149,26 @@ export const authService = {
     return saveSession(toSession(user));
   },
 
-  updateProfile: async ({ name }) => {
+  updateProfile: async ({ firstName, lastName, name }) => {
     const session = authService.getSession();
     if (!session?.id) throw new Error('No hay sesión activa');
-    const trimmedName = (name || '').trim();
-    if (!trimmedName) throw new Error('El nombre es obligatorio');
 
-    const parts = trimmedName.split(/\s+/).filter(Boolean);
-    const first_name = parts.shift() || trimmedName;
-    const last_name = parts.join(' ') || '';
+    let cleanFirstName = firstName;
+    let cleanLastName = lastName;
+
+    if (name && (!cleanFirstName || !cleanLastName)) {
+      const trimmedName = authService.normalizePersonName(name);
+      const parts = trimmedName.split(/\s+/).filter(Boolean);
+      cleanFirstName = cleanFirstName || parts.shift() || '';
+      cleanLastName = cleanLastName || parts.join(' ');
+    }
+
+    cleanFirstName = authService.validatePersonName(cleanFirstName, 'nombre');
+    cleanLastName = authService.validatePersonName(cleanLastName, 'apellido');
 
     const user = await apiRequest(`/Users/${session.id}`, {
       method: 'PUT',
-      body: JSON.stringify({ first_name, last_name }),
+      body: JSON.stringify({ first_name: cleanFirstName, last_name: cleanLastName }),
     });
     return saveSession(toSession(user));
   },

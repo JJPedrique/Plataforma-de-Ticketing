@@ -4,7 +4,7 @@ import re
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
-NAME_REGEX = re.compile(r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$")
+NAME_REGEX = re.compile(r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+$")
 
 
 def _validate_person_name(value: str, field_label: str) -> str:
@@ -18,7 +18,7 @@ def _validate_person_name(value: str, field_label: str) -> str:
     if len(cleaned) > 100:
         raise ValueError(f"El {field_label} no puede exceder 100 caracteres.")
     if not NAME_REGEX.match(cleaned):
-        raise ValueError(f"El {field_label} solo puede contener letras, espacios, apóstrofes y guiones.")
+        raise ValueError(f"El {field_label} solo puede contener letras, números, espacios, apóstrofes y guiones.")
     return cleaned
 
 

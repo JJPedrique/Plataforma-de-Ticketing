@@ -109,8 +109,8 @@ function Registro() {
           autoComplete="given-name"
           minLength={2}
           maxLength={100}
-          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+"
-          title="Usa solo letras, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
+          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
+          title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
         />
         <InputField
           label="Apellido"
@@ -124,8 +124,8 @@ function Registro() {
           autoComplete="family-name"
           minLength={2}
           maxLength={100}
-          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+"
-          title="Usa solo letras, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
+          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
+          title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
         />
       </div>
       <InputField
