@@ -3,7 +3,7 @@ from src.database import get_db
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.models import EventPricing
+from src.models.EventPricing import EventPricing
 from src.schemas.EventPricing import *
 
 router = APIRouter(tags=["Event Pricings"])

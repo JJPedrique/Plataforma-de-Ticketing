@@ -3,7 +3,7 @@ from src.database import get_db
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.models import Order
+from src.models.Order import Order
 from src.schemas.Order import *
 
 router = APIRouter(tags=["Orders"])

@@ -3,7 +3,7 @@ from src.database import get_db
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.models import PayMethod
+from src.models.PayMethod import PayMethod
 from src.schemas.PayMethod import *
 
 router = APIRouter(tags=["PayMethods"])
