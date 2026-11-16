@@ -36,7 +36,7 @@ def _verify_password(password: str, stored_hash: str | None) -> bool:
 def _get_user_or_404(user_id: int, db: Session) -> User:
     db_user = db.get(User, user_id)
     if not db_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Usuario con id {user_id} no encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado.")
     return db_user
 
 
@@ -56,7 +56,7 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     stmt = select(User).where(User.email == payload.email)
     user = db.scalars(stmt).first()
     if not user or not user.is_active or not _verify_password(payload.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas.")
     return user
 
 
@@ -64,7 +64,7 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
 def register_user(payload: UserRegister, db: Session = Depends(get_db)):
     existing = db.scalars(select(User).where(User.email == payload.email)).first()
     if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El correo electrónico ya está registrado")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No se pudo completar el registro con los datos proporcionados.")
 
     db_user = User(
         email=payload.email,
@@ -84,7 +84,7 @@ def register_user(payload: UserRegister, db: Session = Depends(get_db)):
 def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     existing = db.scalars(select(User).where(User.email == payload.email)).first()
     if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El correo electrónico ya está registrado")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No se pudo crear el usuario con los datos proporcionados.")
 
     data = payload.model_dump()
     password = data.pop("password")
@@ -105,7 +105,7 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
     if "email" in update_data and update_data["email"] and update_data["email"] != db_user.email:
         existing = db.scalars(select(User).where(User.email == update_data["email"], User.id != user_id)).first()
         if existing:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El correo electrónico ya está registrado")
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No se pudo actualizar el usuario con los datos proporcionados.")
 
     password = update_data.pop("password", None)
     for key, value in update_data.items():

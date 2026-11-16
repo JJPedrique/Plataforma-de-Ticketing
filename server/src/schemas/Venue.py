@@ -6,7 +6,7 @@ class VenueBase(BaseModel):
     address: str | None = None
     city: str | None = Field(default=None, max_length=100)
     img_url: str | None = Field(default=None, max_length=500)
-    is_Active: bool = Field(default=True)
+    is_active: bool = Field(default=True)
 
 
 class VenueCreate(VenueBase):
@@ -18,7 +18,7 @@ class VenueUpdate(BaseModel):
     address: str | None = None
     city: str | None = Field(default=None, max_length=100)
     img_url: str | None = Field(default=None, max_length=500)
-    is_Active: bool | None = None
+    is_active: bool | None = None
 
 
 class VenueResponse(VenueBase):
