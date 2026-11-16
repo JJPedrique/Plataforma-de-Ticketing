@@ -1,21 +1,56 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../../Auth/services/authService';
+import { useAuth } from '../../Auth/Context/AuthContext';
 
 function getRoleLabel(role) {
-  if (role === 'admin') return 'Administrador';
-  if (role === 'client') return 'Cliente';
+  const r = String(role || '').toLowerCase();
+  if (r === 'admin') return 'Administrador';
+  if (r === 'organizer') return 'Organizador';
+  if (r === 'user' || r === 'client' || r === 'customer') return 'Cliente';
   return role || 'Usuario';
 }
 
 function Perfil() {
   const navigate = useNavigate();
-  const [session, setSession] = useState(() => authService.getSession());
+  const { user, login, logout, refreshUser } = useAuth();
+  const [session, setSession] = useState(() => user || authService.getSession());
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(session?.name || '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const current = user || authService.getSession();
+      if (!current) {
+        navigate('/IniciarSesion');
+        return;
+      }
+      try {
+        const refreshed = await authService.refreshSession();
+        if (!mounted) return;
+        const finalSession = refreshed || current;
+        setSession(finalSession);
+        setName(finalSession.name || '');
+        if (login && refreshed) login(refreshed);
+      } catch {
+        if (!mounted) return;
+        setSession(current);
+        setName(current.name || '');
+      }
+    })();
+    return () => { mounted = false; };
+  }, [navigate]);
+
+  useEffect(() => {
+    if (user) {
+      setSession(user);
+      if (!isEditing) setName(user.name || '');
+    }
+  }, [user, isEditing]);
 
   const initials = useMemo(() => {
     const base = session?.name || 'U';
@@ -42,7 +77,7 @@ function Perfil() {
     setMessage({ type: '', text: '' });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     setMessage({ type: '', text: '' });
     const trimmed = name.trim();
@@ -52,9 +87,11 @@ function Perfil() {
     }
     try {
       setSaving(true);
-      const updated = authService.updateProfile({ name: trimmed });
+      const updated = await authService.updateProfile({ name: trimmed });
       setSession(updated);
       setName(updated.name);
+      if (login) login(updated);
+      if (refreshUser) await refreshUser();
       setIsEditing(false);
       setMessage({ type: 'success', text: 'Tu información se guardó correctamente.' });
     } catch (err) {
@@ -64,9 +101,10 @@ function Perfil() {
     }
   };
 
-  const handleDeactivate = () => {
+  const handleDeactivate = async () => {
     try {
-      authService.deactivateAccount();
+      await authService.deactivateAccount();
+      if (logout) logout();
       navigate('/Inicio');
     } catch (err) {
       setMessage({ type: 'error', text: err.message || 'No se pudo desactivar la cuenta. Inténtalo de nuevo.' });

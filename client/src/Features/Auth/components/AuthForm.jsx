@@ -24,7 +24,18 @@ export function AuthForm({ title, subtitle, onSubmit, submitText, footer, childr
   );
 }
 
-export function InputField({ label, type = 'text', id, name, value, onChange, placeholder, required = true, icon: Icon }) {
+export function InputField({
+  label,
+  type = 'text',
+  id,
+  name,
+  value,
+  onChange,
+  placeholder,
+  required = true,
+  icon: Icon,
+  ...inputProps
+}) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === 'password';
   const inputType = isPassword && showPassword ? 'text' : type;
@@ -48,8 +59,9 @@ export function InputField({ label, type = 'text', id, name, value, onChange, pl
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className={`w-full ${Icon ? 'pl-9' : 'pl-3'} ${isPassword ? 'pr-10' : 'pr-3'} py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors`}
           aria-required={required}
+          className={`w-full ${Icon ? 'pl-9' : 'pl-3'} ${isPassword ? 'pr-10' : 'pr-3'} py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors`}
+          {...inputProps}
         />
         {isPassword && (
           <button
