@@ -1,4 +1,5 @@
--- Usuarios (3 Admins, 3 Organizers, 3 Customers)
+-- Usuarios (3 Admins, 3 Organizers, 3 Users)
+-- Nota: el enum role_type del modelo usa valores 'admin', 'organizer', 'user'
 INSERT INTO users (id, role, first_name, last_name, email, password_hash, created_at, is_active) VALUES
 (1, 'ADMIN', 'Usuario1', 'Prueba1', 'admin1@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
 (2, 'ADMIN', 'Usuario2', 'Prueba2', 'admin2@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
@@ -6,9 +7,10 @@ INSERT INTO users (id, role, first_name, last_name, email, password_hash, create
 (4, 'ORGANIZER', 'Usuario4', 'Prueba4', 'organizer1@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
 (5, 'ORGANIZER', 'Usuario5', 'Prueba5', 'organizer2@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
 (6, 'ORGANIZER', 'Usuario6', 'Prueba6', 'organizer3@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
-(7, 'CUSTOMER', 'Usuario7', 'Prueba7', 'customer1@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
-(8, 'CUSTOMER', 'Usuario8', 'Prueba8', 'customer2@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
-(9, 'CUSTOMER', 'Usuario9', 'Prueba9', 'customer3@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true);
+(7, 'USER', 'Usuario7', 'Prueba7', 'customer1@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
+(8, 'USER', 'Usuario8', 'Prueba8', 'customer2@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true),
+(9, 'USER', 'Usuario9', 'Prueba9', 'customer3@ejemplo.com', 'hashed_password_123', CURRENT_TIMESTAMP, true);
+
 -- Lugares
 INSERT INTO venues (id, name, address, city, img_url, is_active) VALUES
 (1, 'Lugar de Eventos 1', 'Avenida Principal 1', 'Maracaibo', 'https://midominio.com/layouts/venue_1.png', true),
@@ -72,3 +74,11 @@ CROSS JOIN (
     SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24 UNION ALL SELECT 25
 ) n
 ORDER BY z.id, r.coord_y, n.num;
+
+-- Ajustar secuencias tras insertar IDs explícitos (evita conflictos en futuros INSERT sin id)
+SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 1), true);
+SELECT setval(pg_get_serial_sequence('venues', 'id'), COALESCE((SELECT MAX(id) FROM venues), 1), true);
+SELECT setval(pg_get_serial_sequence('events', 'id'), COALESCE((SELECT MAX(id) FROM events), 1), true);
+SELECT setval(pg_get_serial_sequence('zones', 'id'), COALESCE((SELECT MAX(id) FROM zones), 1), true);
+SELECT setval(pg_get_serial_sequence('event_pricings', 'id'), COALESCE((SELECT MAX(id) FROM event_pricings), 1), true);
+SELECT setval(pg_get_serial_sequence('pay_methods', 'id'), COALESCE((SELECT MAX(id) FROM pay_methods), 1), true);

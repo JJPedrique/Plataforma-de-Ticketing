@@ -1,6 +1,33 @@
-import { getUsuarioByEmail, usuarios } from '../data/usuarios';
+import { apiRequest } from '../../../shared/api/http';
 
 const SESSION_KEY = 'ticketing_session';
+
+function toDisplayName(user) {
+  const full = [user?.first_name, user?.last_name].filter(Boolean).join(' ').trim();
+  return full || user?.email || 'Usuario';
+}
+
+function toSession(user) {
+  if (!user) return null;
+  const role = String(user.role || '').toLowerCase();
+  return {
+    ...user,
+    id: user.id,
+    email: user.email,
+    role,
+    is_active: user.is_active !== false,
+    name: toDisplayName(user),
+  };
+}
+
+function saveSession(session) {
+  if (!session) {
+    localStorage.removeItem(SESSION_KEY);
+    return null;
+  }
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  return session;
+}
 
 export const authService = {
   validatePassword: (password) => {
@@ -22,130 +49,134 @@ export const authService = {
     return true;
   },
 
-  login: (email, password) => {
-    const user = getUsuarioByEmail(email);
-    if (!user || user.is_active === false) {
-      throw new Error('Credenciales inválidas');
+  toSession,
+
+  login: async (email, password) => {
+    if (!email || !password) {
+      throw new Error('Correo y contraseña son obligatorios.');
     }
-    if (!password || password.length < 4) {
-      throw new Error('Credenciales inválidas');
-    }
-    const session = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      is_active: user.is_active !== false,
-      token: `mock-token-${user.id}-${Date.now()}`,
-      expiresAt: Date.now() + 1000 * 60 * 60 * 24, // 24 horas
-    };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    return session;
+    const user = await apiRequest('/Users/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    return saveSession(toSession(user));
   },
 
-  register: ({ name, email, password }) => {
-    if (!name || !email || !password) {
-      throw new Error('Todos los campos son obligatorios');
+  normalizePersonName: (value) => String(value ?? '').replace(/\s+/g, ' ').trim(),
+
+  validatePersonName: (value, fieldLabel) => {
+    const cleaned = authService.normalizePersonName(value);
+    if (!cleaned) {
+      throw new Error(`El ${fieldLabel} es obligatorio.`);
     }
+    if (cleaned.length < 2) {
+      throw new Error(`El ${fieldLabel} debe tener al menos 2 caracteres.`);
+    }
+    if (cleaned.length > 100) {
+      throw new Error(`El ${fieldLabel} no puede exceder 100 caracteres.`);
+    }
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+$/.test(cleaned)) {
+      throw new Error(`El ${fieldLabel} solo puede contener letras, números, espacios, apóstrofes y guiones.`);
+    }
+    return cleaned;
+  },
+
+  register: async ({ firstName, lastName, email, password }) => {
+    const cleanFirstName = authService.validatePersonName(firstName, 'nombre');
+    const cleanLastName = authService.validatePersonName(lastName, 'apellido');
+    const cleanEmail = String(email ?? '').trim().toLowerCase();
+
+    if (!cleanEmail || !password) {
+      throw new Error('Todos los campos son obligatorios.');
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      throw new Error('Ingresa un correo electrónico válido.');
+    }
+
     authService.validatePassword(password);
-    const existing = getUsuarioByEmail(email);
-    if (existing) {
-      throw new Error('El correo electrónico ya está registrado.');
-    }
-    const newUser = {
-      id: usuarios.length + 1,
-      name,
-      email,
-      password_hash: `hash_${Date.now()}`,
-      role: 'client',
-      is_active: true,
-      created_at: new Date().toISOString(),
-    };
-    usuarios.push(newUser);
-    const session = {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-      is_active: true,
-      token: `mock-token-${newUser.id}-${Date.now()}`,
-      expiresAt: Date.now() + 1000 * 60 * 60 * 24,
-    };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    return session;
+
+    const user = await apiRequest('/Users/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: cleanEmail,
+        first_name: cleanFirstName,
+        last_name: cleanLastName,
+        password,
+      }),
+    });
+    return saveSession(toSession(user));
   },
 
-  requestPasswordRecovery: (email) => {
-    const user = getUsuarioByEmail(email);
-    if (!user) {
-      return { success: true, message: 'Si el correo está registrado, recibirás un enlace de recuperación.' };
-    }
-    const recoveryToken = `recovery-${user.id}-${Date.now()}`;
-    localStorage.setItem(`recovery_${recoveryToken}`, JSON.stringify({ userId: user.id, expiresAt: Date.now() + 1000 * 60 * 15 }));
-    return { success: true, message: 'Se ha enviado un enlace de recuperación a tu correo electrónico.', token: recoveryToken };
+  requestPasswordRecovery: async () => {
+    return {
+      success: true,
+      message: 'La recuperación de contraseña con base de datos aún no está configurada. Contacta al administrador si necesitas ayuda.',
+    };
   },
 
-  resetPassword: (token, newPassword) => {
-    if (!token || !newPassword) {
-      throw new Error('El token y la nueva contraseña son obligatorios.');
-    }
-    authService.validatePassword(newPassword);
-    const data = localStorage.getItem(`recovery_${token}`);
-    if (!data) {
-      throw new Error('Token inválido o expirado.');
-    }
-    const parsed = JSON.parse(data);
-    if (Date.now() > parsed.expiresAt) {
-      localStorage.removeItem(`recovery_${token}`);
-      throw new Error('El token ha expirado.');
-    }
-    const user = usuarios.find((u) => u.id === parsed.userId);
-    if (user) {
-      user.password_hash = `hash_${Date.now()}`;
-    }
-    localStorage.removeItem(`recovery_${token}`);
-    return { success: true, message: 'Contraseña restablecida correctamente.' };
+  resetPassword: async () => {
+    throw new Error('El restablecimiento de contraseña con base de datos aún no está configurado.');
   },
 
   getSession: () => {
     const session = localStorage.getItem(SESSION_KEY);
     if (!session) return null;
-    const parsed = JSON.parse(session);
-    if (Date.now() > parsed.expiresAt) {
+    try {
+      const parsed = JSON.parse(session);
+      if (!parsed?.id) {
+        localStorage.removeItem(SESSION_KEY);
+        return null;
+      }
+      if (parsed.is_active === false) {
+        localStorage.removeItem(SESSION_KEY);
+        return null;
+      }
+      return parsed;
+    } catch {
       localStorage.removeItem(SESSION_KEY);
       return null;
     }
-    const user = usuarios.find((u) => u.id === parsed.id);
-    if (user && user.is_active === false) {
+  },
+
+  refreshSession: async () => {
+    const session = authService.getSession();
+    if (!session?.id) return null;
+    const user = await apiRequest(`/Users/${session.id}`);
+    if (user?.is_active === false) {
       localStorage.removeItem(SESSION_KEY);
       return null;
     }
-    return parsed;
+    return saveSession(toSession(user));
   },
 
-  updateProfile: ({ name }) => {
+  updateProfile: async ({ firstName, lastName, name }) => {
     const session = authService.getSession();
-    if (!session) throw new Error('No hay sesión activa');
-    const trimmedName = (name || '').trim();
-    if (!trimmedName) throw new Error('El nombre es obligatorio');
+    if (!session?.id) throw new Error('No hay sesión activa');
 
-    const user = usuarios.find((u) => u.id === session.id);
-    if (user) {
-      user.name = trimmedName;
+    let cleanFirstName = firstName;
+    let cleanLastName = lastName;
+
+    if (name && (!cleanFirstName || !cleanLastName)) {
+      const trimmedName = authService.normalizePersonName(name);
+      const parts = trimmedName.split(/\s+/).filter(Boolean);
+      cleanFirstName = cleanFirstName || parts.shift() || '';
+      cleanLastName = cleanLastName || parts.join(' ');
     }
 
-    const updatedSession = { ...session, name: trimmedName };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(updatedSession));
-    return updatedSession;
+    cleanFirstName = authService.validatePersonName(cleanFirstName, 'nombre');
+    cleanLastName = authService.validatePersonName(cleanLastName, 'apellido');
+
+    const user = await apiRequest(`/Users/${session.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ first_name: cleanFirstName, last_name: cleanLastName }),
+    });
+    return saveSession(toSession(user));
   },
 
-  deactivateAccount: () => {
+  deactivateAccount: async () => {
     const session = authService.getSession();
-    if (!session) throw new Error('No hay sesión activa');
-    const user = usuarios.find((u) => u.id === session.id);
-    if (user) {
-      user.is_active = false;
-    }
+    if (!session?.id) throw new Error('No hay sesión activa');
+    await apiRequest(`/Users/${session.id}`, { method: 'DELETE' });
     localStorage.removeItem(SESSION_KEY);
     return { success: true };
   },
@@ -154,8 +185,9 @@ export const authService = {
     localStorage.removeItem(SESSION_KEY);
   },
 
-  hasRole: (session, roles) => {
-    if (!session) return false;
-    return roles.includes(session.role);
+  hasRole: (session, roles = []) => {
+    if (!session?.role) return false;
+    const current = String(session.role).toLowerCase();
+    return roles.map((r) => String(r).toLowerCase()).includes(current);
   },
 };

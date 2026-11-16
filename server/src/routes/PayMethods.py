@@ -1,52 +1,62 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from src.database import get_db
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from src.database import get_db
 from src.models.PayMethod import PayMethod
-from src.schemas.PayMethod import *
+from src.schemas.PayMethod import PayMethodCreate, PayMethodResponse, PayMethodUpdate
 
 router = APIRouter(tags=["PayMethods"])
 
-@router.get('/pays', response_model=list[PayMethodResponse])
-def get_payMethods():
-    pass
 
-@router.post('/pays')
-def create_payMethod(payMethod: PayMethodCreate, db: Session = Depends(get_db)):
-    db_PayMethod = PayMethod(**payMethod.model_dump())
-    db.add(db_PayMethod)
+@router.get('/PayMethods', response_model=list[PayMethodResponse])
+def get_pay_methods(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    stmt = select(PayMethod).offset(skip).limit(limit)
+    return db.scalars(stmt).all()
+
+
+@router.get('/PayMethods/{pay_method_id}', response_model=PayMethodResponse)
+def get_pay_method(pay_method_id: int, db: Session = Depends(get_db)):
+    pay_method = db.get(PayMethod, pay_method_id)
+    if not pay_method:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Método de pago no encontrado.")
+    return pay_method
+
+
+@router.post('/PayMethods', response_model=PayMethodResponse, status_code=status.HTTP_201_CREATED)
+def create_pay_method(payload: PayMethodCreate, db: Session = Depends(get_db)):
+    db_pay_method = PayMethod(**payload.model_dump())
+    db.add(db_pay_method)
     db.commit()
-    db.refresh(db_PayMethod)  # Recarga el objeto con el ID y campos generados por PostgreSQL
-    return db_PayMethod
+    db.refresh(db_pay_method)
+    return db_pay_method
 
-@router.put('/pays/{payMethod_id}', response_model=PayMethodResponse)
-def update_PayMethod(PayMethod_id: int, PayMethod: PayMethodUpdate, db: Session = Depends(get_db)):
-    db_PayMethod = db.get(PayMethod, PayMethod_id)
-    if not db_PayMethod:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"PayMethodo con id {PayMethod_id} no encontrado",
-        )
 
-    # exclude_unset=True evita sobrescribir con None los campos que no se enviaron
-    update_data = PayMethod.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_PayMethod, key, value)
+@router.put('/PayMethods/{pay_method_id}', response_model=PayMethodResponse)
+def update_pay_method(pay_method_id: int, payload: PayMethodUpdate, db: Session = Depends(get_db)):
+    db_pay_method = db.get(PayMethod, pay_method_id)
+    if not db_pay_method:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Método de pago no encontrado.")
+
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(db_pay_method, key, value)
 
     db.commit()
-    db.refresh(db_PayMethod)
-    return db_PayMethod
+    db.refresh(db_pay_method)
+    return db_pay_method
 
-@router.delete('/pays/{payMethod_id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete_PayMethod(PayMethod_id: int, db: Session = Depends(get_db)):
-    db_PayMethod = db.get(PayMethod, PayMethod_id)
-    if not db_PayMethod:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"PayMethodo con id {PayMethod_id} no encontrado",
-        )
 
-    db.delete(db_PayMethod)
-    db.commit()
+@router.delete('/PayMethods/{pay_method_id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete_pay_method(pay_method_id: int, db: Session = Depends(get_db)):
+    db_pay_method = db.get(PayMethod, pay_method_id)
+    if not db_pay_method:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Método de pago no encontrado.")
+
+    try:
+        db.delete(db_pay_method)
+        db.commit()
+    except Exception:
+        db.rollback()
+        db_pay_method.is_active = False
+        db.commit()
     return None

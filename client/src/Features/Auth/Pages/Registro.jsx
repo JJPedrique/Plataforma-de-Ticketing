@@ -3,11 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock } from 'lucide-react';
 import { AuthForm, InputField } from '../components/AuthForm';
 import { authService } from '../services/authService';
+import { useAuth } from '../Context/AuthContext';
 
 function Registro() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -20,25 +23,54 @@ function Registro() {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
+    const firstName = authService.normalizePersonName(formData.firstName);
+    const lastName = authService.normalizePersonName(formData.lastName);
+    const email = String(formData.email || '').trim().toLowerCase();
+
+    try {
+      authService.validatePersonName(firstName, 'nombre');
+      authService.validatePersonName(lastName, 'apellido');
+    } catch (err) {
+      setError(err.message);
+      return;
+    }
+
+    if (!email) {
+      setError('El correo electrónico es obligatorio.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Ingresa un correo electrónico válido.');
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    try {
+      authService.validatePassword(formData.password);
+    } catch (err) {
+      setError(err.message);
       return;
     }
 
     setLoading(true);
     try {
-      authService.register({
-        name: formData.name,
-        email: formData.email,
+      const session = await authService.register({
+        firstName,
+        lastName,
+        email,
         password: formData.password,
       });
-      navigate('/Ticketing');
+      login(session);
+      navigate('/Inicio');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'No se pudo completar el registro.');
     } finally {
       setLoading(false);
     }
@@ -64,15 +96,38 @@ function Registro() {
           {error}
         </div>
       )}
-      <InputField
-        label="Nombre completo"
-        id="name"
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        placeholder="Ingresa tu nombre"
-        icon={User}
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <InputField
+          label="Nombre"
+          id="firstName"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          placeholder="Ingresa tu nombre"
+          icon={User}
+          required
+          autoComplete="given-name"
+          minLength={2}
+          maxLength={100}
+          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
+          title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
+        />
+        <InputField
+          label="Apellido"
+          id="lastName"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          placeholder="Ingresa tu apellido"
+          icon={User}
+          required
+          autoComplete="family-name"
+          minLength={2}
+          maxLength={100}
+          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
+          title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
+        />
+      </div>
       <InputField
         label="Correo electrónico"
         type="email"
@@ -82,6 +137,9 @@ function Registro() {
         onChange={handleChange}
         placeholder="tu@correo.com"
         icon={Mail}
+        required
+        autoComplete="email"
+        maxLength={255}
       />
       <InputField
         label="Contraseña"
@@ -92,6 +150,10 @@ function Registro() {
         onChange={handleChange}
         placeholder="Mínimo 8 caracteres, mayúscula, minúscula, número y símbolo"
         icon={Lock}
+        required
+        autoComplete="new-password"
+        minLength={8}
+        maxLength={128}
       />
       <InputField
         label="Confirmar contraseña"
@@ -102,10 +164,11 @@ function Registro() {
         onChange={handleChange}
         placeholder="Repite tu contraseña"
         icon={Lock}
+        required
+        autoComplete="new-password"
+        minLength={8}
+        maxLength={128}
       />
-      <p className="text-xs text-gray-500">
-        La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.
-      </p>
     </AuthForm>
   );
 }

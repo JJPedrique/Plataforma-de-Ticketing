@@ -1,53 +1,62 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from src.database import get_db
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from src.database import get_db
 from src.models.Event import Event
-from src.schemas.Event import *
+from src.schemas.Event import EventCreate, EventResponse, EventUpdate
 
 router = APIRouter(tags=["Events"])
 
-@router.get('/events', response_model=list[EventResponse])
+
+@router.get('/Events', response_model=list[EventResponse])
 def get_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     stmt = select(Event).offset(skip).limit(limit)
     return db.scalars(stmt).all()
 
-@router.post('/events')
-def create_event(event: EventCreate, db: Session = Depends(get_db)):
-    db_event = Event(**event.model_dump())
+
+@router.get('/Events/{event_id}', response_model=EventResponse)
+def get_event(event_id: int, db: Session = Depends(get_db)):
+    event = db.get(Event, event_id)
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado.")
+    return event
+
+
+@router.post('/Events', response_model=EventResponse, status_code=status.HTTP_201_CREATED)
+def create_event(payload: EventCreate, db: Session = Depends(get_db)):
+    db_event = Event(**payload.model_dump())
     db.add(db_event)
     db.commit()
-    db.refresh(db_event)  # Recarga el objeto con el ID y campos generados por PostgreSQL
+    db.refresh(db_event)
     return db_event
 
-@router.put("/events/{event_id}", response_model=EventResponse)
-def update_event(event_id: int, event: EventUpdate, db: Session = Depends(get_db)):
+
+@router.put('/Events/{event_id}', response_model=EventResponse)
+def update_event(event_id: int, payload: EventUpdate, db: Session = Depends(get_db)):
     db_event = db.get(Event, event_id)
     if not db_event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Evento con id {event_id} no encontrado",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado.")
 
-    # exclude_unset=True evita sobrescribir con None los campos que no se enviaron
-    update_data = event.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
+    for key, value in payload.model_dump(exclude_unset=True).items():
         setattr(db_event, key, value)
 
     db.commit()
     db.refresh(db_event)
     return db_event
 
-@router.delete("/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+
+@router.delete('/Events/{event_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_event(event_id: int, db: Session = Depends(get_db)):
     db_event = db.get(Event, event_id)
     if not db_event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Evento con id {event_id} no encontrado",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado.")
 
-    db.delete(db_event)
-    db.commit()
+    try:
+        db.delete(db_event)
+        db.commit()
+    except Exception:
+        db.rollback()
+        db_event.is_active = False
+        db.commit()
     return None

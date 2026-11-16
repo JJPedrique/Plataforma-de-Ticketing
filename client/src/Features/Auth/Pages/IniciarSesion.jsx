@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Shield, User } from "lucide-react";
 import { AuthForm, InputField } from "../components/AuthForm";
 import { useAuth } from "../Context/AuthContext";
+import { authService } from "../services/authService";
 
 function IniciarSesion() {
-  const {login,logout,user} = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -16,20 +17,34 @@ function IniciarSesion() {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      login({ id: 1, name: 'Jose',email:formData.email, password:formData.password, role: 'ORGANIZER' },"log");
+      const session = await authService.login(formData.email, formData.password);
+      login(session);
       navigate("/Inicio");
-    } catch (err) {setError(err.message);
-    } finally {setLoading(false);}
+    } catch (err) {
+      setError(err.message || "No se pudo iniciar sesión.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const quickLogin = (email, pass) => {
-    setFormData({ email, password: pass });
+  const quickLogin = async (email, pass) => {
+    setError("");
+    setLoading(true);
+    try {
+      const session = await authService.login(email, pass);
+      login(session);
+      navigate("/Inicio");
+    } catch (err) {
+      setError(err.message || "No se pudo iniciar sesión con este usuario de prueba.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -82,33 +97,39 @@ function IniciarSesion() {
 
       <div className="w-full max-w-md mx-auto mt-6">
         <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4">
-          <p className="text-xs font-medium text-gray-600 mb-3">Acceso rápido (datos de prueba)</p>
+          <p className="text-xs font-medium text-gray-600 mb-3">Acceso rápido (usuarios de prueba en base de datos)</p>
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => quickLogin("alice@example.com", "hash_123")}
-              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors"
+              onClick={() => quickLogin("admin1@ejemplo.com", "hashed_password_123")}
+              disabled={loading}
+              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
               type="button"
             >
               <Shield className="h-3.5 w-3.5" />
               Administrador
             </button>
-            {/* <button
-              onClick={() => quickLogin("bob@example.com", "hash_123")}
-              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors"
+            <button
+              onClick={() => quickLogin("organizer1@ejemplo.com", "hashed_password_123")}
+              disabled={loading}
+              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
               type="button"
             >
-              <UserCog className="h-3.5 w-3.5" />
-              Organizador/Operador
-            </button> */}
+              <User className="h-3.5 w-3.5" />
+              Organizador
+            </button>
             <button
-              onClick={() => quickLogin("charlie@example.com", "hash_123")}
-              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors"
+              onClick={() => quickLogin("customer1@ejemplo.com", "hashed_password_123")}
+              disabled={loading}
+              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
               type="button"
             >
               <User className="h-3.5 w-3.5" />
               Cliente
             </button>
           </div>
+          <p className="text-xs text-gray-500 mt-3">
+            Estos accesos usan los usuarios insertados por inserts.sql en PostgreSQL.
+          </p>
         </div>
       </div>
     </>

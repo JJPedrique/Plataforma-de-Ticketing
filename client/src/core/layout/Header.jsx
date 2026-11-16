@@ -1,11 +1,16 @@
 import { TicketCheck, Home, LogOut, User, ChevronDown, Ticket } from "lucide-react";
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from "../../Features/Auth/Context/AuthContext";
 
 function Header() {
-  const {login,logout,user} = useAuth();
+  const { logout, user } = useAuth();
+  const location = useLocation();
   const [showMenu, setShowMenu] = useState(false)
+
+  useEffect(() => {
+    setShowMenu(false)
+  }, [location.pathname])
 
   const getInitials = (name) => {
     if (!name) return 'U'
@@ -18,11 +23,17 @@ function Header() {
   }
 
   const getRoleLabel = (role) => {
-    if (role === 'ADMIN') return 'Administrador'
-    if (role === 'CUSTOMER') return 'Cliente'
-    if (role === 'ORGANIZER') return 'Organizador'
+    const r = String(role || '').toUpperCase()
+    if (r === 'ADMIN') return 'Administrador'
+    if (r === 'CUSTOMER' || r === 'USER' || r === 'CLIENT') return 'Cliente'
+    if (r === 'ORGANIZER') return 'Organizador'
     return role
   }
+
+  const normalizedRole = String(user?.role || '').toUpperCase()
+  const isCustomer = ['CUSTOMER', 'USER', 'CLIENT'].includes(normalizedRole)
+  const isOrganizer = normalizedRole === 'ORGANIZER'
+  const isAdmin = normalizedRole === 'ADMIN'
 
   return (
     <header className="sticky top-0 z-30 bg-background/85 backdrop-blur border-b border-gray-200 shadow-sm">
@@ -77,50 +88,50 @@ function Header() {
                       </div>
                     </div>
                     <div className="py-1">
-                      {user?.role === "CUSTOMER" && (<>
-                        <NavLink to="/Ticketing" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      {isCustomer && (<>
+                        <NavLink to="/Ticketing" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
                           <span className="hidden sm:inline">Comprar boletos</span>
                         </NavLink>
 
-                        <NavLink to="/MisTickets" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        <NavLink to="/MisTickets" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <Ticket className="h-4 w-4" />
                           Mis tickets
                         </NavLink>
                       </>)}
 
-                      {user?.role === "ORGANIZER" && (<>
-                        <NavLink to="/Dashboard" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      {isOrganizer && (<>
+                        <NavLink to="/Dashboard" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
                           <span className="hidden sm:inline">Dashboard</span>
                         </NavLink> 
-                        <NavLink to="/GestorEventos" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        <NavLink to="/GestorEventos" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
                           <span className="hidden sm:inline">Gestor de Eventos</span>
                         </NavLink>                                          
                       </>)}    
 
-                      {user?.role === "ADMIN" && (<>
-                        <NavLink to="/GestorUsuarios" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      {isAdmin && (<>
+                        <NavLink to="/GestorUsuarios" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
                           <span className="hidden sm:inline">Gestor Roles de Usuarios</span>
                         </NavLink>
-                        <NavLink to="/GestorLugares" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        <NavLink to="/GestorLugares" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
                           <span className="hidden sm:inline">Gestor de Lugares</span>
                         </NavLink>
-                        <NavLink to="/GestorEventos" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        <NavLink to="/GestorEventos" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
                           <span className="hidden sm:inline">Gestor de Eventos</span>
                         </NavLink>
-                        <NavLink to="/GestorMetodosPago" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        <NavLink to="/GestorMetodosPago" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
                           <span className="hidden sm:inline">Gestor de Metodos de Pago</span>
@@ -136,7 +147,7 @@ function Header() {
                         
                        <div className="m-3 border-b border-gray-300"></div>
 
-                      <button onClick={()=>logout()}
+                      <button onClick={() => { setShowMenu(false); logout(); }}
                         className="w-full px-4 py-2 flex items-center gap-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
                         <LogOut className="h-4 w-4" />
                         <span>Cerrar sesión</span>

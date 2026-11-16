@@ -15,7 +15,12 @@ export function ProtectedRoute({ allowedRoles }) {
 
   // Extrae el rol sin importar si viene como string ("admin") o como objeto ({ name: "ADMIN" })
   const rawRole = typeof user?.role === 'object' ? user?.role?.name : user?.role;
-  const userRole = rawRole ? String(rawRole).toUpperCase() : null;
+  const normalized = rawRole ? String(rawRole).toUpperCase() : null;
+  const roleAliases = {
+    USER: 'CUSTOMER',
+    CLIENT: 'CUSTOMER',
+  };
+  const userRole = normalized ? (roleAliases[normalized] || normalized) : null;
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {
     return <Navigate to="/NoAutorizado" replace />;

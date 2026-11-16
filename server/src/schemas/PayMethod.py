@@ -2,9 +2,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class PayMethodBase(BaseModel):
-    name: str | None = Field(default=None, max_length=100)
+    name: str = Field(..., min_length=1, max_length=100)
     description: str | None = Field(default=None, max_length=255)
-    is_Active: bool = Field(default=True)
+    is_active: bool = Field(default=True)
 
 
 class PayMethodCreate(PayMethodBase):
@@ -12,9 +12,9 @@ class PayMethodCreate(PayMethodBase):
 
 
 class PayMethodUpdate(BaseModel):
-    name: str | None = Field(default=None, max_length=100)
+    name: str | None = Field(default=None, min_length=1, max_length=100)
     description: str | None = Field(default=None, max_length=255)
-    is_Active: bool | None = None
+    is_active: bool | None = None
 
 
 class PayMethodResponse(PayMethodBase):

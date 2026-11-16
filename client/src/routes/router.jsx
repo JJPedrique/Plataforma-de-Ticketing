@@ -23,6 +23,9 @@ import HistorialTickets from '../Features/Ticketing/pages/HistorialTickets'
 
 import Dashboard from '../Features/GestorEventos/Pages/Dashboard'
 import GestionEventos from '../Features/GestorEventos/Pages/GestionEventos'
+import GestionUsuarios from '../Features/GestorUsuarios/Pages/GestionUsuarios'
+import GestionLugares from '../Features/GestorLugares/Pages/GestionLugares'
+import GestionMetodosPago from '../Features/GestorMetodosPago/Pages/GestionMetodosPago'
 
 
 // M8 · El mapa de la app: qué componente se pinta para cada URL (como app.routes.ts en Angular)
@@ -82,9 +85,9 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
         children: [
-          { path: '/GestorUsuarios', element: <GestionEventos /> },
-          { path: '/GestorLugares', element: <GestionEventos /> },
-          { path: '/GestorMetodosPago', element: <GestionEventos /> },
+          { path: '/GestorUsuarios', element: <GestionUsuarios /> },
+          { path: '/GestorLugares', element: <GestionLugares /> },
+          { path: '/GestorMetodosPago', element: <GestionMetodosPago /> },
         ],
       },      
     ],
