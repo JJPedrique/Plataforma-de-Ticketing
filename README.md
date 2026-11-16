@@ -7,17 +7,6 @@
 
 Plataforma web para gestionar eventos y sus recintos y para ofrecer un flujo de selección de asientos y compra de entradas. Reúne en un mismo proyecto una interfaz React y una API basada en FastAPI.
 
-## Tabla de contenidos
-
-- [Características principales](#características-principales)
-- [Stack tecnológico](#stack-tecnológico)
-- [Requisitos previos e instalación](#requisitos-previos-e-instalación)
-- [Variables de entorno y configuración](#variables-de-entorno-y-configuración)
-- [Uso y guía rápida](#uso-y-guía-rápida)
-- [Pruebas](#pruebas)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Contribución y licencia](#contribución-y-licencia)
-
 ## Características principales
 
 - Registro, inicio de sesión, recuperación de contraseña y gestión de perfil.
@@ -43,9 +32,9 @@ Clona el repositorio e instala las dependencias:
 ```bash
 git clone https://github.com/JJPedrique/Plataforma-de-Ticketing.git
 cd Plataforma-de-Ticketing
+npm install
+npm run dev
+```
+## Diagrama de Base de Datos
 
-npm install --prefix client
-
-python -m venv server/venv
-source server/venv/bin/activate
-python -m pip install -r server/requirements.txt
+<img src="Ticketing BDD.png">
