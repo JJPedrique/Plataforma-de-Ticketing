@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 import re
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 NAME_REGEX = re.compile(r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+$")
@@ -29,7 +29,7 @@ class RoleType(str, Enum):
 
 
 class UserBase(BaseModel):
-    email: EmailStr = Field(..., max_length=255)
+    email: str = Field(..., max_length=255)
     first_name: str | None = Field(default=None, max_length=100)
     last_name: str | None = Field(default=None, max_length=100)
     role: RoleType = Field(default=RoleType.USER)
@@ -41,7 +41,7 @@ class UserCreate(UserBase):
 
 
 class UserRegister(BaseModel):
-    email: EmailStr = Field(..., max_length=255)
+    email: str = Field(..., max_length=255)
     first_name: str = Field(..., min_length=2, max_length=100)
     last_name: str = Field(..., min_length=2, max_length=100)
     password: str = Field(..., min_length=8, max_length=128)
@@ -65,7 +65,7 @@ class UserRegister(BaseModel):
 
 
 class UserLogin(BaseModel):
-    email: EmailStr = Field(..., max_length=255)
+    email: str = Field(..., max_length=255)
     password: str = Field(..., min_length=1, max_length=128)
 
     @field_validator("email", mode="before")
@@ -77,7 +77,7 @@ class UserLogin(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    email: EmailStr | None = Field(default=None, max_length=255)
+    email: str | None = Field(default=None, max_length=255)
     first_name: str | None = Field(default=None, max_length=100)
     last_name: str | None = Field(default=None, max_length=100)
     role: RoleType | None = None
@@ -109,7 +109,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(BaseModel):
     id: int
-    email: EmailStr
+    email: str
     first_name: str | None = None
     last_name: str | None = None
     role: RoleType
