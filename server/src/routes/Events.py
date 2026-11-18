@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from src.database import get_db
 from src.models.Event import Event
-from src.schemas.Event import EventCreate, EventResponse, EventUpdate
+from src.schemas.Event import EventCreate, EventResponse, EventUpdate, EventVenueResponse
 
 router = APIRouter(tags=["Events"])
-
 
 @router.get('/Events', response_model=list[EventResponse])
 def get_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -60,3 +59,8 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
         db_event.is_active = False
         db.commit()
     return None
+
+@router.get('/EventsVenues', response_model=list[EventVenueResponse])
+def get_events(title = "", skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    stmt = select(Event).where(Event.title.ilike(f"%{title}%")).options(joinedload(Event.venue)).offset(skip).limit(limit)
+    return db.scalars(stmt).all()

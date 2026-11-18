@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from src.database import get_db
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from src.models.Seat import Seat
 from src.schemas.Seat import *

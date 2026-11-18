@@ -1,6 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from src.schemas.Venue import VenueResponse
+
 
 class EventBase(BaseModel):
     organizer_id: int = Field(..., gt=0)
@@ -41,4 +43,10 @@ class EventUpdate(BaseModel):
 class EventResponse(EventBase):
     id: int
 
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EventVenueResponse(EventBase):
+    id: int
+    venue: VenueResponse
     model_config = ConfigDict(from_attributes=True)

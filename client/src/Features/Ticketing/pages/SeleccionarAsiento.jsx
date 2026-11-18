@@ -9,8 +9,17 @@ import SillasCard from '../components/SillaCard';
 function SeleccionarAsiento() {
     const {event,seats,onSeatChange} = useContext(TicketingContext);
 
+
+    
+
+
+
     const [EventSeats,setSeats] = useState(GetSeatsById(event.id));
     const [reservedSeats,setReservedSeats] = useState(GetReservedSeats(event.id));
+
+
+
+
 
     return ( 
     <>

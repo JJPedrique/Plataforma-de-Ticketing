@@ -1,21 +1,52 @@
-import { BDD } from "../../../Data/Mock_v2";
+import axiosClient from '../../../core/api/axiosClient';
 
-export function GetPagosAll(){
-    return BDD.payMethods.filter(pay => pay.is_Active);
-}
+export const PayMethodsService = {
+  getAll: (params) => axiosClient.get('/PayMethods', { params }),
+  getById: (id) => axiosClient.get(`/PayMethods/${id}`),
+  create: (eventData) => axiosClient.post('/PayMethods', eventData),
+  update: (id, eventData) => axiosClient.put(`/PayMethods/${id}`, eventData),
+  delete: (id) => axiosClient.delete(`/PayMethods/${id}`),
+};
 
-export function AddOrder(Data){
-    const NEXT_ID = BDD.orders.length;
-    BDD.orders.push({...Data,id:NEXT_ID});
-    return NEXT_ID;
-}
+export const generarReferenciaPasarela = (prefijo = "TXN") => {
+  const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  // Se excluyen 0, O, I, 1 para evitar confusiones visuales
+  const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
 
-export function UpdateOrden(id, nuevoStatus) {
-    const orden = BDD.orders.find(item => item.id === id);
-    orden.status = nuevoStatus;
-}
+  const sufijo = Array.from(bytes, (b) => alfabeto[b % alfabeto.length]).join("");
+  return `${prefijo}-${fecha}-${sufijo}`;
+};
 
-export function AddTikets(Data){
-    const NEXT_ID = BDD.tickets.length;
-    BDD.tickets.push({...Data,id:NEXT_ID});
-}
+export const generarReferenciaBancaria = (longitud = 12) => {
+  const bytes = new Uint8Array(longitud);
+  crypto.getRandomValues(bytes);
+
+  return Array.from(bytes, (b) => b % 10).join("");
+};
+
+export const generarTxHashCrypto = (conPrefijo = true) => {
+  const bytes = new Uint8Array(32); // 32 bytes = 64 caracteres hex
+  crypto.getRandomValues(bytes);
+
+  const hashHex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return conPrefijo ? `0x${hashHex}` : hashHex;
+};
+
+export const generarReferenciaEfectivo = (prefijo = "EFEC") => {
+  const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
+
+  const codigo = Array.from(bytes, (b) => alfabeto[b % alfabeto.length]).join("");
+  return `${prefijo}-${fecha}-${codigo}`;
+};
+
+export const generarReferenciaPagoMovil = (longitud = 12) => {
+  const bytes = new Uint8Array(longitud);
+  crypto.getRandomValues(bytes);
+
+  return Array.from(bytes, (b) => b % 10).join("");
+};

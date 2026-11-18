@@ -1,30 +1,54 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { CreditCard, Ticket, } from 'lucide-react';
 import Steps from '../components/Steps';
 import EventoCard from '../components/EventoCard';
 import SillasCard from '../components/SillaCard';
 import { TicketingContext } from '../Context/TicketingContext';
 import PagoCard from '../components/PagoCard';
-import { GetPagosAll } from '../services/Pagos';
+import { generarReferenciaBancaria, generarReferenciaPasarela, generarTxHashCrypto, PayMethodsService } from '../services/Pagos';
 import Modal from '../../../shared/components/Modal';
 import FormCreditCard from '../components/FormCreditCard';
 import FormCriptoCard from '../components/FormCriptoCard';
 import FormWalletCard from '../components/FormWalletCard';
 
-function RealizarPago({ onReservar }) {
-  const [payMedthods,setPayMethods] = useState(GetPagosAll());
-  const {event,seats,totalAmount,pay,onPayChange} = useContext(TicketingContext);
- 
+function PrepararPago({ onReservar }) {
+  const [payMedthods,setPayMethods] = useState([]);
+  const {event,seats,totalAmount,pay,setPay} = useContext(TicketingContext);
   const [isModalOpen, setIsModalOpen] = useState(false);  
+  const [loading,setLoading] = useState(false);
 
-  function RealizarPago(Pay){
-    onPayChange(Pay);
+  useEffect(() => {
+      const controller = new AbortController();
+      const timer = setTimeout(async () => {
+      try {
+          setLoading(true);
+          const data = await PayMethodsService.getAll(controller.signal);
+          setPayMethods(data);
+      } catch (error) {
+          if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
+      } finally {setLoading(false);}
+      }, 400);
+
+      return () => {clearTimeout(timer); controller.abort();};
+  }, []);
+
+  function PrepararPago(Pay){
+    setPay(Pay);
     setIsModalOpen(true);
   }
 
   function CancelarPago(){
-    onPayChange(null);
+    setPay(null);
     setIsModalOpen(false);
+  }
+
+  function CompletarPago(){
+    setPay(prev => prev.pay_methods_ref = 
+      pay?.id === 1 ? generarReferenciaBancaria() :
+      pay?.id === 3 ? generarTxHashCrypto() :         
+      pay?.id === 4 ? generarReferenciaPasarela() :         
+      "Pago en efectivo");
+    onReservar();
   }
 
   return (
@@ -73,16 +97,21 @@ function RealizarPago({ onReservar }) {
               <p className="text-sm text-gray-600 mt-1">Selecciona el método de pago de tu preferencia</p>
             </div>
             
-            <div className="p-4">
-              <div className="space-y-2">
-                {payMedthods.map(method => <PagoCard key={method.id} Data={method} onClick={()=>RealizarPago(method)}/>)}
+            {loading ? (<>
+                <h1>Loading...</h1>
+            </>)
+            :(<>
+              <div className="p-4">
+                <div className="space-y-2">
+                  {payMedthods.map(method => <PagoCard key={method.id} Data={method} onClick={()=>PrepararPago(method)}/>)}
+                </div>
               </div>
-            </div>
-            <div className="p-4 flex justify-center w-full">
-              <span className='border-t w-75 flex justify-center text-stone-300'>
-                more comming soon...
-              </span>
-            </div>
+              <div className="p-4 flex justify-center w-full">
+                <span className='border-t w-75 flex justify-center text-stone-300'>
+                  more comming soon...
+                </span>
+              </div>
+            </>)}
           </div>
         </div>
       </div>
@@ -92,12 +121,12 @@ function RealizarPago({ onReservar }) {
         title={pay?.name} 
         
         children={
-          pay?.name === "Tarjetas de Crédito y Débito" ? (<FormCreditCard onReservar={onReservar}/>) :
-          pay?.name === "Criptomonedas y Monedas Estables (Stablecoins)" ? (<FormCriptoCard onReservar={onReservar}/>) :         
-          pay?.name === "Monederos Digitales y Billeteras (e-Wallets)" ? (<FormWalletCard onReservar={onReservar}/>) :         
+          pay?.id === 1 ? (<FormCreditCard onReservar={()=>CompletarPago()}/>) :
+          pay?.id === 3 ? (<FormCriptoCard onReservar={()=>CompletarPago()}/>) :         
+          pay?.id === 4 ? (<FormWalletCard onReservar={()=>CompletarPago()}/>) :         
           (<h1>Yahany Fia</h1>)}/>       
     </>
   );
 }
 
-export default RealizarPago;
+export default PrepararPago;

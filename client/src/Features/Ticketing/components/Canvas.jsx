@@ -43,7 +43,7 @@ function Canvas({ Data,Blocked, seats, onSeatChange}) {
 
     return (
         <div>
-            <div className="flex gap-3 p-2 m-2 absolute bg-white rounded z-100">
+            <div className="flex gap-3 p-2 m-2 absolute bg-white rounded z-10">
                 <button onClick={() => zoom <= 1.5 ? setZoom(zoom + 0.1) : 1.5}><Plus className="size-3"/></button>
                 <button onClick={() => zoom >= 0.6 ? setZoom(zoom - 0.1) : 0.6}><Minus className="size-3"/></button>
                 <button onClick={() => setZoom(0.5)}><SquareSquare className="size-3"/></button>

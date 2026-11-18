@@ -1,14 +1,8 @@
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
 
-
-class OrderStatus(str, Enum):
-    PENDING = "pending"
-    PAID = "paid"
-    CANCELLED = "cancelled"
-    REFUNDED = "refunded"
+from src.models.Order import OrderStatus
 
 
 class OrderBase(BaseModel):
@@ -16,12 +10,12 @@ class OrderBase(BaseModel):
         default=None, ge=0, max_digits=10, decimal_places=2
     )
     status: OrderStatus = Field(default=OrderStatus.PENDING)
-    PayMethods_ref: str | None = Field(default=None, max_length=150)
+    pay_methods_ref: str | None = Field(default=None, max_length=255)
 
 
 class OrderCreate(OrderBase):
     user_id: int = Field(..., gt=0)
-    payMethod_id: int = Field(..., gt=0)
+    pay_method_id: int | None = Field(default=None, gt=0)
 
 
 class OrderUpdate(BaseModel):
@@ -29,14 +23,14 @@ class OrderUpdate(BaseModel):
         default=None, ge=0, max_digits=10, decimal_places=2
     )
     status: OrderStatus | None = None
-    payMethod_id: int | None = Field(default=None, gt=0)
-    PayMethods_ref: str | None = Field(default=None, max_length=150)
+    pay_method_id: int | None = Field(default=None, gt=0)
+    pay_methods_ref: str | None = Field(default=None, max_length=255)
 
 
 class OrderResponse(OrderBase):
     id: int
     user_id: int
-    payMethod_id: int
+    pay_method_id: int | None = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

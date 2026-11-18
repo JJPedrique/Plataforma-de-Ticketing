@@ -3,15 +3,10 @@ import { createContext, useMemo, useState } from 'react';
 export const TicketingContext = createContext();
 
 export const TicketingProvider = ({ children }) => {
+    const [order,setOrder] = useState(null);
     const [event, setEvent] = useState(null);
     const [seats, setSeats] = useState([]);
     const [pay, setPay] = useState(null);
-
-    function setReset(){
-        setEvent(null);
-        setSeats([]);
-        setPay(null);
-    }
 
     function onEventChange(newEvent) {
         setEvent((prev) => (prev === newEvent ? null : newEvent));
@@ -28,10 +23,6 @@ export const TicketingProvider = ({ children }) => {
         });
     }
 
-    const onPayChange = (newPay) => {
-        setPay((prev) => (prev === newPay ? null : newPay));
-    };
-
     const totalAmount = useMemo(() => {
         const subtotal = seats.reduce((acc, a) => acc + a.price, 0);
         const comision = subtotal * 0.01;
@@ -41,8 +32,7 @@ export const TicketingProvider = ({ children }) => {
 
     return (
         <TicketingContext.Provider
-            value={{ event, seats, pay, totalAmount, onEventChange, onSeatChange, onPayChange, setReset }}
-        >
+            value={{ order, event, seats, pay, totalAmount, onEventChange, onSeatChange, setPay, setOrder }}>
             {children}
         </TicketingContext.Provider>
     );

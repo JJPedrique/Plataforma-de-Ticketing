@@ -11,7 +11,7 @@ router = APIRouter(tags=["PayMethods"])
 
 @router.get('/PayMethods', response_model=list[PayMethodResponse])
 def get_pay_methods(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    stmt = select(PayMethod).offset(skip).limit(limit)
+    stmt = select(PayMethod).where(PayMethod.is_active).offset(skip).limit(limit)
     return db.scalars(stmt).all()
 
 

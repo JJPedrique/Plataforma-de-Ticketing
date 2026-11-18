@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.models.Zone import Zone
+
 
 class VenueBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=150)

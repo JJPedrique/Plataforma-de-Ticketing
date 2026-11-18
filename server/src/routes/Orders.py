@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from src.database import get_db
+import asyncio
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from src.database import SessionLocal, get_db
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.models.Order import Order
-from src.schemas.Order import *
+from src.schemas.Order import OrderCreate, OrderResponse, OrderUpdate
 
 router = APIRouter(tags=["Orders"])
 
@@ -14,15 +15,16 @@ def get_Orders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.scalars(stmt).all()
 
 @router.post('/Orders')
-def create_Order(Order: OrderCreate, db: Session = Depends(get_db)):
-    db_Order = Order(**Order.model_dump())
+def create_Order(background_tasks: BackgroundTasks, order: OrderCreate, db: Session = Depends(get_db)):
+    db_Order = Order(**order.model_dump())
     db.add(db_Order)
     db.commit()
-    db.refresh(db_Order)  # Recarga el objeto con el ID y campos generados por PostgreSQL
+    db.refresh(db_Order)  
+    background_tasks.add_task(actualizar_fila_diferida,db_Order.id)
     return db_Order
 
 @router.put("/Orders/{Order_id}", response_model=OrderResponse)
-def update_Order(Order_id: int, Order: OrderUpdate, db: Session = Depends(get_db)):
+def update_Order(Order_id: int, order: OrderUpdate, db: Session = Depends(get_db)):
     db_Order = db.get(Order, Order_id)
     if not db_Order:
         raise HTTPException(
@@ -31,7 +33,7 @@ def update_Order(Order_id: int, Order: OrderUpdate, db: Session = Depends(get_db
         )
 
     # exclude_unset=True evita sobrescribir con None los campos que no se enviaron
-    update_data = Order.model_dump(exclude_unset=True)
+    update_data = order.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_Order, key, value)
 
@@ -51,3 +53,14 @@ def delete_Order(Order_id: int, db: Session = Depends(get_db)):
     db.delete(db_Order)
     db.commit()
     return None
+
+async def actualizar_fila_diferida(row_id: int, segundos: int = 60):
+    await asyncio.sleep(segundos)
+
+    db = SessionLocal()
+    try:
+        fila = db.query(Order).filter(Order.id == row_id).first()
+        if not fila or fila.status != "PENDING": return
+        fila.status = "CANCELLED"
+        db.commit()
+    finally: db.close()

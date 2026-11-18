@@ -1,4 +1,8 @@
+from decimal import Decimal
+from typing import List
+
 from pydantic import BaseModel, ConfigDict, Field
+from src.models.Seat import Seat
 
 
 class ZoneBase(BaseModel):

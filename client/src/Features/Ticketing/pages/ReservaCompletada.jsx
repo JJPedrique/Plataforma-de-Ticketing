@@ -30,18 +30,16 @@ function ReservaCompletada({Repetir}) {
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-3">
-                    <Link 
-                        to="/Inicio" 
+                    <Link to="/Inicio" 
                         className="px-6 py-2.5 bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all"
                     >
                         Volver al inicio
                     </Link>
-                    <button 
-                        onClick={Repetir}
+                    <Link to="/Ticketing" reloadDocument
                         className="px-6 py-2.5 bg-white text-gray-700 font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
                     >
                         Comprar más boletos
-                    </button>
+                    </Link>
                 </div>
             </div>        
         </> 

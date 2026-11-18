@@ -1,25 +1,13 @@
-import { useState } from "react";
+import { CreditCard } from "lucide-react";
 
 function FormCreditCard({ onReservar }) {
-  const [form, setForm] = useState({cardName: "",cardNumber: "",expiryDate: "",cvc: "",});
-
-  const isAllFilled = Object.values(form).every((value) => value.trim().length > 0);
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setForm((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const handleAction = () => {
-    if (!isAllFilled) return;
-    onReservar?.();
+  const handleSubmit = (e) => {
+      e.preventDefault();
+      onReservar();
   };
 
   return (
-    <form
-      className="space-y-2"
-      onSubmit={(e) => e.preventDefault()}
-    >
+    <form className="space-y-2" onSubmit={(e) => handleSubmit(e)}>
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800">Pago con Tarjeta</h2>
         <p className="text-sm text-gray-500">Ingresa los datos de tu tarjeta de crédito o débito.</p>
@@ -29,12 +17,7 @@ function FormCreditCard({ onReservar }) {
         <label htmlFor="cardName" className="block text-sm font-medium text-gray-700 mb-1">
           Nombre en la tarjeta
         </label>
-        <input
-          id="cardName"
-          type="text"
-          value={form.cardName}
-          onChange={handleChange}
-          placeholder="Ej. Juan Pérez"
+        <input type="text" id="cc-name" name="cc_name" autoComplete="cc-name" placeholder="Juan Pérez" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' .-]{2,50}" title="Ingresa solo letras y espacios (entre 2 y 50 caracteres)" required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
         />
       </div>
@@ -43,29 +26,11 @@ function FormCreditCard({ onReservar }) {
         <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-1">
           Número de tarjeta
         </label>
-        <div className="relative">
-          <input
-            id="cardNumber"
-            type="text"
-            maxLength={19}
-            value={form.cardNumber}
-            onChange={handleChange}
-            placeholder="0000 0000 0000 0000"
+        <div className="relative flex items-center gap-1">
+          <CreditCard/>
+          <input type="text" id="cc-number" name="cc_number" autoComplete="cc-number" placeholder="1234 5678 9012 3456" maxLength="23" pattern="(?:[0-9][ -]?){12,18}[0-9]" title="Ingresa un número de tarjeta válido de 13 a 19 dígitos" required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors tracking-wide"
           />
-          <svg
-            className="w-6 h-6 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-            />
-          </svg>
         </div>
       </div>
 
@@ -74,13 +39,7 @@ function FormCreditCard({ onReservar }) {
           <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 mb-1">
             Vencimiento
           </label>
-          <input
-            id="expiryDate"
-            type="text"
-            maxLength={5}
-            value={form.expiryDate}
-            onChange={handleChange}
-            placeholder="MM/AA"
+          <input type="text" id="cc-exp" name="cc_exp" autoComplete="cc-exp" placeholder="MM/AA" maxLength="5" pattern="(0[1-9]|1[0-2])/[0-9]{2}" title="Formato válido: MM/AA (mes del 01 al 12)" required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
           />
         </div>
@@ -88,24 +47,14 @@ function FormCreditCard({ onReservar }) {
           <label htmlFor="cvc" className="block text-sm font-medium text-gray-700 mb-1">
             CVC
           </label>
-          <input
-            id="cvc"
-            type="password"
-            maxLength={4}
-            value={form.cvc}
-            onChange={handleChange}
-            placeholder="•••"
+          <input type="text" id="cc-csc" name="cc_csc" autoComplete="cc-csc" placeholder="123" maxLength="4" pattern="[0-9]{3,4}" title="Código de seguridad de 3 o 4 dígitos" required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
           />
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={handleAction}
-        disabled={!isAllFilled}
-        className="w-full mt-3 py-3 px-4 rounded-xl font-semibold transition-all bg-linear-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+      <button className="w-full mt-3 py-3 px-4 rounded-xl font-semibold transition-all bg-linear-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-lg shadow-orange-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+        type="submit">
         Continuar con el pago
       </button>
     </form>
