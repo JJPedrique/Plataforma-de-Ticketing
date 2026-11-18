@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { X} from 'lucide-react';
 
-function Modal({ isOpen, onClose, title, children, footer, preventCloseOnOverlayClick = false }) {
+function Modal({ isOpen, onClose = ()=>{}, title, children, footer, preventCloseOnOverlayClick = false }) {
 
     useEffect(() => {
         const handleKeyDown = (e) => {

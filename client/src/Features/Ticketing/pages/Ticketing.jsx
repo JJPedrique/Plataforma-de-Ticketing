@@ -81,7 +81,7 @@ function Ticketing() {
             </div>
 
             {!isRunning && tab !== 4 &&      
-                <Modal isOpen={() => setIsModalOpen(true)} title="Tiempo Expirado"
+                <Modal isOpen={() => setIsModalOpen(true)} title="Tiempo Expirado" 
                 children={              
                     <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">

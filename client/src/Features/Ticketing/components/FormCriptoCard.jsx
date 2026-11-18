@@ -15,7 +15,7 @@ function FormCriptoCard({ onReservar }) {
         <label htmlFor="cryptoNetwork" className="block text-sm font-medium text-gray-700 mb-1">
           Seleccionar Moneda y Red
         </label>
-        <select id="cryptoNetwork" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors bg-white text-gray-700">
+        <select id="cryptoNetwork" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors bg-white text-gray-700" required>
           <option value="">-- Seleccione --</option>
           <option value="usdt_trc20">USDT (Red Tron / TRC-20)</option>
           <option value="usdt_erc20">USDT (Red Ethereum / ERC-20)</option>
@@ -41,7 +41,7 @@ function FormCriptoCard({ onReservar }) {
           ID de Transacción (Hash)
         </label>
         <input type="text" id="crypto-tx" name="crypto_tx" placeholder="0x9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" pattern="(0x)?[0-9a-fA-F]{64}" title="Hash hexadecimal de 64 caracteres (con o sin prefijo 0x)" required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors font-mono text-sm"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors font-mono text-sm"
         />
         <p className="text-xs text-gray-500 mt-1">Requerido para verificar tu pago en la blockchain.</p>
       </div>

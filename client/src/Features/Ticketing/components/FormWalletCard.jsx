@@ -17,7 +17,7 @@ function FormWalletCard({ onReservar }) {
           Correo asociado a PayPal
         </label>
         <input type="email" id="paypal-email" name="paypal_email" autoComplete="email" placeholder="usuario@ejemplo.com" title="Ingresa un correo electrónico válido con dominio (ej. usuario@dominio.com)" required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors"
         />
       </div>
 
