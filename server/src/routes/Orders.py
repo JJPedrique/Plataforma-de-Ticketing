@@ -54,7 +54,7 @@ def delete_Order(Order_id: int, db: Session = Depends(get_db)):
     db.commit()
     return None
 
-async def actualizar_fila_diferida(row_id: int, segundos: int = 60):
+async def actualizar_fila_diferida(row_id: int, segundos: int = 300):
     await asyncio.sleep(segundos)
 
     db = SessionLocal()
