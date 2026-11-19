@@ -1,4 +1,4 @@
-import { TicketCheck, Home, LogOut, User, ChevronDown, Ticket } from "lucide-react";
+import { TicketCheck, Home, LogOut, User, ChevronDown, Ticket, LayoutDashboard, CalendarDays, UsersRound, MapPin, CreditCard } from "lucide-react";
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from "../../Features/Auth/Context/AuthContext";
@@ -105,36 +105,41 @@ function Header() {
                       {isOrganizer && (<>
                         <NavLink to="/Dashboard" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
-                          <TicketCheck className="h-4 w-4" />
-                          <span className="hidden sm:inline">Dashboard</span>
+                          <LayoutDashboard className="h-4 w-4" />
+                          <span className="hidden sm:inline">Panel</span>
                         </NavLink> 
                         <NavLink to="/GestorEventos" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
-                          <TicketCheck className="h-4 w-4" />
-                          <span className="hidden sm:inline">Gestor de Eventos</span>
+                          <CalendarDays className="h-4 w-4" />
+                          <span className="hidden sm:inline">Mis Eventos</span>
                         </NavLink>                                          
                       </>)}    
 
                       {isAdmin && (<>
+                        <NavLink to="/PanelAdministrador" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
+                          <LayoutDashboard className="h-4 w-4" />
+                          <span className="hidden sm:inline">Panel de Administración</span>
+                        </NavLink>
                         <NavLink to="/GestorUsuarios" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
-                          <TicketCheck className="h-4 w-4" />
-                          <span className="hidden sm:inline">Gestor Roles de Usuarios</span>
+                          <UsersRound className="h-4 w-4" />
+                          <span className="hidden sm:inline">Gestor de Usuarios</span>
                         </NavLink>
                         <NavLink to="/GestorLugares" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
-                          <TicketCheck className="h-4 w-4" />
+                          <MapPin className="h-4 w-4" />
                           <span className="hidden sm:inline">Gestor de Lugares</span>
                         </NavLink>
                         <NavLink to="/GestorEventos" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
-                          <TicketCheck className="h-4 w-4" />
-                          <span className="hidden sm:inline">Gestor de Eventos</span>
+                          <CalendarDays className="h-4 w-4" />
+                          <span className="hidden sm:inline">Gestionar Eventos</span>
                         </NavLink>
                         <NavLink to="/GestorMetodosPago" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
-                          <TicketCheck className="h-4 w-4" />
-                          <span className="hidden sm:inline">Gestor de Metodos de Pago</span>
+                          <CreditCard className="h-4 w-4" />
+                          <span className="hidden sm:inline">Gestor de Métodos de Pago</span>
                         </NavLink>                     
                       </>)}          
 
