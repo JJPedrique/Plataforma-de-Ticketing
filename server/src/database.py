@@ -14,9 +14,7 @@ SessionLocal = sessionmaker(
     bind=engine,
 )
 
-
 class Base(DeclarativeBase): pass
-
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()

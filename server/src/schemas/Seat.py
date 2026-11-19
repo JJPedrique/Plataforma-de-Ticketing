@@ -1,6 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-
 class SeatBase(BaseModel):
     row_label: str | None = Field(default=None, max_length=20)
     seat_number: str | None = Field(default=None, max_length=20)
@@ -25,6 +24,17 @@ class SeatUpdate(BaseModel):
 class SeatResponse(SeatBase):
     id: int
     zone_id: int
+    
+    model_config = ConfigDict(from_attributes=True)
+
+class SeatResponse(SeatBase):
+    id: int
 
     model_config = ConfigDict(from_attributes=True)
 
+###
+
+class SeatAvailable(SeatBase):
+    id: int
+    is_available : bool
+    model_config = ConfigDict(from_attributes=True)

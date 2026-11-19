@@ -2,7 +2,8 @@ from decimal import Decimal
 from typing import List
 
 from pydantic import BaseModel, ConfigDict, Field
-from src.models.Seat import Seat
+
+from src.schemas.Seat import SeatAvailable
 
 
 class ZoneBase(BaseModel):
@@ -32,6 +33,11 @@ class ZoneUpdate(BaseModel):
 
 class ZoneResponse(ZoneBase):
     id: int
-    venue_id: int
-
+    
     model_config = ConfigDict(from_attributes=True)
+
+###
+class ZoneSeats(ZoneBase):
+    id: int
+    price: Decimal
+    seats: List[SeatAvailable]

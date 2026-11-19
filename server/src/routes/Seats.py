@@ -3,6 +3,7 @@ from src.database import get_db
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
+
 from src.models.Seat import Seat
 from src.schemas.Seat import *
 
@@ -51,3 +52,4 @@ def delete_Seat(Seat_id: int, db: Session = Depends(get_db)):
     db.delete(db_Seat)
     db.commit()
     return None
+

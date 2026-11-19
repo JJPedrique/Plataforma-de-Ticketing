@@ -1,4 +1,15 @@
 import { BDD } from "../../../Data/Mock_v2";
+import axiosClient from '../../../core/api/axiosClient';
+
+export const zoneService = {
+  getAll: (params) => axiosClient.get('/ZonesPrices', { params }),
+  getById: (id) => axiosClient.get(`/Zones/${id}`),
+  create: (eventData) => axiosClient.post('/Zones', eventData),
+  update: (id, eventData) => axiosClient.put(`/Zones/${id}`, eventData),
+  delete: (id) => axiosClient.delete(`/Zones/${id}`),
+};
+
+
 
 export function GetSeatsById(eventId) {
     // 1. Buscar el evento por su ID

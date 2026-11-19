@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.database import get_db
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
 from src.models.Ticket import Ticket
 from src.schemas.Ticket import *
 
@@ -14,8 +13,8 @@ def get_Tickets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.scalars(stmt).all()
 
 @router.post('/Tickets')
-def create_Ticket(Ticket: TicketCreate, db: Session = Depends(get_db)):
-    db_Ticket = Ticket(**Ticket.model_dump())
+def create_Ticket(ticket: TicketCreate, db: Session = Depends(get_db)):
+    db_Ticket = Ticket(**ticket.model_dump())
     db.add(db_Ticket)
     db.commit()
     db.refresh(db_Ticket)  # Recarga el objeto con el ID y campos generados por PostgreSQL
@@ -51,3 +50,11 @@ def delete_Ticket(Ticket_id: int, db: Session = Depends(get_db)):
     db.delete(db_Ticket)
     db.commit()
     return None
+
+@router.post('/Tickets')
+def create_Ticket(ticket: TicketCreate, db: Session = Depends(get_db)):
+    db_Ticket = Ticket(**ticket.model_dump())
+    db.add(db_Ticket)
+    db.commit()
+    db.refresh(db_Ticket)  # Recarga el objeto con el ID y campos generados por PostgreSQL
+    return db_Ticket

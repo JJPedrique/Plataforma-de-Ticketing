@@ -1,25 +1,35 @@
 import Steps from '../components/Steps';
 import Canvas from '../components/Canvas';
 import { Armchair } from 'lucide-react';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
-import { GetReservedSeats, GetSeatsById } from '../services/Asientos';
+import { zoneService } from '../services/Asientos';
 import SillasCard from '../components/SillaCard';
 
 function SeleccionarAsiento() {
-    const {event,seats,onSeatChange} = useContext(TicketingContext);
-
-
+    const {order,event,seats,onSeatChange} = useContext(TicketingContext);
+    const [EventSeats,setSeats] = useState([]);
     
+    const [loading,setLoading] = useState(false);
+    useEffect(() => {
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+        try {
+            setLoading(true);
+            const params = {venue_id: event.venue_id, event_id: event.id};
+            const data = await zoneService.getAll(params,controller.signal);
+            setSeats(data);
+        } catch (error) {
+            if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
+        } finally {setLoading(false);}
+        }, 400);
 
+        return () => {clearTimeout(timer); controller.abort();};
+    }, []);
 
-
-    const [EventSeats,setSeats] = useState(GetSeatsById(event.id));
-    const [reservedSeats,setReservedSeats] = useState(GetReservedSeats(event.id));
-
-
-
-
+    function ReservarAsiento(zone,seat){   
+        //ayuda    
+    }
 
     return ( 
     <>
@@ -51,7 +61,7 @@ function SeleccionarAsiento() {
                     </div>
                 </div>
                 
-                <Canvas Data={EventSeats} Blocked={reservedSeats} seats={seats} onSeatChange={onSeatChange}/>
+                <Canvas Data={EventSeats} seats={seats} onSeatChange={ReservarAsiento}/>
 
             </div>
             

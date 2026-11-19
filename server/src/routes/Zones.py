@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from src.database import get_db
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session, selectinload
+ 
 from src.schemas.Zone import *
 from src.models.Zone import Zone
 from src.models.EventPricing import EventPricing
@@ -53,3 +53,42 @@ def delete_Zone(Zone_id: int, db: Session = Depends(get_db)):
     db.delete(db_Zone)
     db.commit()
     return None
+
+@router.get("/ZonesPrices")
+def get_seats(venue_id: int, event_id: int, db: Session = Depends(get_db)):
+    stmt = (
+        select(
+            Zone,
+            EventPricing.price,
+            Seat,
+            func.is_seat_available(Seat.id, event_id).label("is_available"),
+        )
+        .join(EventPricing, EventPricing.zone_id == Zone.id)
+        .join(Seat, Seat.zone_id == Zone.id)
+        .where(Zone.venue_id == venue_id, EventPricing.event_id == event_id)
+        .order_by(Zone.id, Seat.id)  # Mantiene un orden consistente para el frontend
+    )
+
+    rows = db.execute(stmt).all()
+
+    zones_map = {}
+
+    for zone, price, seat, is_available in rows:
+        if zone.id not in zones_map:
+            zones_map[zone.id]={
+                "id":zone.id,
+                "color_code":zone.color_code,
+                "price":price,
+                "seats":[]
+            }
+
+        zones_map[zone.id]["seats"].append({
+                "id":seat.id,
+                "row_label":seat.row_label,
+                "seat_number":seat.seat_number,
+                "coord_x":seat.coord_x,
+                "coord_y":seat.coord_y,
+                "is_availble":is_available
+        })
+
+    return list(zones_map.values())

@@ -2,7 +2,7 @@ import { Minus, Plus, SquareSquare } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { Layer, Stage, Circle, Text, Group, Rect } from "react-konva";
 
-function Canvas({ Data,Blocked, seats, onSeatChange}) {
+function Canvas({ Data, seats, onSeatChange}) {
   
     const containerRef = useRef(null);
     const [zoom, setZoom] = useState(0.5);
@@ -54,9 +54,9 @@ function Canvas({ Data,Blocked, seats, onSeatChange}) {
                 
                 <Stage width={dimensions.width} height={dimensions.height} scaleX={zoom} scaleY={zoom} className="bg-stone-200 rounded cursor-grab active:cursor-grabbing" draggable>
                     <Layer>
-                        {Data.zones.map((zone, index) => (
+                        {Data.map((zone, index) => (
                             <Group key={index} x={50} y={index * (getMaxHeight(zone.seats) * SEAT_SPACING + (PADDING * 2) + TITLE_HEIGHT + SEAT_SPACING + ZONE_GAP)}>
-                                <Rect x={0} y={0} fill="white" cornerRadius={16}
+                                <Rect x={0} y={0} fill="white" cornerRadius={16} stroke={zone.color_code}
                                     shadowColor="black" shadowBlur={10} shadowOpacity={0.05} shadowOffsetY={4}
                                     width={getMaxWidth(zone.seats) * SEAT_SPACING + (PADDING * 2) + SEAT_SPACING} 
                                     height={getMaxHeight(zone.seats) * SEAT_SPACING + (PADDING * 2) + TITLE_HEIGHT + SEAT_SPACING}
@@ -68,7 +68,7 @@ function Canvas({ Data,Blocked, seats, onSeatChange}) {
                                 />
 
                                 {zone.seats.map(seat => (
-                                    Blocked.some(b => b.id === seat.id) ? (
+                                    !seat.is_availble ? (
                                         <Circle key={seat.id}
                                             x={PADDING + (seat.coord_x * SEAT_SPACING)} 
                                             y={PADDING + TITLE_HEIGHT + (seat.coord_y * SEAT_SPACING)} 

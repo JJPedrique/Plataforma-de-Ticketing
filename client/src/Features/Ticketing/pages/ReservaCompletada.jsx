@@ -1,7 +1,7 @@
 import { CheckCircle, Mail, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function ReservaCompletada({Repetir}) {
+function ReservaCompletada() {
     return ( 
         <>
             <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">

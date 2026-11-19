@@ -129,3 +129,6 @@ SELECT setval(pg_get_serial_sequence('events', 'id'), COALESCE((SELECT MAX(id) F
 SELECT setval(pg_get_serial_sequence('zones', 'id'), COALESCE((SELECT MAX(id) FROM zones), 1), true);
 SELECT setval(pg_get_serial_sequence('event_pricings', 'id'), COALESCE((SELECT MAX(id) FROM event_pricings), 1), true);
 SELECT setval(pg_get_serial_sequence('pay_methods', 'id'), COALESCE((SELECT MAX(id) FROM pay_methods), 1), true);
+
+
+
