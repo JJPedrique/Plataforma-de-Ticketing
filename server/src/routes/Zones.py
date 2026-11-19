@@ -55,13 +55,13 @@ def delete_Zone(Zone_id: int, db: Session = Depends(get_db)):
     return None
 
 @router.get("/ZonesPrices")
-def get_seats(venue_id: int, event_id: int, db: Session = Depends(get_db)):
+def get_seats(order_id: int, venue_id: int, event_id: int, db: Session = Depends(get_db)):
     stmt = (
         select(
             Zone,
             EventPricing.price,
             Seat,
-            func.is_seat_available(Seat.id, event_id).label("is_available"),
+            func.is_seat_available(event_id, Seat.id, order_id).label("is_available"),
         )
         .join(EventPricing, EventPricing.zone_id == Zone.id)
         .join(Seat, Seat.zone_id == Zone.id)
@@ -77,6 +77,7 @@ def get_seats(venue_id: int, event_id: int, db: Session = Depends(get_db)):
         if zone.id not in zones_map:
             zones_map[zone.id]={
                 "id":zone.id,
+                "name": zone.name,
                 "color_code":zone.color_code,
                 "price":price,
                 "seats":[]

@@ -8,21 +8,6 @@ export const TicketingProvider = ({ children }) => {
     const [seats, setSeats] = useState([]);
     const [pay, setPay] = useState(null);
 
-    function onEventChange(newEvent) {
-        setEvent((prev) => (prev === newEvent ? null : newEvent));
-        setSeats([]);
-    }
-
-    function onSeatChange(zone, seat) {
-        setSeats((prev) => {
-            const exists = prev.some((s) => s.seat.id === seat.id);
-            if (exists) {
-                return prev.filter((s) => s.seat.id !== seat.id);
-            }
-            return [...prev, { zone: zone.name, price: zone.price, seat }];
-        });
-    }
-
     const totalAmount = useMemo(() => {
         const subtotal = seats.reduce((acc, a) => acc + a.price, 0);
         const comision = subtotal * 0.01;
@@ -32,7 +17,7 @@ export const TicketingProvider = ({ children }) => {
 
     return (
         <TicketingContext.Provider
-            value={{ order, event, seats, pay, totalAmount, onEventChange, onSeatChange, setPay, setOrder }}>
+            value={{ order, event, seats, pay, totalAmount, setEvent, setSeats, setPay, setOrder }}>
             {children}
         </TicketingContext.Provider>
     );

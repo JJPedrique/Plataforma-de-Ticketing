@@ -2,11 +2,11 @@ import { Calendar, Clock, MapPin, Ticket } from 'lucide-react';
 import { useContext } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
 
-function EventoCard({Data, isDisabled=false}) {
-  const { event, onEventChange } = useContext(TicketingContext);
+function EventoCard({Data, isDisabled=false, onClick}) {
+  const { event } = useContext(TicketingContext);
 
   return (
-    <button disabled={isDisabled} onClick={() => onEventChange(Data)}
+    <button disabled={isDisabled} onClick={() => onClick(Data)}
       className={`group relative w-full text-left rounded-2xl border bg-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
         Data.id===event?.id 
           ? 'border-orange-500 shadow-lg shadow-orange-500/10 ring-2 ring-orange-500/20' 

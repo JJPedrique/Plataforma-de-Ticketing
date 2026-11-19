@@ -10,6 +10,17 @@ export const zoneService = {
 };
 
 
+export const ticketService = {
+  getAll: (params) => axiosClient.get('/Tickets', { params }),
+  getById: (id) => axiosClient.get(`/Tickets/${id}`),
+  create: (eventData) => axiosClient.post('/Ticket', eventData),
+  update: (id, eventData) => axiosClient.put(`/Tickets/${id}`, eventData),
+
+  delete: (id) => axiosClient.delete(`/Tickets/${id}`),
+  reservar: (seat) => axiosClient.post('BookTicket', seat),
+};
+
+
 
 export function GetSeatsById(eventId) {
     // 1. Buscar el evento por su ID

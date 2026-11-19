@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from src.database import get_db
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from src.models.Ticket import Ticket
 from src.schemas.Ticket import *
@@ -51,8 +51,11 @@ def delete_Ticket(Ticket_id: int, db: Session = Depends(get_db)):
     db.commit()
     return None
 
-@router.post('/Tickets')
+@router.post('/BookTicket')
 def create_Ticket(ticket: TicketCreate, db: Session = Depends(get_db)):
+    is_available = db.scalar(func.is_seat_available(ticket.event_id, ticket.seat_id, ticket.order_id))
+    if not is_available: return None
+
     db_Ticket = Ticket(**ticket.model_dump())
     db.add(db_Ticket)
     db.commit()

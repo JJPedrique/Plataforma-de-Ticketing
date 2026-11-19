@@ -1,24 +1,26 @@
 import Steps from '../components/Steps';
 import Canvas from '../components/Canvas';
-import { Armchair } from 'lucide-react';
+import { Armchair, X } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
-import { zoneService } from '../services/Asientos';
+import { ticketService, zoneService } from '../services/Asientos';
 import SillasCard from '../components/SillaCard';
+import Modal from '../../../shared/components/Modal';
 
 function SeleccionarAsiento() {
-    const {order,event,seats,onSeatChange} = useContext(TicketingContext);
-    const [EventSeats,setSeats] = useState([]);
-    
+    const {order,event,seats, setSeats} = useContext(TicketingContext);
+    const [EventSeats,setEventSeats] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);  
+
     const [loading,setLoading] = useState(false);
     useEffect(() => {
         const controller = new AbortController();
         const timer = setTimeout(async () => {
         try {
             setLoading(true);
-            const params = {venue_id: event.venue_id, event_id: event.id};
+            const params = {venue_id: event.venue_id, event_id: event.id, order_id:order.id};
             const data = await zoneService.getAll(params,controller.signal);
-            setSeats(data);
+            setEventSeats(data);
         } catch (error) {
             if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
         } finally {setLoading(false);}
@@ -27,8 +29,30 @@ function SeleccionarAsiento() {
         return () => {clearTimeout(timer); controller.abort();};
     }, []);
 
-    function ReservarAsiento(zone,seat){   
-        //ayuda    
+    function Reservar(zone, seat){
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+        try { setLoading(true);
+
+            const oldSeat = seats.find(s => s.seat.id === seat.id);
+            if (oldSeat){
+                await ticketService.delete(oldSeat.ticket,controller.signal);
+                setSeats((prev) => prev.filter((s) => s.seat.id !== seat.id));
+                return;
+            }
+
+            const newSeat = { event_id: event.id,  order_id: order.id, seat_id: seat.id}
+            const data = await ticketService.reservar(newSeat,controller.signal);
+
+            if(data===null){setIsModalOpen(true); return;}
+            setSeats((prev) =>  [...prev, {ticket:data.id, zone: zone.name, price: zone.price, seat }]);
+
+        } catch (error) {
+            if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
+        } finally {setLoading(false);}
+        }, 400);
+
+        return () => {clearTimeout(timer); controller.abort();};        
     }
 
     return ( 
@@ -61,7 +85,7 @@ function SeleccionarAsiento() {
                     </div>
                 </div>
                 
-                <Canvas Data={EventSeats} seats={seats} onSeatChange={ReservarAsiento}/>
+                <Canvas Data={EventSeats} seats={seats} onSeatChange={Reservar}/>
 
             </div>
             
@@ -84,6 +108,21 @@ function SeleccionarAsiento() {
                 )}
             </div>
         </div>
+
+        <Modal isOpen={isModalOpen} title="Asiento Reservado" onClose={()=>setIsModalOpen(false)}
+        children={              
+            <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                    <X/>
+                </div>
+                <div>
+                    <h2 className="text-base font-semibold text-gray-900"> Lo sentimos... </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                        El asiento ya esta reservado por otra persona
+                    </p>
+                </div>
+            </div>}
+        />
     </> );
 }
 
