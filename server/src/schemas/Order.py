@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.models.Order import OrderStatus
@@ -34,3 +35,30 @@ class OrderResponse(OrderBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PurchasedSeatSchema(BaseModel):
+    ticket_id: int
+    zone_name: str
+    zone_color: Optional[str] = None
+    row_label: str
+    seat_number: str
+    price: Optional[Decimal] = None
+
+
+class PurchaseHistorySchema(BaseModel):
+    order_id: int
+    total_amount: Decimal
+    completed_at: datetime
+    payment_method: str
+    payment_reference: Optional[str] = None
+    event_id: int
+    event_title: str
+    event_description: Optional[str] = None
+    event_start_date: datetime
+    event_end_date: datetime
+    venue_name: str
+    venue_address: Optional[str] = None
+    venue_city: Optional[str] = None
+    venue_img_url: Optional[str] = None
+    tickets: List[PurchasedSeatSchema]

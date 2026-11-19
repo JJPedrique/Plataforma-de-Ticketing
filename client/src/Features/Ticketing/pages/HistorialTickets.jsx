@@ -2,9 +2,29 @@ import { Calendar, MapPin, Ticket, Clock, CheckCircle, XCircle, AlertCircle } fr
 import { Link } from 'react-router-dom';
 import { seedData } from '../../../Data/Mock';
 import { useAuth } from '../../Auth/Context/AuthContext';
+import { HistoryService } from '../services/Historial';
+import { useEffect, useState } from 'react';
+import TicketCard from '../components/TicketCard';
 
 function HistorialTickets() {
   const {user} = useAuth();
+  const [loading,setLoading] = useState(false);
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+      const controller = new AbortController();
+      const timer = setTimeout(async () => {
+      try {
+          setLoading(true);
+          const data = await HistoryService.getAllById(user.id);
+          setOrders(data);
+      } catch (error) {
+          if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
+      } finally {setLoading(false);}
+      }, 400);
+
+      return () => {clearTimeout(timer); controller.abort();};
+  }, []); 
 
   const reservasUsuario = seedData.reservations
     .filter((r) => r.user_id === user?.id)
@@ -57,7 +77,7 @@ function HistorialTickets() {
         <p className="mt-1 text-sm text-gray-600">Revisa todas tus compras y el estado de tus boletos</p>
       </div>
 
-      {reservasUsuario.length === 0 ? (
+      {orders.length === 0 ? (
         <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-12 text-center">
           <Ticket className="h-12 w-12 text-gray-300 mx-auto mb-4" />
           <h2 className="text-lg font-semibold text-gray-900 mb-2">No tienes compras aún</h2>
@@ -71,7 +91,10 @@ function HistorialTickets() {
         </div>
       ) : (
         <div className="space-y-4">
-          {reservasUsuario.map((reserva) => {
+          {orders.map(order=><TicketCard order={order}/>)}
+
+
+          {/*reservasUsuario.map((reserva) => {
             const estado = getEstadoInfo(reserva.status);
             const EstadoIcon = estado.icon;
             return (
@@ -129,7 +152,7 @@ function HistorialTickets() {
                 </div>
               </div>
             );
-          })}
+          })*/}
         </div>
       )}
     </div>

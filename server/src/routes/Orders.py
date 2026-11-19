@@ -1,11 +1,20 @@
 import asyncio
+from typing import List
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from src.database import SessionLocal, get_db
-from sqlalchemy import select
+from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 
+
 from src.models.Order import Order
-from src.schemas.Order import OrderCreate, OrderResponse, OrderUpdate
+from src.models.Event import Event
+from src.models.EventPricing import EventPricing
+from src.models.PayMethod import PayMethod
+from src.models.Seat import Seat
+from src.models.Ticket import Ticket
+from src.models.Venue import Venue
+from src.models.Zone import Zone
+from src.schemas.Order import OrderCreate, OrderResponse, OrderUpdate, PurchaseHistorySchema, PurchasedSeatSchema
 
 router = APIRouter(tags=["Orders"])
 
@@ -64,3 +73,91 @@ async def actualizar_fila_diferida(row_id: int, segundos: int = 300):
         fila.status = "CANCELLED"
         db.commit()
     finally: db.close()
+
+@router.get("/Orders/{user_id}/purchases", response_model=List[PurchaseHistorySchema])
+def get_user_purchase_history(user_id: int, db: Session = Depends(get_db)):
+    stmt = (
+        select(
+            Order.id.label("order_id"),
+            Order.total_amount,
+            Order.created_at.label("completed_at"),
+            PayMethod.name.label("payment_method"),
+            Order.pay_methods_ref.label("payment_reference"),
+            Event.id.label("event_id"),
+            Event.title.label("event_title"),
+            Event.description.label("event_description"),
+            Event.start_date.label("event_start_date"),
+            Event.end_date.label("event_end_date"),
+            Venue.name.label("venue_name"),
+            Venue.address.label("venue_address"),
+            Venue.city.label("venue_city"),
+            Venue.img_url.label("venue_img_url"),
+            Ticket.id.label("ticket_id"),
+            Zone.name.label("zone_name"),
+            Zone.color_code.label("zone_color"),
+            Seat.row_label,
+            Seat.seat_number,
+            EventPricing.price,
+        )
+        .join(PayMethod, Order.pay_method_id == PayMethod.id)
+        .join(Ticket, Ticket.order_id == Order.id)
+        .join(Event, Ticket.event_id == Event.id)
+        .join(Venue, Event.venue_id == Venue.id)
+        .join(Seat, Ticket.seat_id == Seat.id)
+        .join(Zone, Seat.zone_id == Zone.id)
+        .outerjoin(
+            EventPricing,
+            and_(
+                EventPricing.event_id == Event.id,
+                EventPricing.zone_id == Zone.id,
+            ),
+        )
+        .where(
+            Order.user_id == user_id,
+            Order.status == "COMPLETED",
+        )
+        .order_by(
+            Order.created_at.desc(),
+            Zone.name.asc(),
+            Seat.row_label.asc(),
+            Seat.seat_number.asc(),
+        )
+    )
+
+    rows = db.execute(stmt).all()
+
+    # Agrupamos las filas por orden para anidar los tickets sin duplicar la cabecera
+    orders_map: dict[int, PurchaseHistorySchema] = {}
+
+    for row in rows:
+        if row.order_id not in orders_map:
+            orders_map[row.order_id] = PurchaseHistorySchema(
+                order_id=row.order_id,
+                total_amount=row.total_amount,
+                completed_at=row.completed_at,
+                payment_method=row.payment_method,
+                payment_reference=row.payment_reference,
+                event_id=row.event_id,
+                event_title=row.event_title,
+                event_description=row.event_description,
+                event_start_date=row.event_start_date,
+                event_end_date=row.event_end_date,
+                venue_name=row.venue_name,
+                venue_address=row.venue_address,
+                venue_city=row.venue_city,
+                venue_img_url=row.venue_img_url,
+                tickets=[],
+            )
+
+        orders_map[row.order_id].tickets.append(
+            PurchasedSeatSchema(
+                ticket_id=row.ticket_id,
+                zone_name=row.zone_name,
+                zone_color=row.zone_color,
+                row_label=row.row_label,
+                seat_number=row.seat_number,
+                price=row.price,
+            )
+        )
+
+    return list(orders_map.values())
