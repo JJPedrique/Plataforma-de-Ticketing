@@ -73,7 +73,7 @@ function Header() {
 
               {showMenu && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} aria-hidden="true"/>
+                  <div className="fixed inset-0 z-100" onClick={() => setShowMenu(false)} aria-hidden="true"/>
                   <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
                     <div className="px-4 py-3 border-b border-gray-100">
                       <div className="flex items-center gap-3">

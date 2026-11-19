@@ -54,7 +54,7 @@ function Ticketing() {
     return ( 
         <div>   
             {tab !== 4 &&
-            <div className="bg-background/85 backdrop-blur fixed left-0 top-18 z-50 w-full flex justify-center">
+            <div className="bg-background/85 backdrop-blur fixed left-0 top-18 z-20 w-full flex justify-center">
                 <div className="w-10/12 p-5 grid grid-cols-3 items-center">
                     <div className="flex justify-start">
                         {tab == 2 && ( <NextStep LoR={true} Text={"Anterior"} onClick={() => setTab(1)} /> )}
