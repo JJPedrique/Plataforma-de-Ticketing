@@ -100,7 +100,7 @@ function IniciarSesion() {
           <p className="text-xs font-medium text-gray-600 mb-3">Acceso rápido (usuarios de prueba en base de datos)</p>
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => quickLogin("admin1@ejemplo.com", "hashed_password_123")}
+              onClick={() => quickLogin("cmendoza@eventplatform.com", "hashed_password_123")}
               disabled={loading}
               className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
               type="button"
@@ -109,7 +109,7 @@ function IniciarSesion() {
               Administrador
             </button>
             <button
-              onClick={() => quickLogin("organizer1@ejemplo.com", "hashed_password_123")}
+              onClick={() => quickLogin("murdaneta@zulialive.com", "hashed_password_123")}
               disabled={loading}
               className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
               type="button"
@@ -118,7 +118,7 @@ function IniciarSesion() {
               Organizador
             </button>
             <button
-              onClick={() => quickLogin("customer1@ejemplo.com", "hashed_password_123")}
+              onClick={() => quickLogin("camila.pirela@correo.com", "hashed_password_123")}
               disabled={loading}
               className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
               type="button"
