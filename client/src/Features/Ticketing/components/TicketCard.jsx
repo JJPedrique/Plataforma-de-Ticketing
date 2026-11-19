@@ -1,90 +1,8 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Receipt,
-  Calendar,
-  Clock,
-  MapPin,
-  Ticket,
-  CreditCard,
-  CheckCircle2,
-  Copy,
-  Check,
-  Printer,
-  LayoutGrid,
-  Hash,
-  Eye,
-  X,
-} from 'lucide-react';
+import React, { useState, useMemo, useRef } from 'react';
+import { Receipt, Calendar, Clock, MapPin, Ticket, CreditCard, CheckCircle2, Copy, Check, Printer, LayoutGrid, Hash, Eye, X,} from 'lucide-react';
+import { useReactToPrint } from "react-to-print";
 
-const SAMPLE_ORDER = {
-  order_id: 56,
-  total_amount: '363.60',
-  completed_at: '2026-11-19T11:07:37.265150-04:00',
-  payment_method: 'Billeteras Digitales y Zelle',
-  payment_reference: 'TXN-20261119-NN37H6J9',
-  event_id: 1,
-  event_title: 'Gala Sinfónica y Gaitas del Zulia',
-  event_description:
-    'Ensamble de la orquesta sinfónica regional junto a agrupaciones tradicionales en una noche de gala.',
-  event_start_date: '2026-11-21T19:30:00-04:00',
-  event_end_date: '2026-11-21T22:30:00-04:00',
-  venue_name: 'Teatro Baralt',
-  venue_address: 'Av. 5 con Calle 95, Casco Central',
-  venue_city: 'Maracaibo',
-  venue_img_url: 'https://midominio.com/layouts/teatro_baralt.png',
-  tickets: [
-    {
-      ticket_id: 94,
-      zone_name: 'Balcón Preferencial',
-      zone_color: '#7C3AED',
-      row_label: 'A',
-      seat_number: '1',
-      price: '45.00',
-    },
-    {
-      ticket_id: 95,
-      zone_name: 'Balcón Preferencial',
-      zone_color: '#7C3AED',
-      row_label: 'A',
-      seat_number: '2',
-      price: '45.00',
-    },
-    {
-      ticket_id: 96,
-      zone_name: 'Balcón Preferencial',
-      zone_color: '#7C3AED',
-      row_label: 'A',
-      seat_number: '3',
-      price: '45.00',
-    },
-    {
-      ticket_id: 93,
-      zone_name: 'Patio Central',
-      zone_color: '#2563EB',
-      row_label: 'A',
-      seat_number: '18',
-      price: '75.00',
-    },
-    {
-      ticket_id: 92,
-      zone_name: 'Patio Central',
-      zone_color: '#2563EB',
-      row_label: 'A',
-      seat_number: '19',
-      price: '75.00',
-    },
-    {
-      ticket_id: 91,
-      zone_name: 'Patio Central',
-      zone_color: '#2563EB',
-      row_label: 'A',
-      seat_number: '20',
-      price: '75.00',
-    },
-  ],
-};
-
-function TicketCard({ order = SAMPLE_ORDER }) {
+function TicketCard({ order }) {
   const [copied, setCopied] = useState(false);
   const [showVenueModal, setShowVenueModal] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -161,6 +79,14 @@ function TicketCard({ order = SAMPLE_ORDER }) {
     };
   }, [order]);
 
+  const componentRef = useRef(null);
+
+    const handlePrint = useReactToPrint({
+      contentRef: componentRef,
+      documentTitle: "Documento_Impreso",
+    });
+
+
   const handleCopyReference = () => {
     navigator.clipboard.writeText(order.payment_reference);
     setCopied(true);
@@ -168,7 +94,7 @@ function TicketCard({ order = SAMPLE_ORDER }) {
   };
 
   return (
-    <div className="w-full mx-auto bg-white rounded-2xl shadow-lg border border-slate-200/90 overflow-hidden text-slate-800 print:shadow-none print:border-slate-300">
+    <div ref={componentRef} className="w-full mx-auto bg-white rounded-2xl shadow-lg border border-slate-200/90 overflow-hidden text-slate-800 print:shadow-none print:border-slate-300">
       {/* 1. CABECERA DE FACTURA / COMPROBANTE */}
       <div className="bg-slate-900 text-white px-6 py-5 sm:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-start sm:items-center gap-3.5">
@@ -197,7 +123,7 @@ function TicketCard({ order = SAMPLE_ORDER }) {
         <div className="flex items-center gap-2 self-start sm:self-center print:hidden">
           <button
             type="button"
-            onClick={() => window.print()}
+            onClick={() => handlePrint()}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors cursor-pointer"
           >
             <Printer className="w-4 h-4" />
