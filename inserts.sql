@@ -77,7 +77,7 @@ INSERT INTO event_pricings (id, event_id, zone_id, price) VALUES
 -- =======================================================
 INSERT INTO pay_methods (id, name, description, is_active) VALUES
 (1, 'Tarjetas de Crédito y Débito', 'Visa, Mastercard, American Express (Nacional e Internacional)', true),
-(2, 'Pago Móvil y Transferencia Bancaria', 'Transferencias inmediatas en moneda local', true),
+(2, 'Pago Móvil y Transferencia Bancaria', 'Transferencias inmediatas en moneda local', false),
 (3, 'Criptomonedas y Monedas Estables (Stablecoins)', 'USDT / USDC vía Binance Pay o red TRC20', true),
 (4, 'Billeteras Digitales y Zelle', 'PayPal, Zelle y Zinli', true),
 (5, 'Efectivo en Taquilla', 'Pago presencial sujeto a disponibilidad (temporalmente inactivo)', false);
