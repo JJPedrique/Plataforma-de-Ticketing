@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Shield, User } from "lucide-react";
-import { AuthForm, InputField } from "../components/AuthForm";
 import { useAuth } from "../Context/AuthContext";
 import { authService } from "../services/authService";
+import EmailInput from "../components/EmailInput";
+import PasswordInput from "../components/PasswordInput";
 
 function IniciarSesion() {
   const { login } = useAuth();
@@ -16,8 +16,12 @@ function IniciarSesion() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
   };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  };
 
-  const handleSubmit = async (e) => {
+  const handleSubmitold = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -33,103 +37,30 @@ function IniciarSesion() {
     }
   };
 
-  const quickLogin = async (email, pass) => {
-    setError("");
-    setLoading(true);
-    try {
-      const session = await authService.login(email, pass);
-      login(session);
-      navigate("/Inicio");
-    } catch (err) {
-      setError(err.message || "No se pudo iniciar sesión con este usuario de prueba.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <>
-      <AuthForm
-        title="Iniciar sesión"
-        subtitle="Accede a tu cuenta para gestionar tus boletos"
-        onSubmit={handleSubmit}
-        submitText={loading ? "Iniciando sesión..." : "Iniciar sesión"}
-        footer={
-          <>
-            <div className="mb-2">
-              ¿No tienes cuenta?{" "}
-              <Link to="/Registro" className="font-medium text-orange-600 hover:text-orange-700">
-                Regístrate
-              </Link>
-            </div>
-            <Link to="/RecuperarContrasena" className="font-medium text-orange-600 hover:text-orange-700">
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </>
-        }
-      >
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm" role="alert">
-            {error}
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-8">
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Iniciar sesión</h1>
+            <p className="mt-2 text-sm text-gray-600">Accede a tu cuenta para gestionar tus boletos</p>
           </div>
-        )}
-        <InputField
-          label="Correo electrónico"
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="tu@correo.com"
-          icon={Mail}
-        />
-        <InputField
-          label="Contraseña"
-          type="password"
-          id="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="Ingresa tu contraseña"
-          icon={Lock}
-        />
-      </AuthForm>
 
-      <div className="w-full max-w-md mx-auto mt-6">
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-4">
-          <p className="text-xs font-medium text-gray-600 mb-3">Acceso rápido (usuarios de prueba en base de datos)</p>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => quickLogin("cmendoza@eventplatform.com", "hashed_password_123")}
-              disabled={loading}
-              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
-              type="button"
-            >
-              <Shield className="h-3.5 w-3.5" />
-              Administrador
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <EmailInput/>
+            <PasswordInput/>
+            <button type="submit" className="w-full bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
+              {loading ? "Iniciando sesión..." : "Iniciar sesión"}
             </button>
-            <button
-              onClick={() => quickLogin("murdaneta@zulialive.com", "hashed_password_123")}
-              disabled={loading}
-              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
-              type="button"
-            >
-              <User className="h-3.5 w-3.5" />
-              Organizador
-            </button>
-            <button
-              onClick={() => quickLogin("camila.pirela@correo.com", "hashed_password_123")}
-              disabled={loading}
-              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg text-gray-700 transition-colors disabled:opacity-60"
-              type="button"
-            >
-              <User className="h-3.5 w-3.5" />
-              Cliente
-            </button>
+          </form>
+          
+          <div className="text-center space-y-1 pt-3">
+            <div>
+                ¿No tienes cuenta?
+                <Link to="/Registro" className="pl-3 font-medium text-orange-600 hover:text-orange-700">Regístrate</Link>
+            </div>
+            <Link to="/RecuperarContrasena" className="font-medium text-orange-600 hover:text-orange-700"> ¿Olvidaste tu contraseña? </Link>     
           </div>
-          <p className="text-xs text-gray-500 mt-3">
-            Estos accesos usan los usuarios insertados por inserts.sql en PostgreSQL.
-          </p>
         </div>
       </div>
     </>
