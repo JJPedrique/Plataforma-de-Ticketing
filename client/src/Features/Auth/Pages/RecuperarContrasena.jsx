@@ -2,11 +2,16 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import EmailInput from '../components/EmailInput';
+import CedulaInput from '../components/CedulaInput';
+import PasswordInput from '../components/PasswordInput';
 
 function RecuperarContrasena() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  
+  const [cedula, setCedula] = useState('');
+  const [password,setPassword] = useState("");
+  const [confirmPassword,setConfirmPassword] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);  
   const [message, setMessage] = useState("");
   
@@ -36,11 +41,18 @@ function RecuperarContrasena() {
         <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-8">
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900">Recuperar contraseña</h1>
-            <p className="mt-2 text-sm text-gray-600">Ingresa tu correo electrónico para recibir un enlace de recuperación</p>
           </div>         
           
             <form onSubmit={handleSubmit} className="space-y-4">
+              <p className="mt-2 text-sm text-center text-gray-600">Ingresa tu correo electrónico y tu cedula para verificar la cuenta</p>
+              <CedulaInput label="Cedula" setValue={setCedula}/>
               <EmailInput label="Correo electrónico" setValue={setEmail}/>
+              <p className="mt-3 text-sm text-center text-gray-600">Ingresa los datos de la nueva contraseña</p>
+              <PasswordInput label="Nueva Contraseña" setValue={setPassword}/>
+              <PasswordInput label="Confirmar Nueva Contraseña" setValue={setConfirmPassword}/>
+              <button type="submit" className="w-full bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
+                {loading ? "Restableciendo..." : "Restablecer cuenta"}
+              </button>
             </form>
             
             <div className="text-center space-y-1 pt-3">
