@@ -7,6 +7,7 @@ import EmailInput from '../components/EmailInput';
 import PasswordInput from '../components/PasswordInput';
 import Modal from '../../../shared/components/Modal';
 import { X } from 'lucide-react';
+import CedulaInput from '../components/CedulaInput';
 
 function Registro() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ function Registro() {
 
   const [firstName,setFirstName] = useState("");
   const [lastName,setLastName] = useState("");
+  const [cedula,setCedula] = useState("");
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
   const [confirmPassword,setConfirmPassword] = useState("");
@@ -76,7 +78,11 @@ function Registro() {
               <TextInput label="Nombre" setValue={setFirstName}/>
               <TextInput label="Apellido" setValue={setLastName}/>
             </div>
-            <EmailInput label="Correo electrónico" setValue={setEmail}/>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <CedulaInput label="Cedula" setValue={setCedula}/>
+              <EmailInput label="Correo electrónico" setValue={setEmail}/>
+            </div>
+            
             <PasswordInput label="Contraseña" setValue={setPassword}/>
             <PasswordInput label="Confirmar Contraseña" setValue={setConfirmPassword}/>
             <button type="submit" className="w-full bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
@@ -90,7 +96,7 @@ function Registro() {
           </div>
         </div>
       </div>
-      <Modal isOpen={isModalOpen} title="Error de Autenticación" onClose={() => setIsModalOpen(false)}
+      <Modal isOpen={isModalOpen} title="Error de Registro" onClose={() => setIsModalOpen(false)}
         children={              
         <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">

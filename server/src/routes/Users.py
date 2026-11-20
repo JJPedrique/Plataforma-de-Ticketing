@@ -78,7 +78,7 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
 @router.post('/Users/register', response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(payload: UserRegister, db: Session = Depends(get_db)):
     existing = db.scalars(select(User).where(User.email == payload.email)).first()
-    if existing: raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No se pudo completar el registro con los datos proporcionados.")
+    if existing: raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ya existe una cuenta con ese correo.")
 
     db_user = User(
         email=payload.email,
