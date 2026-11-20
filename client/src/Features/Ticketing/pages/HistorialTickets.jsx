@@ -1,6 +1,5 @@
 import { Calendar, MapPin, Ticket, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { seedData } from '../../../Data/Mock';
 import { useAuth } from '../../Auth/Context/AuthContext';
 import { HistoryService } from '../services/Historial';
 import { useEffect, useState } from 'react';
@@ -25,47 +24,6 @@ function HistorialTickets() {
 
       return () => {clearTimeout(timer); controller.abort();};
   }, []); 
-
-  const reservasUsuario = seedData.reservations
-    .filter((r) => r.user_id === user?.id)
-    .map((reserva) => {
-      const evento = seedData.events.find((e) => e.id === reserva.event_id);
-      const venue = evento ? seedData.venues.find((v) => v.id === evento.venue_id) : null;
-      const items = seedData.reservation_items.filter((ri) => ri.reservation_id === reserva.id);
-      const asientos = items.map((item) => {
-        const eventSeat = seedData.event_seats.find((es) => es.id === item.event_seat_id);
-        const physicalSeat = eventSeat ? seedData.physical_seats.find((ps) => ps.id === eventSeat.physical_seat_id) : null;
-        const section = physicalSeat ? seedData.sections.find((s) => s.id === physicalSeat.section_id) : null;
-        return {
-          fila: physicalSeat?.row_identifier,
-          asiento: physicalSeat?.seat_number,
-          seccion: section?.name,
-          precio: eventSeat?.price,
-        };
-      });
-      return {
-        ...reserva,
-        evento,
-        venue,
-        asientos,
-      };
-    })
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-  const getEstadoInfo = (status) => {
-    switch (status) {
-      case 'PAID':
-        return { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50', label: 'Pagado', border: 'border-green-200' };
-      case 'PENDING':
-        return { icon: AlertCircle, color: 'text-orange-600', bg: 'bg-orange-50', label: 'Pendiente', border: 'border-orange-200' };
-      case 'CANCELLED':
-        return { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', label: 'Cancelado', border: 'border-red-200' };
-      case 'EXPIRED':
-        return { icon: XCircle, color: 'text-gray-600', bg: 'bg-gray-50', label: 'Expirado', border: 'border-gray-200' };
-      default:
-        return { icon: Ticket, color: 'text-gray-600', bg: 'bg-gray-50', label: status, border: 'border-gray-200' };
-    }
-  };
 
   return (
     <div className="max-w-5xl mx-auto">
