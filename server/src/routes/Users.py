@@ -78,7 +78,21 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
 @router.post('/Users/register', response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(payload: UserRegister, db: Session = Depends(get_db)):
     existing = db.scalars(select(User).where(User.email == payload.email)).first()
-    if existing: raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ya existe una cuenta con ese correo.")
+    if existing: 
+        if not existing.is_active: 
+            db_event = db.get(User, existing.id)
+            for key, value in payload.model_dump(exclude_unset=True).items():
+                setattr(db_event, key, value)
+            db_event.is_active = True
+            db_event.password_hash = _hash_password(payload.password)
+            db.commit()
+            db.refresh(db_event)
+            return db_event
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,                              
+                detail="Ya existe una cuenta con ese correo."
+            )
 
     db_user = User(
         email=payload.email,
@@ -93,12 +107,20 @@ def register_user(payload: UserRegister, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
+@router.post('/Users/showPassword')
+def show_password(email: str, db: Session = Depends(get_db)):
+    existing = db.scalars(select(User).where(User.email == email)).first()
+    return existing.password_hash
+
 
 @router.post('/Users', response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     existing = db.scalars(select(User).where(User.email == payload.email)).first()
     if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No se pudo crear el usuario con los datos proporcionados.")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, 
+            detail="No se pudo crear el usuario con los datos proporcionados."
+        )
 
     data = payload.model_dump()
     password = data.pop("password")

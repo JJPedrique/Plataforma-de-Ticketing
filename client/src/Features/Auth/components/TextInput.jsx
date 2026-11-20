@@ -3,7 +3,11 @@ import { useState } from "react";
 
 function TextInput({label, setValue}) {
   const [inputValue, setInputValue] =useState("");
-  const handleChange = (e) => {setInputValue(e.target.value.replace(/\s+/g, ' ').trim());setValue(inputValue)};  
+  const handleChange = (e) => {
+    const clean = e.target.value.replace(/\s+/g, ' ').trim();
+    setInputValue(clean); 
+    setValue(clean);
+  };  
 
   return ( 
     <div>

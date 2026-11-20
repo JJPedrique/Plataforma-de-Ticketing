@@ -38,25 +38,13 @@ function Registro() {
         setIsModalOpen(true);
         return        
       }
-
-      const param = {
-        first_name : firstName,
-        last_name : lastName,
-        email : email,
-        password : password,
-      }      
-
-      const data = await userService.register(param);
+   
+      const data = await userService.register({ first_name : firstName, last_name : lastName, email : email, password : password});
       login(data);
       navigate("/Inicio");
 
     } catch (error) {
-      // Extrae el string de FastAPI (detail) o un mensaje genérico
-      const errorMsg =
-        error.response?.data?.detail ||
-        error.message ||
-        "Ocurrió un error al iniciar sesión.";
-
+      const errorMsg = error.response?.data?.detail || error.message || "Ocurrió un error al registrar.";
       setMessage(errorMsg);
       setIsModalOpen(true);
     } finally {

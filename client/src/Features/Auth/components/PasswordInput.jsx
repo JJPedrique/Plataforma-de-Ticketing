@@ -3,8 +3,12 @@ import { useState } from "react";
 
 function PasswordInput({label, setValue}) {
   const [inputValue, setInputValue] =useState("");
-  const handleChange = (e) => {setInputValue(e.target.value.trim());setValue(inputValue)};  
-  
+  const handleChange = (e) => {
+    const clean = e.target.value.replace(/\s+/g, '').trim();
+    setInputValue(clean); 
+    setValue(clean);
+  };  
+
   const [isShowPassword, setIsShowPassword] = useState(false);
         
     return ( 

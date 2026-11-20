@@ -3,7 +3,8 @@ import axiosClient from '../../../core/api/axiosClient';
 
 export const userService = {
   login: (loginData) => axiosClient.post('/Users/login', loginData),
-  register: (registerData) => axiosClient.post('/Users/register',registerData) 
+  register: (registerData) => axiosClient.post('/Users/register',registerData),
+  showpassword: (passwordData) => axiosClient.post('User/showPassword',passwordData)
 };
 
 

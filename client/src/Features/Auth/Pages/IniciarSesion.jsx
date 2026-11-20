@@ -24,16 +24,11 @@ function IniciarSesion() {
 
     try {
       setLoading(true);
-      const data = await userService.login({ email, password });
+      const data = await userService.login({email:email,password:password });
       login(data);
       navigate("/Inicio");
     } catch (error) {
-      // Extrae el string de FastAPI (detail) o un mensaje genérico
-      const errorMsg =
-        error.response?.data?.detail ||
-        error.message ||
-        "Ocurrió un error al iniciar sesión.";
-
+      const errorMsg = error.response?.data?.detail || error.message || "Ocurrió un error al iniciar sesión.";
       setMessage(errorMsg);
       setIsModalOpen(true);
     } finally {
