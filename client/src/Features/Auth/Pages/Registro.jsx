@@ -1,175 +1,111 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock } from 'lucide-react';
-import { AuthForm, InputField } from '../components/AuthForm';
-import { authService } from '../services/authService';
+import { userService } from '../services/authService';
 import { useAuth } from '../Context/AuthContext';
+import TextInput from '../components/TextInput';
+import EmailInput from '../components/EmailInput';
+import PasswordInput from '../components/PasswordInput';
+import Modal from '../../../shared/components/Modal';
+import { X } from 'lucide-react';
 
 function Registro() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-  const [error, setError] = useState('');
+
+  const [firstName,setFirstName] = useState("");
+  const [lastName,setLastName] = useState("");
+  const [email,setEmail] = useState("");
+  const [password,setPassword] = useState("");
+  const [confirmPassword,setConfirmPassword] = useState("");
+ 
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const [message, setMessage] = useState("");
+  
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    const firstName = authService.normalizePersonName(formData.firstName);
-    const lastName = authService.normalizePersonName(formData.lastName);
-    const email = String(formData.email || '').trim().toLowerCase();
-
+    if (loading) return;
+  
     try {
-      authService.validatePersonName(firstName, 'nombre');
-      authService.validatePersonName(lastName, 'apellido');
-    } catch (err) {
-      setError(err.message);
-      return;
-    }
+      setLoading(true);
 
-    if (!email) {
-      setError('El correo electrónico es obligatorio.');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Ingresa un correo electrónico válido.');
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden.');
-      return;
-    }
+      if(password!==confirmPassword){
+        const errorMsg =
+          error.response?.data?.detail ||
+          error.message ||
+          "Ocurrió un error al iniciar sesión.";
 
-    try {
-      authService.validatePassword(formData.password);
-    } catch (err) {
-      setError(err.message);
-      return;
-    }
+        setMessage(errorMsg);
+        setIsModalOpen(true);
+        return        
+      }
 
-    setLoading(true);
-    try {
-      const session = await authService.register({
-        firstName,
-        lastName,
-        email,
-        password: formData.password,
-      });
-      login(session);
-      navigate('/Inicio');
-    } catch (err) {
-      setError(err.message || 'No se pudo completar el registro.');
+      const param = {
+        first_name : firstName,
+        last_name : lastName,
+        email : email,
+        password : password,
+      }      
+
+      const data = await userService.register(param);
+      login(data);
+      navigate("/Inicio");
+
+    } catch (error) {
+      // Extrae el string de FastAPI (detail) o un mensaje genérico
+      const errorMsg =
+        error.response?.data?.detail ||
+        error.message ||
+        "Ocurrió un error al iniciar sesión.";
+
+      setMessage(errorMsg);
+      setIsModalOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AuthForm
-      title="Crear cuenta"
-      subtitle="Regístrate para comprar tus boletos"
-      onSubmit={handleSubmit}
-      submitText={loading ? 'Registrando...' : 'Registrarse'}
-      footer={
-        <>
-          ¿Ya tienes cuenta?{' '}
-          <Link to="/IniciarSesion" className="font-medium text-orange-600 hover:text-orange-700">
-            Iniciar sesión
-          </Link>
-        </>
-      }
-    >
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm" role="alert">
-          {error}
+    <>
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-8 space-y-2">
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Crear cuenta</h1>
+            <p className="mt-2 text-sm text-gray-600">Regístrate para comprar tus boletos</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <TextInput label="Nombre" setValue={setFirstName}/>
+              <TextInput label="Apellido" setValue={setLastName}/>
+            </div>
+            <EmailInput label="Correo electrónico" setValue={setEmail}/>
+            <PasswordInput label="Contraseña" setValue={setPassword}/>
+            <PasswordInput label="Confirmar Contraseña" setValue={setConfirmPassword}/>
+            <button type="submit" className="w-full bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
+              {loading ? "Registrando..." : "Registrar Cuenta"}
+            </button>
+          </form>
+
+          <div className="text-center space-y-1 pt-3">
+              ¿Ya tienes cuenta?
+              <Link to="/IniciarSesion" className="pl-3 font-medium text-orange-600 hover:text-orange-700">Iniciar sesión</Link>
+          </div>
         </div>
-      )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <InputField
-          label="Nombre"
-          id="firstName"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleChange}
-          placeholder="Ingresa tu nombre"
-          icon={User}
-          required
-          autoComplete="given-name"
-          minLength={2}
-          maxLength={100}
-          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
-          title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
-        />
-        <InputField
-          label="Apellido"
-          id="lastName"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleChange}
-          placeholder="Ingresa tu apellido"
-          icon={User}
-          required
-          autoComplete="family-name"
-          minLength={2}
-          maxLength={100}
-          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
-          title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
-        />
       </div>
-      <InputField
-        label="Correo electrónico"
-        type="email"
-        id="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="tu@correo.com"
-        icon={Mail}
-        required
-        autoComplete="email"
-        maxLength={255}
-      />
-      <InputField
-        label="Contraseña"
-        type="password"
-        id="password"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        placeholder="Mínimo 8 caracteres, mayúscula, minúscula, número y símbolo"
-        icon={Lock}
-        required
-        autoComplete="new-password"
-        minLength={8}
-        maxLength={128}
-      />
-      <InputField
-        label="Confirmar contraseña"
-        type="password"
-        id="confirmPassword"
-        name="confirmPassword"
-        value={formData.confirmPassword}
-        onChange={handleChange}
-        placeholder="Repite tu contraseña"
-        icon={Lock}
-        required
-        autoComplete="new-password"
-        minLength={8}
-        maxLength={128}
-      />
-    </AuthForm>
+      <Modal isOpen={isModalOpen} title="Error de Autenticación" onClose={() => setIsModalOpen(false)}
+        children={              
+        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <X/>
+            </div>
+            <div>
+                <p className="mt-1 text-sm text-gray-500">
+                  {message}
+                </p>
+            </div>
+        </div>}/>
+    </>
   );
 }
 

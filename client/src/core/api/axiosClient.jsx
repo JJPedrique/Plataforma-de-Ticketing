@@ -12,7 +12,7 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,8 +30,7 @@ axiosClient.interceptors.response.use(
 
       if (status === 401) {
         // Token expirado o inválido: limpiar sesión y redirigir
-        localStorage.removeItem('access_token');
-        window.location.href = '/login';
+        localStorage.removeItem('token');
       } else if (status === 403) {
         console.error('No tienes permisos para realizar esta acción.');
       } else if (status >= 500) {

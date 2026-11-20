@@ -23,9 +23,9 @@ def _validate_person_name(value: str, field_label: str) -> str:
 
 
 class RoleType(str, Enum):
-    ADMIN = "admin"
-    ORGANIZER = "organizer"
-    USER = "user"
+    ADMIN = "ADMIN"
+    ORGANIZER = "ORGANIZER"
+    USER = "USER"
 
 
 class UserBase(BaseModel):
@@ -41,40 +41,15 @@ class UserCreate(UserBase):
 
 
 class UserRegister(BaseModel):
-    email: str = Field(..., max_length=255)
     first_name: str = Field(..., min_length=2, max_length=100)
     last_name: str = Field(..., min_length=2, max_length=100)
+    email: str = Field(..., max_length=255)
     password: str = Field(..., min_length=8, max_length=128)
-
-    @field_validator("email", mode="before")
-    @classmethod
-    def normalize_email(cls, value):
-        if value is None:
-            return value
-        return str(value).strip().lower()
-
-    @field_validator("first_name")
-    @classmethod
-    def validate_first_name(cls, value: str) -> str:
-        return _validate_person_name(value, "nombre")
-
-    @field_validator("last_name")
-    @classmethod
-    def validate_last_name(cls, value: str) -> str:
-        return _validate_person_name(value, "apellido")
 
 
 class UserLogin(BaseModel):
     email: str = Field(..., max_length=255)
     password: str = Field(..., min_length=1, max_length=128)
-
-    @field_validator("email", mode="before")
-    @classmethod
-    def normalize_email(cls, value):
-        if value is None:
-            return value
-        return str(value).strip().lower()
-
 
 class UserUpdate(BaseModel):
     email: str | None = Field(default=None, max_length=255)
@@ -107,13 +82,7 @@ class UserUpdate(BaseModel):
         return _validate_person_name(value, "apellido")
 
 
-class UserResponse(BaseModel):
+class UserResponse(UserBase):
     id: int
-    email: str
-    first_name: str | None = None
-    last_name: str | None = None
-    role: RoleType
-    is_active: bool
-    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

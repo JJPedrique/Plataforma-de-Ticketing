@@ -62,10 +62,10 @@ function Header() {
                 className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
                 aria-expanded={showMenu} aria-haspopup="true">
                 <div className="flex items-center justify-center size-9 rounded-full bg-linear-to-br from-orange-500 to-orange-600 text-white font-semibold text-sm shadow-md">
-                  {getInitials(user?.name)}
+                  {getInitials(user?.first_name+" "+user?.last_name)}
                 </div>
                 <div className="hidden lg:block text-left">
-                  <p className="text-sm font-medium text-gray-900 leading-none">{user?.name}</p>
+                  <p className="text-sm font-medium text-gray-900 leading-none">{user?.first_name+" "+user?.last_name}</p>
                   <p className="text-xs text-gray-500 leading-none mt-1">{getRoleLabel(user?.role)}</p>
                 </div>
                 <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${showMenu ? 'rotate-180' : ''}`} />
@@ -78,10 +78,10 @@ function Header() {
                     <div className="px-4 py-3 border-b border-gray-100">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center size-11 rounded-full bg-linear-to-br from-orange-500 to-orange-600 text-white font-semibold">
-                          {getInitials(user?.name)}
+                          {getInitials(user?.first_name+" "+user?.last_name)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
+                          <p className="text-sm font-semibold text-gray-900 truncate">{user?.first_name+" "+user?.last_name}</p>
                           <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                           <p className="text-xs text-orange-600 font-medium mt-1">{getRoleLabel(user?.role)}</p>
                         </div>

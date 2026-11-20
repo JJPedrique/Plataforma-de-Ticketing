@@ -1,4 +1,11 @@
 import { apiRequest } from '../../../shared/api/http';
+import axiosClient from '../../../core/api/axiosClient';
+
+export const userService = {
+  login: (loginData) => axiosClient.post('/Users/login', loginData),
+  register: (registerData) => axiosClient.post('/Users/register',registerData) 
+};
+
 
 const SESSION_KEY = 'ticketing_session';
 

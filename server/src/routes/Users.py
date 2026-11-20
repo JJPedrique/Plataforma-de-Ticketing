@@ -51,20 +51,34 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     return _get_user_or_404(user_id, db)
 
 
+
 @router.post('/Users/login', response_model=UserResponse)
 def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     stmt = select(User).where(User.email == payload.email)
     user = db.scalars(stmt).first()
-    if not user or not user.is_active or not _verify_password(payload.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas.")
-    return user
 
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado."
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo, contacte a soporte para reactivar la cuenta."
+        )
+    if not _verify_password(payload.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales Invalidas."
+        )
+        
+    return user
 
 @router.post('/Users/register', response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register_user(payload: UserRegister, db: Session = Depends(get_db)):
     existing = db.scalars(select(User).where(User.email == payload.email)).first()
-    if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No se pudo completar el registro con los datos proporcionados.")
+    if existing: raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No se pudo completar el registro con los datos proporcionados.")
 
     db_user = User(
         email=payload.email,

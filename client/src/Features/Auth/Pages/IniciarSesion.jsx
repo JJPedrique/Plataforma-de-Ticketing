@@ -1,37 +1,41 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
-import { authService } from "../services/authService";
+import { userService } from "../services/authService";
 import EmailInput from "../components/EmailInput";
 import PasswordInput from "../components/PasswordInput";
+import { X } from "lucide-react";
+import Modal from "../../../shared/components/Modal";
 
 function IniciarSesion() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError("");
-  };
+  const [email,setEmail] = useState("");
+  const [password,setPassword] = useState("");
   
-  const handleSubmit = (e) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const [message, setMessage] = useState("");
+ 
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e) => {
     e.preventDefault();
-  };
-
-  const handleSubmitold = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+    if (loading) return;
 
     try {
-      const session = await authService.login(formData.email, formData.password);
-      login(session);
+      setLoading(true);
+      const data = await userService.login({ email, password });
+      login(data);
       navigate("/Inicio");
-    } catch (err) {
-      setError(err.message || "No se pudo iniciar sesión.");
+    } catch (error) {
+      // Extrae el string de FastAPI (detail) o un mensaje genérico
+      const errorMsg =
+        error.response?.data?.detail ||
+        error.message ||
+        "Ocurrió un error al iniciar sesión.";
+
+      setMessage(errorMsg);
+      setIsModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -47,8 +51,8 @@ function IniciarSesion() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <EmailInput/>
-            <PasswordInput/>
+            <EmailInput label="Correo Electronico" setValue={setEmail}/>
+            <PasswordInput label="Contraseña" setValue={setPassword}/>
             <button type="submit" className="w-full bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
               {loading ? "Iniciando sesión..." : "Iniciar sesión"}
             </button>
@@ -63,6 +67,19 @@ function IniciarSesion() {
           </div>
         </div>
       </div>
+ 
+      <Modal isOpen={isModalOpen} title="Error de Autenticación" onClose={() => setIsModalOpen(false)}
+        children={              
+        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <X/>
+            </div>
+            <div>
+                <p className="mt-1 text-sm text-gray-500">
+                  {message}
+                </p>
+            </div>
+        </div>}/>
     </>
   );
 }

@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 
 class RoleType(str, enum.Enum):
-    ADMIN = "admin"
-    ORGANIZER = "organizer"
-    USER = "user"
+    ADMIN = "ADMIN"
+    ORGANIZER = "ORGANIZER"
+    USER = "USER"
 
 
 class User(Base):
