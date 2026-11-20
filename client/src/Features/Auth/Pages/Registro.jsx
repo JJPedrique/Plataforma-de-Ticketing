@@ -30,10 +30,7 @@ function Registro() {
       setLoading(true);
 
       if(password!==confirmPassword){
-        const errorMsg =
-          error.response?.data?.detail ||
-          error.message ||
-          "Ocurrió un error al iniciar sesión.";
+        const errorMsg = "Las Contraseña no coinciden.";
 
         setMessage(errorMsg);
         setIsModalOpen(true);
