@@ -3,18 +3,18 @@
 -- Nota: el enum role_type del modelo usa valores 'admin', 'organizer', 'user'
 -- =======================================================
 INSERT INTO users (role, first_name, last_name, cedula, email, password_hash, created_at, is_active) VALUES
-( 'ADMIN', 'Carlos', 'Mendoza', 'V-12345678', 'cmendoza@eventplatform.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '120 days', true),
-( 'ADMIN', 'Valeria', 'Ríos', 'E-87654321', 'vrios@eventplatform.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '95 days', true),
-( 'ADMIN', 'Andrés', 'Salazar', 'V-11223344', 'asalazar@eventplatform.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '60 days', true),
-( 'ORGANIZER', 'Mariana', 'Urdaneta', 'V-22334455', 'murdaneta@zulialive.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '50 days', true),
-( 'ORGANIZER', 'Javier', 'Briceño', 'E-33445566', 'jbriceno@techcaribe.io', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '45 days', true),
-( 'ORGANIZER', 'Sofía', 'Castellanos', 'V-44556677', 'scastellanos@sonoraproducciones.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '30 days', true),
-( 'ORGANIZER', 'Diego', 'Fuenmayor', 'E-55667788', 'dfuenmayor@arenagaming.ve', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '25 days', true),
-( 'USER', 'Camila', 'Pirela', 'V-66778899', 'camila.pirela@correo.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '20 days', true),
-( 'USER', 'Luis', 'Quintero', 'V-77889900', 'luis.quintero89@correo.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '15 days', true),
-( 'USER', 'Gabriela', 'Morales', 'E-88990011', 'gaby.morales@correo.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '10 days', true),
-( 'USER', 'Ricardo', 'Chacín', 'V-99001122', 'rchacin@correo.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '4 days', true),
-( 'USER', 'Elena', 'Villalobos', 'E-10101010', 'elena.villa@correo.com', 'hashed_password_123', CURRENT_TIMESTAMP - INTERVAL '2 days', false);
+( 'ADMIN', 'Carlos', 'Mendoza', 'V-12345678', 'cmendoza@eventplatform.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '120 days', true),
+( 'ADMIN', 'Valeria', 'Ríos', 'E-87654321', 'vrios@eventplatform.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '95 days', true),
+( 'ADMIN', 'Andrés', 'Salazar', 'V-11223344', 'asalazar@eventplatform.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '60 days', true),
+( 'ORGANIZER', 'Mariana', 'Urdaneta', 'V-22334455', 'murdaneta@zulialive.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '50 days', true),
+( 'ORGANIZER', 'Javier', 'Briceño', 'E-33445566', 'jbriceno@techcaribe.io', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '45 days', true),
+( 'ORGANIZER', 'Sofía', 'Castellanos', 'V-44556677', 'scastellanos@sonoraproducciones.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '30 days', true),
+( 'ORGANIZER', 'Diego', 'Fuenmayor', 'E-55667788', 'dfuenmayor@arenagaming.ve', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '25 days', true),
+( 'USER', 'Camila', 'Pirela', 'V-66778899', 'camila.pirela@correo.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '20 days', true),
+( 'USER', 'Luis', 'Quintero', 'V-77889900', 'luis.quintero89@correo.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '15 days', true),
+( 'USER', 'Gabriela', 'Morales', 'E-88990011', 'gaby.morales@correo.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '10 days', true),
+( 'USER', 'Ricardo', 'Chacín', 'V-99001122', 'rchacin@correo.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '4 days', true),
+( 'USER', 'Elena', 'Villalobos', 'E-10101010', 'elena.villa@correo.com', 'Hashed_Password_123', CURRENT_TIMESTAMP - INTERVAL '2 days', false);
 
 -- =======================================================
 -- 2. LUGARES (4 recintos en distintas ciudades)
