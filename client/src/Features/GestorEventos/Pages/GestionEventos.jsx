@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Pencil, Trash2, Calendar, MapPin, Search, X, UserRound } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, Pencil, Trash2, Calendar, MapPin, Search, X, UserRound, Palette } from 'lucide-react';
 import { eventsApi, usersApi, venuesApi } from '../../../shared/api/adminApi';
 import { useAuth } from '../../Auth/Context/AuthContext';
 
@@ -219,6 +220,7 @@ export default function GestionEventos() {
                       <td className="px-4 py-3 text-gray-700">{ev.start_date ? new Date(ev.start_date).toLocaleString() : '-'}</td>
                       <td className="px-4 py-3"><span className={`inline-flex px-2 py-1 rounded-md ${ev.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{ev.is_active ? 'Activo' : 'Inactivo'}</span></td>
                       <td className="px-4 py-3"><div className="flex justify-end gap-2">
+                        <Link to={`/GestorZonasPrecios?evento=${ev.id}`} className="p-2 rounded-md border border-orange-200 text-orange-700 hover:bg-orange-50" title="Zonas y precios"><Palette className="w-4 h-4" /></Link>
                         <button onClick={() => openEdit(ev)} className="p-2 rounded-md border border-gray-200 hover:bg-gray-50" title="Editar"><Pencil className="w-4 h-4" /></button>
                         <button onClick={() => remove(ev)} className="p-2 rounded-md border border-red-200 text-red-700 hover:bg-red-50" title="Eliminar/Desactivar"><Trash2 className="w-4 h-4" /></button>
                       </div></td>

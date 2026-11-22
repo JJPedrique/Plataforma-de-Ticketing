@@ -1,4 +1,5 @@
 from decimal import Decimal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -23,3 +24,37 @@ class EventPricingResponse(EventPricingBase):
     zone_id: int
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class EventZonePriceDetail(EventPricingBase):
+    id: int
+    event_id: int
+    zone_id: int
+    name: str | None = Field(default=None, max_length=100)
+    color_code: str | None = Field(default=None, max_length=20)
+    is_active: bool = True
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EventZonePriceCreate(BaseModel):
+    event_id: int = Field(..., gt=0)
+    name: str = Field(..., min_length=1, max_length=100)
+    color_code: str | None = Field(
+        default=None,
+        max_length=20,
+        pattern=r"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+    )
+    is_active: bool = True
+    price: Decimal = Field(..., ge=0, max_digits=10, decimal_places=2)
+
+
+class EventZonePriceUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    color_code: str | None = Field(
+        default=None,
+        max_length=20,
+        pattern=r"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+    )
+    is_active: bool | None = None
+    price: Decimal | None = Field(default=None, ge=0, max_digits=10, decimal_places=2)

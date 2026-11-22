@@ -23,6 +23,7 @@ import HistorialTickets from '../Features/Ticketing/pages/HistorialTickets'
 
 import Dashboard from '../Features/GestorEventos/Pages/Dashboard'
 import GestionEventos from '../Features/GestorEventos/Pages/GestionEventos'
+import GestionZonasPrecios from '../Features/GestorZonasPrecios/Pages/GestionZonasPrecios'
 import GestionUsuarios from '../Features/GestorUsuarios/Pages/GestionUsuarios'
 import GestionLugares from '../Features/GestorLugares/Pages/GestionLugares'
 import GestionMetodosPago from '../Features/GestorMetodosPago/Pages/GestionMetodosPago'
@@ -77,6 +78,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/Dashboard', element: <Dashboard /> },
           { path: '/GestorEventos', element: <GestionEventos /> },
+          { path: '/GestorZonasPrecios', element: <GestionZonasPrecios /> },
         ],
       },
 

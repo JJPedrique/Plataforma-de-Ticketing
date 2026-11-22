@@ -1,4 +1,4 @@
-import { TicketCheck, Home, LogOut, User, ChevronDown, Ticket, LayoutDashboard, CalendarDays, UsersRound, MapPin, CreditCard } from "lucide-react";
+import { TicketCheck, Home, LogOut, User, ChevronDown, Ticket, LayoutDashboard, CalendarDays, UsersRound, MapPin, CreditCard, Palette } from "lucide-react";
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from "../../Features/Auth/Context/AuthContext";
@@ -112,7 +112,12 @@ function Header() {
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <CalendarDays className="h-4 w-4" />
                           <span className="hidden sm:inline">Mis Eventos</span>
-                        </NavLink>                                          
+                        </NavLink>
+                        <NavLink to="/GestorZonasPrecios" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
+                          <Palette className="h-4 w-4" />
+                          <span className="hidden sm:inline">Zonas y Precios</span>
+                        </NavLink>
                       </>)}    
 
                       {isAdmin && (<>
@@ -135,6 +140,11 @@ function Header() {
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <CalendarDays className="h-4 w-4" />
                           <span className="hidden sm:inline">Gestionar Eventos</span>
+                        </NavLink>
+                        <NavLink to="/GestorZonasPrecios" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
+                          <Palette className="h-4 w-4" />
+                          <span className="hidden sm:inline">Zonas y Precios</span>
                         </NavLink>
                         <NavLink to="/GestorMetodosPago" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>

@@ -13,7 +13,7 @@ class ZoneBase(BaseModel):
         max_length=20,
         pattern=r"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
     )
-    is_Active: bool = Field(default=True)
+    is_active: bool = Field(default=True)
 
 
 class ZoneCreate(ZoneBase):
@@ -28,12 +28,13 @@ class ZoneUpdate(BaseModel):
         max_length=20,
         pattern=r"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
     )
-    is_Active: bool | None = None
+    is_active: bool | None = None
 
 
 class ZoneResponse(ZoneBase):
     id: int
-    
+    venue_id: int
+
     model_config = ConfigDict(from_attributes=True)
 
 ###

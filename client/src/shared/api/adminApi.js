@@ -31,3 +31,26 @@ export const eventsApi = {
   update: (id, data) => apiRequest(`/Events/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   remove: (id) => apiRequest(`/Events/${id}`, { method: 'DELETE' }),
 };
+
+export const zonesApi = {
+  list: (venueId) => apiRequest(`/Zones${venueId ? `?venue_id=${venueId}` : ''}`),
+  get: (id) => apiRequest(`/Zones/${id}`),
+  create: (data) => apiRequest('/Zones', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => apiRequest(`/Zones/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  remove: (id) => apiRequest(`/Zones/${id}`, { method: 'DELETE' }),
+};
+
+export const eventPricingsApi = {
+  list: (eventId) => apiRequest(`/EventPricings${eventId ? `?event_id=${eventId}` : ''}`),
+  get: (id) => apiRequest(`/EventPricings/${id}`),
+  create: (data) => apiRequest('/EventPricings', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => apiRequest(`/EventPricings/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  remove: (id) => apiRequest(`/EventPricings/${id}`, { method: 'DELETE' }),
+};
+
+export const eventZonePricesApi = {
+  list: (eventId) => apiRequest(`/EventZonePrices${eventId ? `?event_id=${eventId}` : ''}`),
+  create: (data) => apiRequest('/EventZonePrices', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => apiRequest(`/EventZonePrices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  remove: (id) => apiRequest(`/EventZonePrices/${id}`, { method: 'DELETE' }),
+};
