@@ -16,7 +16,7 @@ function getRoleLabel(role) {
 }
 
 function Perfil() {
-  const { user, login, logout, refreshUser } = useAuth();
+  const { user, login, logout } = useAuth();
 
   const [loading,setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);  

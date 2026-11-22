@@ -1,140 +1,89 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Lock, ArrowLeft } from 'lucide-react';
-import { AuthForm, InputField } from '../components/AuthForm';
-import { authService } from '../services/authService';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, X } from 'lucide-react';
+import EmailInput from '../components/EmailInput';
+import CedulaInput from '../components/CedulaInput';
+import PasswordInput from '../components/PasswordInput';
+import { userService } from '../services/authService';
+import Modal from '../../../shared/components/Modal';
 
 function RestablecerContrasena() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token') || '';
+  const [email, setEmail] = useState('');
+  const [cedula, setCedula] = useState('');
+  const [password,setPassword] = useState("");
+  const [confirmPassword,setConfirmPassword] = useState("");
 
-  const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: '',
-  });
-  const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const [message, setMessage] = useState("");
+  
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
-  const [isValid, setIsValid] = useState(false);
-
-  useEffect(() => {
-    const checkToken = () => {
-      if (!token) {
-        setError('No se encontró el token de recuperación.');
-        setChecking(false);
-        return;
-      }
-
-      const saved = localStorage.getItem(`recovery_${token}`);
-      if (!saved) {
-        setError('El token es inválido o ya fue usado.');
-        setChecking(false);
-        return;
-      }
-
-      try {
-        const parsed = JSON.parse(saved);
-        if (Date.now() > parsed.expiresAt) {
-          localStorage.removeItem(`recovery_${token}`);
-          setError('El token ha expirado. Solicita uno nuevo.');
-          setChecking(false);
-          return;
-        }
-        setIsValid(true);
-      } catch {
-        setError('El token es inválido.');
-      } finally {
-        setChecking(false);
-      }
-    };
-
-    checkToken();
-  }, [token]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!isValid) return;
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      return;
-    }
-
-    setLoading(true);
+    if (loading) return;
+  
     try {
-      authService.resetPassword(token, formData.password);
-      navigate('/IniciarSesion');
-    } catch (err) {
-      setError(err.message);
+      setLoading(true);
+      await userService.newPassword({
+        cedula: cedula,
+        email : email,
+        password: password,
+        confirmPassword: confirmPassword
+      } );
+      window.alert("Contraseña cambiada")
+      navigate("/Inicio");
+
+    } catch (error) {
+      const errorMsg = error.response?.data?.detail || error.message || "Ocurrió un error al recuperar cuenta.";
+      setMessage(errorMsg);
+      setIsModalOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
-  if (checking) {
-    return (
-      <div className="w-full max-w-md mx-auto text-center py-10">
-        <p className="text-sm text-gray-600">Verificando token...</p>
-      </div>
-    );
-  }
-
   return (
-    <AuthForm
-      title="Restablecer contraseña"
-      subtitle={isValid ? 'Ingresa tu nueva contraseña' : 'No se puede restablecer la contraseña'}
-      onSubmit={handleSubmit}
-      submitText={loading ? 'Restableciendo...' : 'Restablecer contraseña'}
-      footer={
-        <Link to="/RecuperarContrasena" className="inline-flex items-center gap-1 font-medium text-orange-600 hover:text-orange-700">
-          <ArrowLeft className="h-4 w-4" />
-          Solicitar nuevo enlace
-        </Link>
-      }
-    >
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm" role="alert">
-          {error}
+    <>
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-8">
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Recuperar contraseña</h1>
+          </div>         
+          
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <p className="mt-2 text-sm text-center text-gray-600">Ingresa tu correo electrónico y tu cedula para verificar la cuenta</p>
+              <CedulaInput label="Cedula" setValue={setCedula}/>
+              <EmailInput label="Correo electrónico" setValue={setEmail}/>
+              <p className="mt-3 text-sm text-center text-gray-600">Ingresa los datos de la nueva contraseña</p>
+              <PasswordInput label="Nueva Contraseña" setValue={setPassword}/>
+              <PasswordInput label="Confirmar Nueva Contraseña" setValue={setConfirmPassword}/>
+              <button type="submit" className="w-full bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
+                {loading ? "Restableciendo..." : "Restablecer cuenta"}
+              </button>
+            </form>
+            
+            <div className="text-center space-y-1 pt-3">
+              <Link to="/IniciarSesion" className="inline-flex items-center gap-1 font-medium text-orange-600 hover:text-orange-700">
+                <ArrowLeft className="h-4 w-4" />
+                Volver a iniciar sesión
+              </Link>
+          </div>
         </div>
-      )}
+      </div>
 
-      {isValid && (
-        <>
-          <InputField
-            label="Nueva contraseña"
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Mínimo 8 caracteres, mayúscula, minúscula, número y símbolo"
-            icon={Lock}
-          />
-          <InputField
-            label="Confirmar nueva contraseña"
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            placeholder="Repite tu nueva contraseña"
-            icon={Lock}
-          />
-          <p className="text-xs text-gray-500">
-            La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.
-          </p>
-        </>
-      )}
-    </AuthForm>
-  );
+      <Modal isOpen={isModalOpen} title="Error de Registro" onClose={() => setIsModalOpen(false)}
+        children={              
+        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <X/>
+            </div>
+            <div>
+                <p className="mt-1 text-sm text-gray-500">
+                  {message}
+                </p>
+            </div>
+        </div>}/>
+    </>);
 }
 
 export default RestablecerContrasena;

@@ -58,7 +58,7 @@ function IniciarSesion() {
                 ¿No tienes cuenta?
                 <Link to="/Registro" className="pl-3 font-medium text-orange-600 hover:text-orange-700">Regístrate</Link>
             </div>
-            <Link to="/RecuperarContrasena" className="font-medium text-orange-600 hover:text-orange-700"> ¿Olvidaste tu contraseña? </Link>     
+            <Link to="/RestablecerContrasena" className="font-medium text-orange-600 hover:text-orange-700"> ¿Olvidaste tu contraseña? </Link>     
           </div>
         </div>
       </div>

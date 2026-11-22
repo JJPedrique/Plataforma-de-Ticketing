@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from src.database import get_db
 from src.models.User import User, RoleType as ModelRoleType
-from src.schemas.User import UserCreate, UserLogin, UserRegister, UserResponse, UserUpdate
+from src.schemas.User import UserChangePassword, UserCreate, UserLogin, UserRegister, UserResponse, UserUpdate
 
 router = APIRouter(tags=["Users"])
 
@@ -158,3 +158,22 @@ def deactivate_user(user_id: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(current)
     return current
+
+@router.post('/Users/newPassword', response_model=UserResponse)
+def change_password(payload: UserChangePassword, db: Session = Depends(get_db)):
+    checkUser = db.scalar(select(User).where(User.cedula == payload.cedula, User.email == payload.email ))
+    if not checkUser:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,                              
+            detail="No hay una cuenta que coincida con esa cedula y email."
+        )
+    if payload.password != payload.confirmPassword:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,                              
+            detail="Las contraseña no coinciden."
+        )       
+
+    checkUser.password_hash = _hash_password(payload.password)
+    db.commit()
+    db.refresh(checkUser)
+    return checkUser

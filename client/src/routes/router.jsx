@@ -13,7 +13,7 @@ import PrivacyPolicy from '../Features/Static/Pages/PrivacyPolicy'
 
 import IniciarSesion from '../Features/Auth/Pages/IniciarSesion'
 import Registro from '../Features/Auth/Pages/Registro'
-import RecuperarContrasena from '../Features/Auth/Pages/RecuperarContrasena'
+import RecuperarContrasena from '../Features/Auth/Pages/RestablecerContrasena'
 import RestablecerContrasena from '../Features/Auth/Pages/RestablecerContrasena'
 
 import Perfil from '../Features/Usuarios/Pages/Perfil'
@@ -50,7 +50,6 @@ export const router = createBrowserRouter([
         children: [
           { path: '/IniciarSesion', element: <IniciarSesion/> },
           { path: '/Registro', element: <Registro/> },
-          { path: '/RecuperarContrasena', element: <RecuperarContrasena/> },
           { path: '/RestablecerContrasena', element: <RestablecerContrasena/> },
         ],
       },      
