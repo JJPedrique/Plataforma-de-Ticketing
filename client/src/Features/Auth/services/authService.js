@@ -4,11 +4,9 @@ import axiosClient from '../../../core/api/axiosClient';
 export const userService = {
   login: (loginData) => axiosClient.post('/Users/login', loginData),
   register: (registerData) => axiosClient.post('/Users/register',registerData),
-  showpassword: (passwordData) => axiosClient.post('User/showPassword',passwordData),
   update: (id, userData) => axiosClient.put(`/Users/${id}`, userData),
   delete: (id) => axiosClient.delete(`/Users/${id}`)
 };
-
 
 const SESSION_KEY = 'ticketing_session';
 
