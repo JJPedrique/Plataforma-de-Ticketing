@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, Pencil, Trash2, MapPin, Search, X } from 'lucide-react';
 import { venuesApi } from '../../../shared/api/adminApi';
+import TextInput from '../../../shared/components/TextInput';
+import SelectInput from '../../../shared/components/SelectInput';
 
 const emptyForm = { name: '', address: '', city: '', img_url: '', is_active: true };
-
-const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
 
 export default function GestionLugares() {
   const [items, setItems] = useState([]);
@@ -145,37 +145,64 @@ export default function GestionLugares() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={save} className="space-y-4" noValidate>
+            <form key={editing?.id ?? 'new'} onSubmit={save} className="space-y-4">
               {modalError && (
                 <div className="border border-red-200 bg-red-50 text-red-800 rounded-lg px-4 py-3 text-sm" role="alert">
                   {modalError}
                 </div>
               )}
-              <div>
-                <label htmlFor="venue-name" className="block text-sm font-medium text-gray-700 mb-1.5">Nombre del lugar</label>
-                <input id="venue-name" name="name" required aria-required="true" aria-label="Nombre del lugar" placeholder="Ej. Teatro Nacional" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClassName} />
-              </div>
+              <TextInput
+                label="Nombre del lugar"
+                setValue={(value) => setForm((prev) => ({ ...prev, name: value }))}
+                initialValue={form.name}
+                id="venue-name"
+                name="name"
+                placeholder="Ej. Teatro Nacional"
+                maxLengthOnly
+                maxLength={150}
+                required
+              />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="venue-city" className="block text-sm font-medium text-gray-700 mb-1.5">Ciudad</label>
-                  <input id="venue-city" name="city" aria-label="Ciudad" placeholder="Ej. San José" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputClassName} />
-                </div>
-                <div>
-                  <label htmlFor="venue-status" className="block text-sm font-medium text-gray-700 mb-1.5">Estado</label>
-                  <select id="venue-status" name="is_active" aria-label="Estado del lugar" value={String(form.is_active)} onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })} className={inputClassName}>
-                    <option value="true">Activo</option>
-                    <option value="false">Inactivo</option>
-                  </select>
-                </div>
+                <TextInput
+                  label="Ciudad"
+                  setValue={(value) => setForm((prev) => ({ ...prev, city: value }))}
+                  initialValue={form.city}
+                  id="venue-city"
+                  name="city"
+                  placeholder="Ej. San José"
+                  maxLengthOnly
+                  maxLength={100}
+                  required={false}
+                />
+                <SelectInput
+                  label="Estado"
+                  values={['Activo', 'Inactivo']}
+                  initialValue={form.is_active ? 'Activo' : 'Inactivo'}
+                  setValue={(value) => setForm((prev) => ({ ...prev, is_active: value === 'Activo' }))}
+                />
               </div>
-              <div>
-                <label htmlFor="venue-address" className="block text-sm font-medium text-gray-700 mb-1.5">Dirección</label>
-                <input id="venue-address" maxLength={256} name="address" aria-label="Dirección" placeholder="Ej. Avenida Central, Calle 3" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputClassName} />
-              </div>
-              <div>
-                <label htmlFor="venue-img" className="block text-sm font-medium text-gray-700 mb-1.5">URL de imagen</label>
-                <input id="venue-img" name="img_url" type="url" aria-label="URL de imagen" placeholder="https://ejemplo.com/lugar.jpg" value={form.img_url} onChange={(e) => setForm({ ...form, img_url: e.target.value })} className={inputClassName} />
-              </div>
+              <TextInput
+                label="Dirección"
+                setValue={(value) => setForm((prev) => ({ ...prev, address: value }))}
+                initialValue={form.address}
+                id="venue-address"
+                name="address"
+                placeholder="Ej. Avenida Central, Calle 3"
+                maxLengthOnly
+                maxLength={256}
+                required={false}
+              />
+              <TextInput
+                label="URL de imagen"
+                setValue={(value) => setForm((prev) => ({ ...prev, img_url: value }))}
+                initialValue={form.img_url}
+                id="venue-img"
+                name="img_url"
+                placeholder="https://ejemplo.com/lugar.jpg"
+                maxLengthOnly
+                maxLength={500}
+                required={false}
+              />
               <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
                 <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} disabled={saving} className="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700">Cancelar</button>
                 <button type="submit" disabled={saving} className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60 font-medium">{saving ? 'Guardando...' : (editing ? 'Guardar cambios' : 'Crear lugar')}</button>
