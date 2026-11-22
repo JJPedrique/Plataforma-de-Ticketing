@@ -20,10 +20,10 @@ INSERT INTO users (role, first_name, last_name, cedula, email, password_hash, cr
 -- 2. LUGARES (4 recintos en distintas ciudades)
 -- =======================================================
 INSERT INTO venues (id, name, address, city, img_url, is_active) VALUES
-(1, 'Teatro Baralt', 'Av. 5 con Calle 95, Casco Central', 'Maracaibo', 'https://midominio.com/layouts/teatro_baralt.png', true),
-(2, 'Aula Magna URU', 'Av. 2 El Milagro, Sector Vereda del Lago', 'Maracaibo', 'https://midominio.com/layouts/aula_magna_uru.png', true),
-(3, 'Concha Acústica de Bello Monte', 'Av. Caurimare, Colinas de Bello Monte', 'Caracas', 'https://midominio.com/layouts/concha_acustica.png', true),
-(4, 'Forum de Valencia', 'Autopista del Este, Distribuidor El Trigal', 'Valencia', 'https://midominio.com/layouts/forum_valencia.png', true);
+(1, 'Teatro Baralt', 'Av. 5 con Calle 95, Casco Central', 'Maracaibo', 'https://www.unminutoconlasartes.com/micros/sb/benko14.webp', true),
+(2, 'Aula Magna URU', 'Av. 2 El Milagro, Sector Vereda del Lago', 'Maracaibo', 'https://es.wikipedia.org/wiki/Archivo:Aula_magna_uru.jpg', true),
+(3, 'Concha Acústica de Bello Monte', 'Av. Caurimare, Colinas de Bello Monte', 'Caracas', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRi2I7PLyKvtcCX1bmFnpTJ2LfjGm6AhYE_zYZQCZT7g&s=10', true),
+(4, 'Forum de Valencia', 'Autopista del Este, Distribuidor El Trigal', 'Valencia', 'https://fm.uc.edu.ve/wp-content/uploads/2025/02/WhatsApp-Image-2025-02-15-at-3.25.40-PM-768x432.jpeg', true);
 
 -- =======================================================
 -- 3. EVENTOS (Temáticas, horarios y estados variados)
