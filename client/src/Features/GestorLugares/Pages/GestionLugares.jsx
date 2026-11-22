@@ -170,7 +170,7 @@ export default function GestionLugares() {
               </div>
               <div>
                 <label htmlFor="venue-address" className="block text-sm font-medium text-gray-700 mb-1.5">Dirección</label>
-                <input id="venue-address" name="address" aria-label="Dirección" placeholder="Ej. Avenida Central, Calle 3" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputClassName} />
+                <input id="venue-address" maxLength={256} name="address" aria-label="Dirección" placeholder="Ej. Avenida Central, Calle 3" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputClassName} />
               </div>
               <div>
                 <label htmlFor="venue-img" className="block text-sm font-medium text-gray-700 mb-1.5">URL de imagen</label>
