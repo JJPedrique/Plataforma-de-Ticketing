@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, X } from 'lucide-react';
-import EmailInput from '../components/EmailInput';
-import CedulaInput from '../components/CedulaInput';
-import PasswordInput from '../components/PasswordInput';
+import EmailInput from '../../../shared/components/EmailInput';
+import CedulaInput from '../../../shared/components/CedulaInput';
+import PasswordInput from '../../../shared/components/PasswordInput';
 import { userService } from '../services/authService';
 import Modal from '../../../shared/components/Modal';
 

@@ -1,8 +1,8 @@
 import { Mail } from "lucide-react";
 import { useState } from "react";
 
-function EmailInput({label, setValue}) {
-  const [inputValue, setInputValue] =useState("");
+function EmailInput({ label = "Cédula de Identidad", setValue, initialValue= ""}) {
+  const [inputValue, setInputValue] =useState(initialValue);
   const handleChange = (e) => {
     const clean = e.target.value.replace(/\s+/g, '').trim();
     setInputValue(clean); 

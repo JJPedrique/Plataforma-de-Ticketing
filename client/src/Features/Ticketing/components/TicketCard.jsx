@@ -294,7 +294,7 @@ function TicketCard({ order }) {
               <div>
                 <span className="text-xs text-slate-500 block">Referencia de pago</span>
                 <code className="text-xs sm:text-sm font-mono font-bold text-orange-700">
-                  {order.payment_reference}
+                  {"..."+order.payment_reference.slice(order.payment_reference.length-5,order.payment_reference.length)}
                 </code>
               </div>
 
@@ -344,56 +344,6 @@ function TicketCard({ order }) {
           </div>
         </div>
       </div>
-
-      {/* MODAL PARA VISUALIZAR EL LAYOUT DEL RECINTO (venue_img_url) */}
-      {showVenueModal && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4"
-          onClick={() => setShowVenueModal(false)}
-        >
-          <div
-            className="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-              <div>
-                <h4 className="font-bold text-slate-900">
-                  Plano de Asientos — {order.venue_name}
-                </h4>
-                <p className="text-xs text-slate-500">{order.venue_address}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowVenueModal(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 bg-slate-50 flex flex-col items-center justify-center min-h-260px">
-              {!imgError ? (
-                <img
-                  src={order.venue_img_url}
-                  alt={`Plano de ${order.venue_name}`}
-                  onError={() => setImgError(true)}
-                  className="max-h-[60vh] rounded-lg object-contain"
-                />
-              ) : (
-                <div className="text-center space-y-2 py-8">
-                  <LayoutGrid className="w-10 h-10 text-slate-400 mx-auto" />
-                  <p className="text-sm font-medium text-slate-700">
-                    No se pudo cargar la imagen del mapa
-                  </p>
-                  <p className="text-xs text-slate-500 font-mono break-all">
-                    {order.venue_img_url}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

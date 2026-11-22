@@ -1,8 +1,8 @@
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { useState } from "react";
 
-function PasswordInput({label, setValue}) {
-  const [inputValue, setInputValue] =useState("");
+function PasswordInput({ label = "Cédula de Identidad", setValue, initialValue= ""}) {
+  const [inputValue, setInputValue] =useState(initialValue);
   const handleChange = (e) => {
     const clean = e.target.value.replace(/\s+/g, '').trim();
     setInputValue(clean); 

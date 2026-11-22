@@ -1,10 +1,38 @@
 import { CheckCircle, Mail, Download } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { TicketingContext } from "../Context/TicketingContext";
+import { useAuth } from "../../Auth/Context/AuthContext";
+import TicketCard from '../components/TicketCard';
+import { HistoryService } from "../services/Historial";
 
 function ReservaCompletada() {
-    return ( 
-        <>
-            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+    const {user} = useAuth();
+    const {order} = useContext(TicketingContext);
+
+    const [orderData,setOrderData] = useState(null);
+    const [loading,setLoading] =useState(false);
+    
+    useEffect(() => {
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+        try {
+            setLoading(true);
+            const data = await HistoryService.getOrderById(user.id,order.id);
+            setOrderData(data);
+        } catch (error) {
+            if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
+        } finally {setLoading(false);}
+        }, 400);
+
+        return () => {clearTimeout(timer); controller.abort();};
+    }, []); 
+
+ return ( 
+        // Agregamos items-start para que la columna izquierda no se estire al alto de la derecha
+        <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-8">
+            {/* Cambiamos sticky-top por top-6 (o top-0) y self-start */}
+            <div className="sticky top-27 self-start min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
                 <div className="relative mb-6">
                     <div className="absolute inset-0 bg-green-500/20 rounded-full blur-2xl"></div>
                     <CheckCircle className="relative size-24 text-white bg-linear-to-br from-green-500 to-green-600 p-5 rounded-full shadow-lg shadow-green-500/30" />
@@ -41,8 +69,10 @@ function ReservaCompletada() {
                         Comprar más boletos
                     </Link>
                 </div>
+
             </div>        
-        </> 
+            {orderData && <TicketCard order={orderData}/>}
+        </div> 
     );
 }
 

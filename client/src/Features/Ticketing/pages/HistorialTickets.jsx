@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Ticket, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Ticket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../Auth/Context/AuthContext';
 import { HistoryService } from '../services/Historial';

@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 import { userService } from "../services/authService";
-import EmailInput from "../components/EmailInput";
-import PasswordInput from "../components/PasswordInput";
 import { X } from "lucide-react";
 import Modal from "../../../shared/components/Modal";
+import EmailInput from "../../../shared/components/EmailInput";
+import PasswordInput from "../../../shared/components/PasswordInput";
 
 function IniciarSesion() {
   const { login } = useAuth();

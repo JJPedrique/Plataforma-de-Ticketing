@@ -4,7 +4,7 @@
   "scripts": {
     "install:client": "npm install --prefix client",
     "install:server": "python -m venv server/venv && .\\server\\venv\\Scripts\\python.exe -m pip install -r server/requirements.txt",
-    "install": "concurrently \"npm run install:client\" \"npm run install:server\"",
+    "install": "cls && concurrently \"npm run install:client\" \"npm run install:server\"",
     "dev:client": "npm run dev --prefix client",
     "dev:server": "cd server && py main.py",
     "dev": "concurrently -k -c \"cyan,magenta\" -n \"CLIENTE,SERVIDOR\" \"npm run dev:client\" \"npm run dev:server\""

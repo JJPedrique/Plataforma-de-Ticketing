@@ -9,7 +9,6 @@ function TextInput({label, setValue, initialValue=""}) {
     setValue(clean);
   };  
 
-
   return ( 
     <div>
       <label htmlFor="text" className="block text-sm font-medium text-gray-700 mb-1.5">

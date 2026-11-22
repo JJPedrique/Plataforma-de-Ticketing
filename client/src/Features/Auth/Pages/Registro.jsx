@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { userService } from '../services/authService';
 import { useAuth } from '../Context/AuthContext';
-import TextInput from '../components/TextInput';
-import EmailInput from '../components/EmailInput';
-import PasswordInput from '../components/PasswordInput';
+import TextInput from '../../../shared/components/TextInput';
+import EmailInput from '../../../shared/components/EmailInput';
+import PasswordInput from '../../../shared/components/PasswordInput';
+import CedulaInput from '../../../shared/components/CedulaInput';
 import Modal from '../../../shared/components/Modal';
 import { X } from 'lucide-react';
-import CedulaInput from '../components/CedulaInput';
 
 function Registro() {
   const navigate = useNavigate();

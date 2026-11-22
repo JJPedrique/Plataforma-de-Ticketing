@@ -4,8 +4,8 @@ import { authService, userService } from '../../Auth/services/authService';
 import { useAuth } from '../../Auth/Context/AuthContext';
 import Modal from '../../../shared/components/Modal';
 import { X } from 'lucide-react';
-import TextInput from '../../Auth/components/TextInput';
-import CedulaInput from '../../Auth/components/CedulaInput';
+import TextInput from '../../../shared/components/TextInput';
+import CedulaInput from '../../../shared/components/CedulaInput';
 
 function getRoleLabel(role) {
   const r = String(role || '').toLowerCase();
