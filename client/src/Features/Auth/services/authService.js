@@ -58,6 +58,25 @@ export const authService = {
     return true;
   },
 
+  normalizeCedula: (value) => {
+    const raw = String(value ?? "").toUpperCase().replace(/\s+/g, "").replace(/[^VE0-9-]/g, "");
+    const match = raw.match(/^([VE])-?(\d{6,8})$/);
+    return match ? `${match[1]}-${match[2]}` : raw;
+  },
+
+  validateCedula: (value) => {
+    const normalized = authService.normalizeCedula(value);
+    if (!normalized) {
+      throw new Error("La cédula es obligatoria.");
+    }
+    if (!/^[VE]-\d{6,8}$/.test(normalized)) {
+      throw new Error("Formato válido: V-12345678 o E-12345678 (entre 6 y 8 dígitos).");
+    }
+    return normalized;
+  },
+
+  normalizeRole: (value) => String(value ?? "USER").toUpperCase(),
+
   toSession,
 
   login: async (email, password) => {
@@ -90,9 +109,10 @@ export const authService = {
     return cleaned;
   },
 
-  register: async ({ firstName, lastName, email, password }) => {
+  register: async ({ firstName, lastName, cedula, email, password }) => {
     const cleanFirstName = authService.validatePersonName(firstName, 'nombre');
     const cleanLastName = authService.validatePersonName(lastName, 'apellido');
+    const cleanCedula = authService.validateCedula(cedula);
     const cleanEmail = String(email ?? '').trim().toLowerCase();
 
     if (!cleanEmail || !password) {
@@ -110,6 +130,7 @@ export const authService = {
         email: cleanEmail,
         first_name: cleanFirstName,
         last_name: cleanLastName,
+        cedula: cleanCedula,
         password,
       }),
     });
