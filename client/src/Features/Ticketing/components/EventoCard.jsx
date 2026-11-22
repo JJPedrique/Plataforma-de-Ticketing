@@ -1,9 +1,42 @@
 import { Calendar, Clock, MapPin, Ticket } from 'lucide-react';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
+
+function resolveImageUrl(url) {
+  if (!url) return url;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+
+    // Google Imágenes: "Copiar enlace" suele traer la imagen real en imgurl.
+    if (/(^|\.)google\.[a-z.]+$/.test(host)) {
+      const direct = parsed.searchParams.get('imgurl');
+      if (direct && /^https?:\/\//i.test(direct)) return direct;
+    }
+
+    // Wikipedia / Commons: la página "Archivo:" no es la imagen.
+    if (/(^|\.)(wikipedia|wikimedia)\.org$/.test(host)) {
+      const match = parsed.pathname.match(/^\/wiki\/(?:Archivo|File):(.+)$/i);
+      if (match) {
+        const fileName = decodeURIComponent(match[1]);
+        return `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(fileName)}`;
+      }
+    }
+
+    // Cualquier otra URL se usa tal cual: el navegador decide según Content-Type,
+    // no según la extensión del archivo.
+    return url;
+  } catch {
+    return url;
+  }
+}
 
 function EventoCard({Data, isDisabled=false, onClick}) {
   const { event } = useContext(TicketingContext);
+  const imageUrl = resolveImageUrl(Data.venue?.img_url);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => { setImgError(false); }, [imageUrl]);
 
   return (
     <button disabled={isDisabled} onClick={() => onClick(Data)}
@@ -21,8 +54,20 @@ function EventoCard({Data, isDisabled=false, onClick}) {
       )}
       
       <div className="relative flex h-48 w-full items-center justify-center bg-linear-to-br from-orange-100 via-orange-50 to-amber-50 overflow-hidden">
+        {imageUrl && !imgError ? (
+          <img
+            src={imageUrl}
+            alt={`Imagen de ${Data.venue?.name || 'lugar del evento'}`}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            onError={() => setImgError(true)}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <Ticket className="relative h-16 w-16 text-orange-500/40" />
+        )}
         <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent"></div>
-        <Ticket className="relative h-16 w-16 text-orange-500/40" />
         <div className="absolute bottom-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-lg text-xs font-medium text-gray-700">
           {Data.venue?.name}
         </div>
