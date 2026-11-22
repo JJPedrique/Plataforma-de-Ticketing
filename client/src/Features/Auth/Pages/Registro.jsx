@@ -39,7 +39,13 @@ function Registro() {
         return        
       }
    
-      const data = await userService.register({ first_name : firstName, last_name : lastName, email : email, password : password});
+      const data = await userService.register({ 
+        first_name : firstName, 
+        last_name : lastName, 
+        email : email, 
+        cedula:cedula, 
+        password : password});
+        
       login(data);
       navigate("/Inicio");
 

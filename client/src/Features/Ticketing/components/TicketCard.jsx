@@ -149,35 +149,6 @@ function TicketCard({ order }) {
           </div>
 
           {/* Miniatura / Acceso al mapa de asientos (venue_img_url) */}
-          {order.venue_img_url && (
-            <div className="shrink-0 w-full md:w-44">
-              <button
-                type="button"
-                onClick={() => setShowVenueModal(true)}
-                className="group relative w-full h-28 rounded-xl border border-slate-200 bg-slate-100 overflow-hidden flex flex-col items-center justify-center text-slate-500 hover:border-orange-400 transition-all cursor-pointer"
-              >
-                {!imgError ? (
-                  <img
-                    src={order.venue_img_url}
-                    alt={`Mapa de sala - ${order.venue_name}`}
-                    onError={() => setImgError(true)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-1 p-2 text-center">
-                    <LayoutGrid className="w-6 h-6 text-orange-500" />
-                    <span className="text-[11px] font-medium text-slate-600">
-                      Layout de Sala
-                    </span>
-                  </div>
-                )}
-                <span className="absolute inset-x-0 bottom-0 bg-slate-900/75 backdrop-blur-xs text-white text-[11px] font-medium py-1 px-2 flex items-center justify-center gap-1">
-                  <Eye className="w-3 h-3" />
-                  Ver plano del recinto
-                </span>
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Grid de Fecha, Hora y Ubicación */}

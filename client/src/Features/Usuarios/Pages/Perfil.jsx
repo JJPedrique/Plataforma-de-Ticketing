@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../Auth/services/authService';
+import { authService, userService } from '../../Auth/services/authService';
 import { useAuth } from '../../Auth/Context/AuthContext';
+import Modal from '../../../shared/components/Modal';
+import { X } from 'lucide-react';
+import TextInput from '../../Auth/components/TextInput';
+import CedulaInput from '../../Auth/components/CedulaInput';
 
 function getRoleLabel(role) {
   const r = String(role || '').toLowerCase();
@@ -12,122 +16,64 @@ function getRoleLabel(role) {
 }
 
 function Perfil() {
-  const navigate = useNavigate();
   const { user, login, logout, refreshUser } = useAuth();
-  const [session, setSession] = useState(() => user || authService.getSession());
+
+  const [loading,setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const [message, setMessage] = useState("");
+
+  const [firstName,setFirstName] = useState(user.first_name);
+  const [lastName,setLastName] = useState(user.last_name);
+  const [cedula,setCedula] = useState(user.cedula);
+
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const [firstName, setFirstName] = useState(session?.first_name || '');
-  const [lastName, setLastName] = useState(session?.last_name || '');
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const current = user || authService.getSession();
-      if (!current) {
-        navigate('/IniciarSesion');
-        return;
-      }
-      try {
-        const refreshed = await authService.refreshSession();
-        if (!mounted) return;
-        const finalSession = refreshed || current;
-        setSession(finalSession);
-        setFirstName(finalSession.first_name || '');
-        setLastName(finalSession.last_name || '');
-        if (login && refreshed) login(refreshed);
-      } catch {
-        if (!mounted) return;
-        setSession(current);
-        setFirstName(current.first_name || '');
-        setLastName(current.last_name || '');
-      }
-    })();
-    return () => { mounted = false; };
-  }, [navigate]);
-
-  useEffect(() => {
-    if (user) {
-      setSession(user);
-      if (!isEditing) {
-        setFirstName(user.first_name || '');
-        setLastName(user.last_name || '');
-      }
-    }
-  }, [user, isEditing]);
-
   const initials = useMemo(() => {
-    const base = session?.name || `${session?.first_name || ''} ${session?.last_name || ''}`.trim() || 'U';
-    return base
-      .split(' ')
-      .filter(Boolean)
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  }, [session?.name, session?.first_name, session?.last_name]);
-
-  if (!session) return null;
-
-  const handleStartEdit = () => {
-    setFirstName(session.first_name || '');
-    setLastName(session.last_name || '');
-    setMessage({ type: '', text: '' });
-    setIsEditing(true);
-  };
+    const base = user?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'U';
+    return base.split(' ').filter(Boolean).map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+  }, [user?.name, user?.first_name, user?.last_name]);
 
   const handleCancelEdit = () => {
-    setFirstName(session.first_name || '');
-    setLastName(session.last_name || '');
+    setFirstName(user.first_name);
+    setLastName(user.last_name);
+    setCedula(user.cedula);
     setIsEditing(false);
-    setMessage({ type: '', text: '' });
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
-    setMessage({ type: '', text: '' });
-
-    const cleanFirstName = authService.normalizePersonName(firstName);
-    const cleanLastName = authService.normalizePersonName(lastName);
-
+    if (loading) return;
+  
     try {
-      authService.validatePersonName(cleanFirstName, 'nombre');
-      authService.validatePersonName(cleanLastName, 'apellido');
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message });
-      return;
-    }
-
-    try {
-      setSaving(true);
-      const updated = await authService.updateProfile({
-        firstName: cleanFirstName,
-        lastName: cleanLastName,
-      });
-      setSession(updated);
-      setFirstName(updated.first_name || '');
-      setLastName(updated.last_name || '');
-      if (login) login(updated);
-      if (refreshUser) await refreshUser();
-      setIsEditing(false);
-      setMessage({ type: 'success', text: 'Tu información se guardó correctamente.' });
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'No se pudo guardar la información. Inténtalo de nuevo.' });
+      setLoading(true);
+      const data = await userService.update(user.id,{...user, first_name : firstName, last_name : lastName,  cedula:cedula});
+      login(data);
+      navigate("/Perfil");
+    } catch (error) {
+      const errorMsg = error.response?.data?.detail || error.message || "Ocurrió un error al registrar.";
+      setMessage(errorMsg);
+      setIsModalOpen(true);
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
   const handleDeactivate = async () => {
+    if (loading) return;
+  
     try {
-      await authService.deactivateAccount();
-      if (logout) logout();
-      navigate('/Inicio');
-    } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'No se pudo desactivar la cuenta. Inténtalo de nuevo.' });
-      setConfirmDelete(false);
+      setLoading(true);
+      await userService.delete(user.id);
+      logout();
+    } catch (error) {
+      const errorMsg = error.response?.data?.detail || error.message || "Ocurrió un error al registrar.";
+      setMessage(errorMsg);
+      setIsModalOpen(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,20 +84,6 @@ function Perfil() {
         <p className="text-gray-700 mt-2">Administra tu información personal y la configuración de tu cuenta.</p>
       </header>
 
-      {message.text && (
-        <div
-          role={message.type === 'error' ? 'alert' : 'status'}
-          aria-live="polite"
-          className={`mb-6 border rounded-xl px-4 py-3 ${
-            message.type === 'error'
-              ? 'border-red-200 bg-red-50 text-red-800'
-              : 'border-green-200 bg-green-50 text-green-800'
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
-
       <div className="space-y-6">
         <section className="bg-white border border-gray-200 rounded-xl p-6 md:p-7">
           <div className="flex items-center gap-4">
@@ -159,9 +91,9 @@ function Perfil() {
               {initials}
             </div>
             <div className="min-w-0">
-              <p className="text-xl font-semibold text-gray-900 truncate">{session.name}</p>
-              <p className="text-gray-600 truncate">{session.email}</p>
-              <p className="text-sm text-gray-500 mt-0.5">{getRoleLabel(session.role)}</p>
+              <p className="text-xl font-semibold text-gray-900 truncate">{user.first_name+" "+user.last_name}</p>
+              <p className="text-gray-600 truncate">{user.email}</p>
+              <p className="text-sm text-gray-500 mt-0.5">{getRoleLabel(user.role)}</p>
             </div>
           </div>
         </section>
@@ -175,7 +107,7 @@ function Perfil() {
             {!isEditing && (
               <button
                 type="button"
-                onClick={handleStartEdit}
+                onClick={()=>setIsEditing(true)}
                 className="inline-flex items-center justify-center px-4 py-2.5 bg-orange-700 text-white font-medium rounded-md hover:bg-orange-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600 focus-visible:ring-offset-2 shrink-0"
               >
                 Modificar información
@@ -186,80 +118,66 @@ function Perfil() {
           <form onSubmit={handleSave} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-900 mb-1.5">Nombre</label>
                 {isEditing ? (
-                  <input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    autoComplete="given-name"
-                    required
-                    minLength={2}
-                    maxLength={100}
-                    pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
-                    title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
-                    className="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
-                    placeholder="Tu nombre"
-                  />
+                  <TextInput label="Nombre" setValue={setFirstName} initialValue={user.first_name}/>
                 ) : (
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-900 mb-1.5">Nombre</label>
                   <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-900 min-h-12.5 flex items-center">
-                    {session.first_name || '—'}
+                    {user.first_name || '—'}
                   </div>
+                </div>
                 )}
               </div>
 
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-900 mb-1.5">Apellido</label>
                 {isEditing ? (
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    autoComplete="family-name"
-                    required
-                    minLength={2}
-                    maxLength={100}
-                    pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+"
-                    title="Usa solo letras, números, espacios, apóstrofes o guiones (mínimo 2 caracteres)."
-                    className="w-full px-3.5 py-3 border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
-                    placeholder="Tu apellido"
-                  />
+                  <TextInput label="Apellido" setValue={setLastName} initialValue={user.last_name}/>
                 ) : (
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-900 mb-1.5">Apellido</label>
                   <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-900 min-h-12.5 flex items-center">
-                    {session.last_name || '—'}
+                    {user.last_name || '—'}
                   </div>
+                </div>
                 )}
               </div>
 
-              <div className="md:col-span-2">
-                <span className="block text-sm font-medium text-gray-900 mb-1.5">Correo electrónico</span>
-                <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700 min-h-12.5 flex items-center">
-                  {session.email}
+              <div className="grid grid-cols-2 gap-4 col-span-2">
+                <div>
+                  {isEditing ? (
+                      <CedulaInput label="Cedula" setValue={setCedula} initialValue={user.cedula}/>
+                    ) : (
+                    <div>
+                      <label htmlFor="lastName" className="block text-sm font-medium text-gray-900 mb-1.5">Cedula</label>
+                      <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-900 min-h-12.5 flex items-center">
+                        {user.cedula || '—'}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm text-gray-500 mt-1.5">Usamos este correo para iniciar sesión y enviarte notificaciones importantes.</p>
+                <div>
+                  <span className="block text-sm font-medium text-gray-900 mb-1.5">Correo electrónico</span>
+                  <div className="w-full px-3.5 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700 min-h-12.5 flex items-center">
+                    {user.email}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1.5">Usamos este correo para iniciar sesión y enviarte notificaciones importantes.</p>
+                </div>
               </div>
             </div>
 
             {isEditing && (
               <div className="pt-5 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  disabled={saving}
-                  className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-50 disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600 focus-visible:ring-offset-2"
-                >
+                <button className="inline-flex items-center justify-center px-5 py-2.5 border border-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-50 disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600 focus-visible:ring-offset-2"
+                type="button" onClick={handleCancelEdit} disabled={loading}>
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  disabled={saving}
+                  disabled={loading}
                   className="inline-flex items-center justify-center px-5 py-2.5 bg-orange-700 text-white font-medium rounded-md hover:bg-orange-800 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600 focus-visible:ring-offset-2"
                 >
-                  {saving ? 'Guardando...' : 'Guardar cambios'}
+                  {loading ? 'Guardando...' : 'Guardar cambios'}
                 </button>
               </div>
             )}
@@ -310,7 +228,22 @@ function Perfil() {
           </div>
         </section>
       </div>
+
+      <Modal isOpen={isModalOpen} title="Error de Registro" onClose={() => setIsModalOpen(false)}
+        children={              
+        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <X/>
+            </div>
+            <div>
+                <p className="mt-1 text-sm text-gray-500">
+                  {message}
+                </p>
+            </div>
+        </div>}/>
     </div>
+
+    
   );
 }
 

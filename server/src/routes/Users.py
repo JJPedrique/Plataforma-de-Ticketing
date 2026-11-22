@@ -12,7 +12,6 @@ from src.schemas.User import UserCreate, UserLogin, UserRegister, UserResponse, 
 
 router = APIRouter(tags=["Users"])
 
-
 def _hash_password(password: str) -> str:
     salt = secrets.token_hex(16)
     digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), 120000).hex()
@@ -29,28 +28,8 @@ def _verify_password(password: str, stored_hash: str | None) -> bool:
             return False
         candidate = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), 120000).hex()
         return hmac.compare_digest(candidate, digest)
-    # Compatibilidad con datos sembrados/mock (texto plano o hash simple de ejemplo)
+    
     return hmac.compare_digest(password, stored_hash)
-
-
-def _get_user_or_404(user_id: int, db: Session) -> User:
-    db_user = db.get(User, user_id)
-    if not db_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado.")
-    return db_user
-
-
-@router.get('/Users', response_model=list[UserResponse])
-def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    stmt = select(User).offset(skip).limit(limit)
-    return db.scalars(stmt).all()
-
-
-@router.get('/Users/{user_id}', response_model=UserResponse)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    return _get_user_or_404(user_id, db)
-
-
 
 @router.post('/Users/login', response_model=UserResponse)
 def login_user(payload: UserLogin, db: Session = Depends(get_db)):
@@ -100,12 +79,36 @@ def register_user(payload: UserRegister, db: Session = Depends(get_db)):
         last_name=payload.last_name.strip(),
         role=ModelRoleType.USER,
         password_hash=_hash_password(payload.password),
+        cedula=payload.cedula,
         is_active=True,
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+
+def _get_user_or_404(user_id: int, db: Session) -> User:
+    db_user = db.get(User, user_id)
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado.")
+    return db_user
+
+
+@router.get('/Users', response_model=list[UserResponse])
+def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    stmt = select(User).offset(skip).limit(limit)
+    return db.scalars(stmt).all()
+
+
+@router.get('/Users/{user_id}', response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    return _get_user_or_404(user_id, db)
+
+
+
+
 
 @router.post('/Users/showPassword')
 def show_password(email: str, db: Session = Depends(get_db)):
@@ -132,32 +135,26 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
-@router.put("/Users/{user_id}", response_model=UserResponse)
+@router.put("/Users/{user_id}")
 def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)):
-    db_user = _get_user_or_404(user_id, db)
-
-    update_data = payload.model_dump(exclude_unset=True)
-
-    if "email" in update_data and update_data["email"] and update_data["email"] != db_user.email:
-        existing = db.scalars(select(User).where(User.email == update_data["email"], User.id != user_id)).first()
-        if existing:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No se pudo actualizar el usuario con los datos proporcionados.")
-
-    password = update_data.pop("password", None)
-    for key, value in update_data.items():
-        setattr(db_user, key, value)
-    if password:
-        db_user.password_hash = _hash_password(password)
-
+    checkCedula = db.scalar(select(User).where(User.cedula == payload.cedula, User.id != user_id ))
+    if checkCedula:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,                              
+            detail="Ya existe una cuenta con esa cedula."
+        )
+    current = db.get(User, user_id)
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(current, key, value)
     db.commit()
-    db.refresh(db_user)
-    return db_user
+    db.refresh(current)
+    return current
 
 
 @router.delete("/Users/{user_id}", response_model=UserResponse)
 def deactivate_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = _get_user_or_404(user_id, db)
-    db_user.is_active = False
+    current = db.get(User, user_id)
+    current.is_active = False
     db.commit()
-    db.refresh(db_user)
-    return db_user
+    db.refresh(current)
+    return current

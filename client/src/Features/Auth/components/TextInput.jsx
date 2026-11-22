@@ -1,13 +1,14 @@
 import { User } from "lucide-react";
 import { useState } from "react";
 
-function TextInput({label, setValue}) {
-  const [inputValue, setInputValue] =useState("");
+function TextInput({label, setValue, initialValue=""}) {
+  const [inputValue, setInputValue] =useState(initialValue);
   const handleChange = (e) => {
     const clean = e.target.value.replace(/\s+/g, ' ').trim();
     setInputValue(clean); 
     setValue(clean);
   };  
+
 
   return ( 
     <div>

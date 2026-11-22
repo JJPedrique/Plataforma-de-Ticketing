@@ -50,67 +50,6 @@ function HistorialTickets() {
       ) : (
         <div className="space-y-4">
           {orders.map(order=><TicketCard order={order}/>)}
-
-
-          {/*reservasUsuario.map((reserva) => {
-            const estado = getEstadoInfo(reserva.status);
-            const EstadoIcon = estado.icon;
-            return (
-              <div key={reserva.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                <div className={`px-6 py-3 ${estado.bg} border-b ${estado.border} flex items-center justify-between`}>
-                  <div className="flex items-center gap-2">
-                    <EstadoIcon className={`h-5 w-5 ${estado.color}`} />
-                    <span className={`font-semibold ${estado.color}`}>{estado.label}</span>
-                  </div>
-                  <span className="text-sm text-gray-600">Reserva #{reserva.id}</span>
-                </div>
-                
-                <div className="p-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{reserva.evento?.title}</h3>
-                      <p className="text-sm text-gray-600 mb-4">{reserva.evento?.description}</p>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <MapPin className="h-4 w-4 text-gray-400" />
-                          <span>{reserva.venue?.name} • {reserva.venue?.location}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span>{reserva.evento?.event_date ? new Date(reserva.evento.event_date).toLocaleDateString('es-ES') : 'N/A'}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Clock className="h-4 w-4 text-gray-400" />
-                          <span>{reserva.evento?.event_date ? reserva.evento.event_date.slice(11,16) : 'N/A'}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-3">Asientos</h4>
-                      <div className="space-y-2 mb-4">
-                        {reserva.asientos.map((asiento, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm">
-                            <span className="text-gray-700">Fila {asiento.fila} - Asiento {asiento.asiento}</span>
-                            <span className="font-medium text-gray-900">${asiento.precio?.toFixed(2)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="pt-3 border-t border-gray-100">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Total</span>
-                          <span className="text-lg font-semibold text-orange-600">${reserva.total_amount.toFixed(2)}</span>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Compra realizada: {new Date(reserva.created_at).toLocaleString('es-ES')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })*/}
         </div>
       )}
     </div>

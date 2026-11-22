@@ -1,8 +1,8 @@
 import { IdCard } from "lucide-react";
 import { useState } from "react";
 
-function CedulaInput({ label = "Cédula de Identidad", setValue }) {
-  const [inputValue, setInputValue] =useState("");
+function CedulaInput({ label = "Cédula de Identidad", setValue, initialValue= ""}) {
+  const [inputValue, setInputValue] =useState(initialValue);
   const handleChange = (e) => {
     const clean = e.target.value.toUpperCase().replace(/[^VE0-9-]/g, "").replace(/\s+/g, '').trim();
     setInputValue(clean); 

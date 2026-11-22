@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from src.models.Event import Event
     from src.models.Order import Order
 
-
 class RoleType(str, enum.Enum):
     ADMIN = "ADMIN"
     ORGANIZER = "ORGANIZER"
@@ -26,6 +25,9 @@ class User(Base):
         Enum(RoleType, name="role_type"),
         default=RoleType.USER,
         nullable=False,
+    )
+    cedula: Mapped[Optional[str]] = mapped_column(
+        String(20), unique=True, index=True, nullable=True
     )
     first_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     last_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
