@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from src.database import get_db
 from src.models.Event import Event
+from src.models.Venue import Venue
 from src.schemas.Event import EventCreate, EventResponse, EventUpdate, EventVenueResponse
 
 router = APIRouter(tags=["Events"])
@@ -62,5 +63,16 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
 
 @router.get('/EventsVenues', response_model=list[EventVenueResponse])
 def get_events(title = "", skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    stmt = select(Event).where(Event.title.ilike(f"%{title}%")).options(joinedload(Event.venue)).offset(skip).limit(limit)
+    # un evento solo es visible si él y su lugar están activos.
+    stmt = (
+        select(Event)
+        .where(
+            Event.is_active.is_(True),
+            Event.venue.has(Venue.is_active.is_(True)),
+            Event.title.ilike(f"%{title}%"),
+        )
+        .options(joinedload(Event.venue))
+        .offset(skip)
+        .limit(limit)
+    )
     return db.scalars(stmt).all()

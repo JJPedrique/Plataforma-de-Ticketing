@@ -68,9 +68,6 @@ function EventoCard({Data, isDisabled=false, onClick}) {
           <Ticket className="relative h-16 w-16 text-orange-500/40" />
         )}
         <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent"></div>
-        <div className="absolute bottom-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-lg text-xs font-medium text-gray-700">
-          {Data.venue?.name}
-        </div>
       </div>
 
       <div className="p-5">
