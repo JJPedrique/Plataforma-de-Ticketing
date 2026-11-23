@@ -2,6 +2,11 @@ import { Armchair, Minus, Plus, SquareSquare } from "lucide-react";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { Layer, Stage, Circle, Text, Group, Rect } from "react-konva";
 
+const toCoord = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+};
+
 function Canvas({ Data = [], seats = [], onSeatChange }) {
     const containerRef = useRef(null);
     const [zoom, setZoom] = useState(0.5);
@@ -34,30 +39,62 @@ function Canvas({ Data = [], seats = [], onSeatChange }) {
         return () => resizeObserver.disconnect();
     }, []);
 
-    function getMaxWidth(zoneSeats) {
-        if (!zoneSeats || zoneSeats.length === 0) return 0;
-        return zoneSeats.reduce((max, s) => (s.coord_x > max ? s.coord_x : max), 0);
-    }
-
-    function getMaxHeight(zoneSeats) {
-        if (!zoneSeats || zoneSeats.length === 0) return 0;
-        return zoneSeats.reduce((max, s) => (s.coord_y > max ? s.coord_y : max), 0);
-    }
-
-    // Calculamos dimensiones y posición Y acumulada para cada zona
+    // Calculamos dimensiones y posición Y acumulada para cada zona.
+    // Cada fila se alinea con su propia primera columna para que una silla
+    // nueva (que puede venir en coord_x=0) no quede desfasada del resto.
     const zonesWithLayout = useMemo(() => {
         let currentY = ZONE_GAP;
+        const zones = Array.isArray(Data) ? Data : [];
 
-        return Data.map((zone) => {
+        return zones.map((zone) => {
+            const zoneSeats = Array.isArray(zone.seats) ? zone.seats : [];
+            const rowCoordinates = new Map();
+
+            let minY = Infinity;
+            let maxY = -Infinity;
+
+            zoneSeats.forEach((seat) => {
+                const x = toCoord(seat.coord_x);
+                const y = toCoord(seat.coord_y);
+                if (!rowCoordinates.has(y)) rowCoordinates.set(y, []);
+                rowCoordinates.get(y).push(x);
+                minY = Math.min(minY, y);
+                maxY = Math.max(maxY, y);
+            });
+
+            if (!Number.isFinite(minY)) {
+                minY = 0;
+                maxY = 0;
+            }
+
+            const rowMinX = {};
+            let maxSpan = 0;
+            rowCoordinates.forEach((xs, y) => {
+                const rowMin = Math.min(...xs);
+                const rowMax = Math.max(...xs);
+                rowMinX[y] = rowMin;
+                maxSpan = Math.max(maxSpan, rowMax - rowMin);
+            });
+
+            const gridWidth = maxSpan * SEAT_SPACING;
+            const gridHeight = (maxY - minY) * SEAT_SPACING;
             const minWidth = Math.max(220, String(zone.name || '').length * 14);
             const width = Math.max(
                 minWidth,
-                getMaxWidth(zone.seats) * SEAT_SPACING + PADDING * 2 + SEAT_SPACING
+                gridWidth + PADDING * 2 + SEAT_SPACING
             );
             const height = Math.max(
                 150,
-                getMaxHeight(zone.seats) * SEAT_SPACING + PADDING * 2 + TITLE_HEIGHT + SEAT_SPACING
+                gridHeight + PADDING * 2 + TITLE_HEIGHT + SEAT_SPACING
             );
+
+            // Centramos el bloque completo de sillas dentro de la zona,
+            // como un div con mx-auto/my-auto.
+            const offsetX = (width - gridWidth) / 2;
+            const contentTop = PADDING + TITLE_HEIGHT;
+            const offsetY =
+                contentTop +
+                Math.max(0, (height - contentTop - PADDING - gridHeight) / 2);
             const y = currentY;
 
             // El siguiente bloque empezará exactamente después de esta zona + el gap uniforme
@@ -65,7 +102,8 @@ function Canvas({ Data = [], seats = [], onSeatChange }) {
 
             return {
                 ...zone,
-                layout: { width, height, y },
+                seats: zoneSeats,
+                layout: { width, height, y, minY, rowMinX, offsetX, offsetY },
             };
         });
     }, [Data]);
@@ -154,8 +192,16 @@ function Canvas({ Data = [], seats = [], onSeatChange }) {
                                     return (
                                         <Circle
                                             key={seat.id}
-                                            x={PADDING + seat.coord_x * SEAT_SPACING}
-                                            y={PADDING + TITLE_HEIGHT + seat.coord_y * SEAT_SPACING}
+                                            x={
+                                                zone.layout.offsetX +
+                                                (toCoord(seat.coord_x) -
+                                                    (zone.layout.rowMinX[toCoord(seat.coord_y)] ?? 0)) *
+                                                    SEAT_SPACING
+                                            }
+                                            y={
+                                                zone.layout.offsetY +
+                                                (toCoord(seat.coord_y) - zone.layout.minY) * SEAT_SPACING
+                                            }
                                             radius={SEAT_RADIUS}
                                             fill={fillColor}
                                             onClick={seat.is_availble ? () => onSeatChange(zone, seat) : undefined}
