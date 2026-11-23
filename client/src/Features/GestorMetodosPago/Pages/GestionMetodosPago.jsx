@@ -94,7 +94,7 @@ export default function GestionMetodosPago() {
                         <td className="px-4 py-3 text-gray-700">{m.description || '—'}</td>
                         <td className="px-4 py-3"><span className={`inline-flex px-2 py-1 rounded-md ${m.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{m.is_active ? 'Activo' : 'Inactivo'}</span></td>
                         <td className="px-4 py-3"><div className="flex justify-end">
-                          <button type="button" onClick={() => changeStatus(m)} disabled={changingId !== null} title={m.is_active ? 'Desactivar método de pago' : 'Activar método de pago'} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-sm font-medium transition-colors disabled:opacity-60 ${m.is_active ? 'border-red-200 text-red-700 hover:bg-red-50' : 'border-green-200 text-green-700 hover:bg-green-50'}`}>
+                          <button type="button" onClick={() => changeStatus(m)} disabled={changingId !== null} title={m.is_active ? 'Desactivar método de pago' : 'Activar método de pago'} className={`inline-flex w-32 gap-1.5 px-3 py-1.5 rounded-md border text-sm font-medium transition-colors disabled:opacity-60 ${m.is_active ? 'border-red-200 text-red-700 hover:bg-red-50' : 'border-green-200 text-green-700 hover:bg-green-50'}`}>
                             {m.is_active ? <Ban className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                             {m.is_active ? 'Desactivar' : 'Activar'}
                           </button>
