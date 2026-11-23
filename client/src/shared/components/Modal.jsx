@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 import { X} from 'lucide-react';
 
 function Modal({ isOpen, onClose = ()=>{}, title, children, footer, preventCloseOnOverlayClick = false }) {
+    const titleId = useId();
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -27,14 +28,14 @@ function Modal({ isOpen, onClose = ()=>{}, title, children, footer, preventClose
     
     return ( 
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-            onClick={handleOverlayClick} aria-modal="true" role="dialog">
+            onClick={handleOverlayClick} aria-modal="true" role="dialog" aria-labelledby={titleId}>
             <div className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()} >
 
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">{title}</h3>
+                    <h3 id={titleId} className="text-lg font-semibold text-gray-900 flex items-center gap-2">{title}</h3>
                     <button className="p-1 text-gray-400 transition-colors hover:text-gray-600 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-200"
-                        onClick={onClose} aria-label="Close modal">
+                        onClick={onClose} aria-label="Cerrar modal">
                         <X size={20} />
                     </button>
                 </div>

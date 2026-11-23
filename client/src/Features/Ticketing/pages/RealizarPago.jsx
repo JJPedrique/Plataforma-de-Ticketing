@@ -5,11 +5,13 @@ import EventoCard from '../components/EventoCard';
 import SillasCard from '../components/SillaCard';
 import { TicketingContext } from '../Context/TicketingContext';
 import PagoCard from '../components/PagoCard';
-import { generarReferenciaBancaria, generarReferenciaPasarela, generarTxHashCrypto, PayMethodsService } from '../services/Pagos';
+import { generarReferenciaBancaria, generarReferenciaEfectivo, generarReferenciaPagoMovil, generarReferenciaPasarela, generarTxHashCrypto, PayMethodsService } from '../services/Pagos';
 import Modal from '../../../shared/components/Modal';
 import FormCreditCard from '../components/FormCreditCard';
 import FormCriptoCard from '../components/FormCriptoCard';
 import FormWalletCard from '../components/FormWalletCard';
+import ModalPagoMovil from '../components/ModalPagoMovil';
+import FormEfectivoCard from '../components/FormEfectivoCard';
 
 function PrepararPago({ onReservar }) {
   const [payMedthods,setPayMethods] = useState([]);
@@ -23,17 +25,27 @@ function PrepararPago({ onReservar }) {
       const timer = setTimeout(async () => {
       try {
           setLoading(true);
-          const data = await PayMethodsService.getAll(controller.signal);
+          const data = await PayMethodsService.getAll({ include_inactive: true }, { signal: controller.signal });
           setPayMethods(data);
       } catch (error) {
-          if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
+          if (error.name !== 'CanceledError') {console.error('Error cargando métodos de pago:', error);}
       } finally {setLoading(false);}
       }, 400);
 
       return () => {clearTimeout(timer); controller.abort();};
   }, []);
 
+  useEffect(() => {
+      if (!pay || payMedthods.length === 0) return;
+      const currentMethod = payMedthods.find((method) => method.id === pay.id);
+      if (!currentMethod?.is_active) {
+          setPay(null);
+          setIsModalOpen(false);
+      }
+  }, [pay, payMedthods, setPay]);
+
   function PrepararPago(Pay){
+    if (!Pay?.is_active) return;
     setPay(Pay);
     setIsModalOpen(true);
   }
@@ -43,15 +55,18 @@ function PrepararPago({ onReservar }) {
     setIsModalOpen(false);
   }
 
-  async function CompletarPago(){
-    if (pagandoRef.current) return;
+  async function CompletarPago(referenciaReportada){
+    if (pagandoRef.current || !pay?.is_active) return;
     pagandoRef.current = true;
 
-    const pay_methods_ref =
+    const pay_methods_ref = referenciaReportada ?? (
       pay?.id === 1 ? generarReferenciaBancaria() :
+      pay?.id === 2 ? generarReferenciaPagoMovil() :
       pay?.id === 3 ? generarTxHashCrypto() :
       pay?.id === 4 ? generarReferenciaPasarela() :
-      "Pago en efectivo";
+      pay?.id === 5 ? generarReferenciaEfectivo() :
+      generarReferenciaPasarela()
+    );
 
     const updatedPay = { ...pay, pay_methods_ref };
     setPay(updatedPay);
@@ -129,14 +144,24 @@ function PrepararPago({ onReservar }) {
       </div>
 
 
-      <Modal isOpen={isModalOpen} onClose={()=>CancelarPago()}
-        title={pay?.name} 
-        
-        children={
-          pay?.id === 1 ? (<FormCreditCard onReservar={()=>CompletarPago()}/>) :
-          pay?.id === 3 ? (<FormCriptoCard onReservar={()=>CompletarPago()}/>) :         
-          pay?.id === 4 ? (<FormWalletCard onReservar={()=>CompletarPago()}/>) :         
-          (<h1>Yahany Fia</h1>)}/>       
+      {pay?.id === 2 ? (
+        <ModalPagoMovil
+          isOpen={isModalOpen}
+          onClose={()=>CancelarPago()}
+          onSubmit={(paymentData)=>CompletarPago(paymentData.referencia)}
+          amount={totalAmount.total}
+        />
+      ) : (
+        <Modal isOpen={isModalOpen} onClose={()=>CancelarPago()}
+          title={pay?.name}
+
+          children={
+            pay?.id === 1 ? (<FormCreditCard onReservar={()=>CompletarPago()}/>) :
+            pay?.id === 3 ? (<FormCriptoCard onReservar={()=>CompletarPago()}/>) :
+            pay?.id === 4 ? (<FormWalletCard onReservar={()=>CompletarPago()}/>) :
+            pay?.id === 5 ? (<FormEfectivoCard onReservar={()=>CompletarPago()}/>) :
+            null}/>
+      )}       
     </>
   );
 }

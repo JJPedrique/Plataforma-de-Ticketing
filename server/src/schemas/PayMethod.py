@@ -7,14 +7,8 @@ class PayMethodBase(BaseModel):
     is_active: bool = Field(default=True)
 
 
-class PayMethodCreate(PayMethodBase):
-    pass
-
-
-class PayMethodUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=1, max_length=100)
-    description: str | None = Field(default=None, max_length=255)
-    is_active: bool | None = None
+class PayMethodStatusUpdate(BaseModel):
+    is_active: bool
 
 
 class PayMethodResponse(PayMethodBase):

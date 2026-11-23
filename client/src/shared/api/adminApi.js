@@ -17,11 +17,12 @@ export const venuesApi = {
 };
 
 export const payMethodsApi = {
-  list: () => apiRequest('/PayMethods'),
+  list: ({ includeInactive = false } = {}) => apiRequest(`/PayMethods${includeInactive ? '?include_inactive=true' : ''}`),
   get: (id) => apiRequest(`/PayMethods/${id}`),
-  create: (data) => apiRequest('/PayMethods', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id, data) => apiRequest(`/PayMethods/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  remove: (id) => apiRequest(`/PayMethods/${id}`, { method: 'DELETE' }),
+  setStatus: (id, isActive) => apiRequest(`/PayMethods/${id}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ is_active: isActive }),
+  }),
 };
 
 export const eventsApi = {

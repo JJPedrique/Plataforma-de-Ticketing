@@ -1,11 +1,8 @@
 import axiosClient from '../../../core/api/axiosClient';
 
 export const PayMethodsService = {
-  getAll: (params) => axiosClient.get('/PayMethods', { params }),
+  getAll: (params, config) => axiosClient.get('/PayMethods', { params, ...config }),
   getById: (id) => axiosClient.get(`/PayMethods/${id}`),
-  create: (eventData) => axiosClient.post('/PayMethods', eventData),
-  update: (id, eventData) => axiosClient.put(`/PayMethods/${id}`, eventData),
-  delete: (id) => axiosClient.delete(`/PayMethods/${id}`),
 };
 
 export const generarReferenciaPasarela = (prefijo = "TXN") => {
