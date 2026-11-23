@@ -2,6 +2,13 @@ import { createContext, useMemo, useState } from 'react';
 
 export const TicketingContext = createContext();
 
+const toNumber = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+};
+
+const round2 = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
+
 export const TicketingProvider = ({ children }) => {
     const [order,setOrder] = useState(null);
     const [event, setEvent] = useState(null);
@@ -9,9 +16,9 @@ export const TicketingProvider = ({ children }) => {
     const [pay, setPay] = useState(null);
 
     const totalAmount = useMemo(() => {
-        const subtotal = seats.reduce((acc, a) => acc + a.price, 0);
-        const comision = subtotal * 0.01;
-        const total = subtotal + comision;
+        const subtotal = round2(seats.reduce((acc, a) => acc + toNumber(a.price), 0));
+        const comision = round2(subtotal * 0.01);
+        const total = round2(subtotal + comision);
         return { subtotal, comision, total };
     }, [seats]);
 

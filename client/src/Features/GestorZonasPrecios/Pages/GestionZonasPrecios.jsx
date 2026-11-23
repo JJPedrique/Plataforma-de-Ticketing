@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CalendarDays, MapPin, Palette, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { CalendarDays, Lock, MapPin, Palette, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { eventsApi, eventZonePricesApi, venuesApi } from '../../../shared/api/adminApi';
 import { useAuth } from '../../Auth/Context/AuthContext';
 import Modal from '../../../shared/components/Modal';
 
-const emptyForm = { name: '', color_code: '#F97316', is_active: true, price: '' };
+const emptyForm = { name: '', color_code: '#F97316', is_active: true, seat_count: 20, price: '' };
 const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
 const HEX_COLOR = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 
@@ -37,6 +37,8 @@ export default function GestionZonasPrecios() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const lockedByTickets = Boolean(editing?.has_tickets);
+  const readOnlyClass = lockedByTickets ? ' bg-gray-100 cursor-not-allowed' : '';
 
   const venuesById = useMemo(() => Object.fromEntries(venues.map((v) => [v.id, v])), [venues]);
 
@@ -108,6 +110,7 @@ export default function GestionZonasPrecios() {
       name: row.name || '',
       color_code: row.color_code || '',
       is_active: row.is_active !== false,
+      seat_count: row.seat_count ?? 0,
       price: String(row.price ?? ''),
     });
     setFormError('');
@@ -125,6 +128,12 @@ export default function GestionZonasPrecios() {
     const color = form.color_code.trim();
     if (color && !HEX_COLOR.test(color)) {
       setFormError('El color debe ser hexadecimal, por ejemplo #F97316.');
+      return;
+    }
+
+    const seatCount = Number(form.seat_count);
+    if (!Number.isInteger(seatCount) || seatCount < 0 || seatCount > 500) {
+      setFormError('El número de sillas debe estar entre 0 y 500.');
       return;
     }
 
@@ -153,9 +162,12 @@ export default function GestionZonasPrecios() {
       const common = {
         name,
         color_code: color || null,
-        is_active: form.is_active,
-        price,
       };
+      if (!lockedByTickets) {
+        common.is_active = form.is_active;
+        common.seat_count = seatCount;
+        common.price = price;
+      }
       const payload = editing ? common : { event_id: selectedEvent.id, ...common };
       if (editing) await eventZonePricesApi.update(editing.id, payload);
       else await eventZonePricesApi.create(payload);
@@ -169,13 +181,13 @@ export default function GestionZonasPrecios() {
   };
 
   const remove = async (row) => {
-    if (!window.confirm(`¿Eliminar la zona "${row.name || `#${row.id}`}" y su precio de este evento?`)) return;
+    if (!window.confirm(`¿Desactivar la zona "${row.name || `#${row.id}`}"? No aparecerá en el mapa del Ticketing.`)) return;
     try {
       setError('');
       await eventZonePricesApi.remove(row.id);
       await loadDetail();
     } catch (e) {
-      setError(e.message || 'No se pudo eliminar la zona y su precio.');
+      setError(e.message || 'No se pudo desactivar la zona.');
     }
   };
 
@@ -263,6 +275,7 @@ export default function GestionZonasPrecios() {
                   <tr>
                     <th className="text-left px-4 py-3 font-semibold">Zona</th>
                     <th className="text-left px-4 py-3 font-semibold">Color</th>
+                    <th className="text-left px-4 py-3 font-semibold">Sillas</th>
                     <th className="text-left px-4 py-3 font-semibold">Precio</th>
                     <th className="text-left px-4 py-3 font-semibold">Estado</th>
                     <th className="text-right px-4 py-3 font-semibold">Acciones</th>
@@ -271,27 +284,44 @@ export default function GestionZonasPrecios() {
                 <tbody>
                   {rows.map((row) => (
                     <tr key={row.id} className="border-t border-gray-100">
-                      <td className="px-4 py-3 text-gray-900 font-medium">{row.name || `Zona #${row.zone_id}`}</td>
+                      <td className="px-4 py-3 text-gray-900 font-medium">
+                        <span className="inline-flex items-center gap-1.5">
+                          {row.name || `Zona #${row.zone_id}`}
+                          {row.has_tickets && (
+                            <Lock className="w-3.5 h-3.5 text-amber-600" title="Tiene reservas o ventas activas" />
+                          )}
+                        </span>
+                      </td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center gap-2 text-gray-700">
                           <span className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: row.color_code || '#e5e7eb' }} />
                           {row.color_code || '-'}
                         </span>
                       </td>
+                      <td className="px-4 py-3 text-gray-700">{row.seat_count ?? 0}</td>
                       <td className="px-4 py-3 text-gray-700 font-semibold">{formatMoney(row.price)}</td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex px-2 py-1 rounded-md ${row.is_active !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                          {row.is_active !== false ? 'Activa' : 'Inactiva'}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className={`inline-flex px-2 py-1 rounded-md ${row.is_active !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {row.is_active !== false ? 'Activa' : 'Inactiva'}
+                          </span>
+                          {row.has_tickets && (
+                            <span className="inline-flex px-2 py-1 rounded-md bg-amber-100 text-amber-800">Con tickets</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex justify-end gap-2">
                           <button onClick={() => openEdit(row)} className="p-2 rounded-md border border-gray-200 hover:bg-gray-50" title="Editar">
                             <Pencil className="w-4 h-4" />
                           </button>
-                          <button onClick={() => remove(row)} className="p-2 rounded-md border border-red-200 text-red-700 hover:bg-red-50" title="Eliminar">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {row.is_active !== false && (
+                            <button onClick={() => remove(row)} disabled={row.has_tickets}
+                              className="p-2 rounded-md border border-red-200 text-red-700 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                              title={row.has_tickets ? 'No se puede desactivar: tiene reservas o ventas activas' : 'Desactivar'}>
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -322,6 +352,11 @@ export default function GestionZonasPrecios() {
       >
         <form id="zone-price-form" onSubmit={save} className="space-y-4" noValidate>
           {formError && <div className="border border-red-200 bg-red-50 text-red-800 rounded-lg px-3 py-2 text-sm">{formError}</div>}
+          {lockedByTickets && (
+            <div className="border border-amber-200 bg-amber-50 text-amber-900 rounded-lg px-3 py-2 text-sm">
+              Esta zona tiene reservas o ventas activas. Solo puedes cambiar nombre y color; precio, sillas, estado y desactivación están bloqueados.
+            </div>
+          )}
           <div>
             <label htmlFor="zone-name" className="block text-sm font-medium text-gray-700 mb-1.5">Nombre de la zona</label>
             <input id="zone-name" value={form.name} maxLength={100}
@@ -340,16 +375,23 @@ export default function GestionZonasPrecios() {
             </div>
           </div>
           <div>
+            <label htmlFor="zone-seats" className="block text-sm font-medium text-gray-700 mb-1.5">Número de sillas</label>
+            <input id="zone-seats" type="number" min="0" max="500" step="1" value={form.seat_count}
+              onChange={(e) => setForm({ ...form, seat_count: e.target.value })}
+              placeholder="20" disabled={lockedByTickets} className={`${inputClassName}${readOnlyClass}`} />
+            <p className="mt-1 text-xs text-gray-500">Se distribuyen automáticamente en el mapa. Si las últimas tienen reserva, la reducción se rechaza.</p>
+          </div>
+          <div>
             <label htmlFor="zone-price" className="block text-sm font-medium text-gray-700 mb-1.5">Precio</label>
             <input id="zone-price" type="number" step="0.01" min="0" max="99999999.99" value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
-              placeholder="0.00" className={inputClassName} />
+              placeholder="0.00" disabled={lockedByTickets} className={`${inputClassName}${readOnlyClass}`} />
           </div>
           <div>
             <label htmlFor="zone-status" className="block text-sm font-medium text-gray-700 mb-1.5">Estado</label>
             <select id="zone-status" value={String(form.is_active)}
               onChange={(e) => setForm({ ...form, is_active: e.target.value === 'true' })}
-              className={inputClassName}>
+              disabled={lockedByTickets} className={`${inputClassName}${readOnlyClass}`}>
               <option value="true">Activa</option>
               <option value="false">Inactiva</option>
             </select>

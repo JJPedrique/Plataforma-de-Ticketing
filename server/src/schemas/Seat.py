@@ -5,7 +5,7 @@ class SeatBase(BaseModel):
     seat_number: str | None = Field(default=None, max_length=20)
     coord_x: int | None = Field(default=None, ge=0)
     coord_y: int | None = Field(default=None, ge=0)
-    is_Active: bool = Field(default=True)
+    is_active: bool = Field(default=True)
 
 
 class SeatCreate(SeatBase):
@@ -18,18 +18,13 @@ class SeatUpdate(BaseModel):
     seat_number: str | None = Field(default=None, max_length=20)
     coord_x: int | None = Field(default=None, ge=0)
     coord_y: int | None = Field(default=None, ge=0)
-    is_Active: bool | None = None
+    is_active: bool | None = None
 
 
 class SeatResponse(SeatBase):
     id: int
     zone_id: int
     
-    model_config = ConfigDict(from_attributes=True)
-
-class SeatResponse(SeatBase):
-    id: int
-
     model_config = ConfigDict(from_attributes=True)
 
 ###

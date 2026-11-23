@@ -1,3 +1,5 @@
+import math
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -5,6 +7,9 @@ from sqlalchemy.orm import Session
 from src.database import get_db
 from src.models.Event import Event
 from src.models.EventPricing import EventPricing
+from src.models.Order import Order, OrderStatus
+from src.models.Seat import Seat
+from src.models.Ticket import Ticket
 from src.models.Zone import Zone
 from src.schemas.EventPricing import (
     EventPricingCreate,
@@ -70,7 +75,133 @@ def _zone_name_taken(db: Session, event_id: int, name: str | None, exclude_prici
     return db.scalar(stmt) is not None
 
 
-def _to_detail(pricing: EventPricing, zone: Zone) -> dict:
+ACTIVE_ORDER_STATUSES = (OrderStatus.PENDING, OrderStatus.COMPLETED)
+
+
+def _row_label(index: int) -> str:
+    label = ""
+    number = index + 1
+    while number:
+        number, remainder = divmod(number - 1, 26)
+        label = chr(65 + remainder) + label
+    return label
+
+
+def _auto_columns(count: int) -> int:
+    if count <= 0:
+        return 1
+    return min(12, max(1, math.ceil(math.sqrt(count))))
+
+
+def _active_seats(db: Session, zone_id: int) -> list[Seat]:
+    return db.scalars(
+        select(Seat)
+        .where(Seat.zone_id == zone_id, Seat.is_active.is_(True))
+        .order_by(Seat.coord_y, Seat.coord_x, Seat.id)
+    ).all()
+
+
+def _protected_seat_ids(db: Session, seat_ids: list[int]) -> set[int]:
+    if not seat_ids:
+        return set()
+    return set(db.scalars(
+        select(Ticket.seat_id)
+        .join(Order, Ticket.order_id == Order.id)
+        .where(
+            Ticket.seat_id.in_(seat_ids),
+            Order.status.in_(ACTIVE_ORDER_STATUSES),
+        )
+    ).all())
+
+
+def _zone_has_tickets(db: Session, zone_id: int) -> bool:
+    seat_ids = select(Seat.id).where(Seat.zone_id == zone_id)
+    stmt = (
+        select(Ticket.id)
+        .join(Order, Ticket.order_id == Order.id)
+        .where(
+            Ticket.seat_id.in_(seat_ids),
+            Order.status.in_(ACTIVE_ORDER_STATUSES),
+        )
+    )
+    return db.scalar(stmt) is not None
+
+
+def _seat_count(db: Session, zone_id: int) -> int:
+    return db.scalar(
+        select(func.count(Seat.id)).where(
+            Seat.zone_id == zone_id,
+            Seat.is_active.is_(True),
+        )
+    ) or 0
+
+
+def _set_seat_count(db: Session, zone_id: int, desired: int) -> None:
+    active = _active_seats(db, zone_id)
+    current = len(active)
+    if desired == current:
+        return
+
+    if desired < current:
+        protected = _protected_seat_ids(db, [seat.id for seat in active])
+        to_remove = []
+        for seat in reversed(active):
+            if seat.id in protected:
+                break
+            to_remove.append(seat)
+            if len(to_remove) == current - desired:
+                break
+        if len(to_remove) < current - desired:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="No se puede reducir: las últimas sillas tienen reservas o ventas.",
+            )
+        for seat in to_remove:
+            seat.is_active = False
+        return
+
+    need = desired - current
+    inactive = db.scalars(
+        select(Seat)
+        .where(Seat.zone_id == zone_id, Seat.is_active.is_(False))
+        .order_by(Seat.coord_y, Seat.coord_x, Seat.id)
+    ).all()
+
+    for seat in inactive[:need]:
+        seat.is_active = True
+        active.append(seat)
+        need -= 1
+
+    if need <= 0:
+        return
+
+    active.sort(key=lambda seat: (seat.coord_y or 0, seat.coord_x or 0, seat.id))
+    if active:
+        columns = max((seat.coord_x or 0) for seat in active) + 1
+        last = active[-1]
+        next_col = (last.coord_x or 0) + 1
+        next_row = last.coord_y or 0
+    else:
+        columns = _auto_columns(desired)
+        next_col = 0
+        next_row = 0
+
+    for _ in range(need):
+        if next_col >= columns:
+            next_col = 0
+            next_row += 1
+        db.add(Seat(
+            zone_id=zone_id,
+            row_label=_row_label(next_row),
+            seat_number=str(next_col + 1),
+            coord_x=next_col,
+            coord_y=next_row,
+            is_active=True,
+        ))
+        next_col += 1
+
+
+def _to_detail(pricing: EventPricing, zone: Zone, db: Session) -> dict:
     return {
         "id": pricing.id,
         "event_id": pricing.event_id,
@@ -78,6 +209,8 @@ def _to_detail(pricing: EventPricing, zone: Zone) -> dict:
         "name": zone.name,
         "color_code": zone.color_code,
         "is_active": zone.is_active,
+        "seat_count": _seat_count(db, zone.id),
+        "has_tickets": _zone_has_tickets(db, zone.id),
         "price": pricing.price,
     }
 
@@ -88,7 +221,7 @@ def get_event_zone_prices(event_id: int | None = None, skip: int = 0, limit: int
     if event_id is not None:
         stmt = stmt.where(EventPricing.event_id == event_id)
     stmt = stmt.offset(skip).limit(limit)
-    return [_to_detail(pricing, zone) for pricing, zone in db.execute(stmt).all()]
+    return [_to_detail(pricing, zone, db) for pricing, zone in db.execute(stmt).all()]
 
 
 @router.post('/EventZonePrices', response_model=EventZonePriceDetail, status_code=status.HTTP_201_CREATED)
@@ -111,13 +244,14 @@ def create_event_zone_price(payload: EventZonePriceCreate, db: Session = Depends
     )
     db.add(zone)
     db.flush()
+    _set_seat_count(db, zone.id, payload.seat_count)
 
     pricing = EventPricing(event_id=event.id, zone_id=zone.id, price=payload.price)
     db.add(pricing)
     db.commit()
     db.refresh(pricing)
     db.refresh(zone)
-    return _to_detail(pricing, zone)
+    return _to_detail(pricing, zone, db)
 
 
 @router.put('/EventZonePrices/{pricing_id}', response_model=EventZonePriceDetail)
@@ -128,11 +262,29 @@ def update_event_zone_price(pricing_id: int, payload: EventZonePriceUpdate, db: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Zona no encontrada.")
 
     data = payload.model_dump(exclude_unset=True)
+
+    if _zone_has_tickets(db, zone.id):
+        blocked = []
+        if "price" in data and data["price"] != pricing.price:
+            blocked.append("el precio")
+        if "seat_count" in data and data["seat_count"] != _seat_count(db, zone.id):
+            blocked.append("las sillas")
+        if data.get("is_active") is False and bool(zone.is_active):
+            blocked.append("el estado")
+        if blocked:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"La zona tiene reservas o ventas activas; no se puede cambiar {', '.join(blocked)}.",
+            )
+
     if "name" in data and _zone_name_taken(db, pricing.event_id, data["name"], exclude_pricing_id=pricing.id):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Ya existe una zona con ese nombre en este evento.",
         )
+
+    if "seat_count" in data:
+        _set_seat_count(db, zone.id, data["seat_count"])
 
     for field in ("name", "color_code", "is_active"):
         if field in data:
@@ -143,22 +295,22 @@ def update_event_zone_price(pricing_id: int, payload: EventZonePriceUpdate, db: 
     db.commit()
     db.refresh(pricing)
     db.refresh(zone)
-    return _to_detail(pricing, zone)
+    return _to_detail(pricing, zone, db)
 
 
 @router.delete('/EventZonePrices/{pricing_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_event_zone_price(pricing_id: int, db: Session = Depends(get_db)):
     pricing = _get_pricing_or_404(pricing_id, db)
-    zone_id = pricing.zone_id
 
-    db.delete(pricing)
-    db.flush()
+    if _zone_has_tickets(db, pricing.zone_id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No se puede desactivar: la zona tiene reservas o ventas activas.",
+        )
 
-    still_used = db.scalar(select(EventPricing.id).where(EventPricing.zone_id == zone_id))
-    if still_used is None:
-        zone = db.get(Zone, zone_id)
-        if zone:
-            zone.is_active = False
+    zone = db.get(Zone, pricing.zone_id)
+    if zone:
+        zone.is_active = False
 
     db.commit()
     return None

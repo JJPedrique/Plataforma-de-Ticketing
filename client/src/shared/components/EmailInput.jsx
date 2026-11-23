@@ -7,7 +7,7 @@ function EmailInput({ label = "Cédula de Identidad", setValue, initialValue= ""
     if (readOnly) return;
     const clean = e.target.value.replace(/\s+/g, '').trim();
     setInputValue(clean); 
-    setValue(clean);
+    setValue?.(clean);
   };  
 
   return ( 

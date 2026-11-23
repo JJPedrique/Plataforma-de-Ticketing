@@ -2,7 +2,7 @@ import asyncio
 from typing import List
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from src.database import SessionLocal, get_db
-from sqlalchemy import and_, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 
 
@@ -81,7 +81,7 @@ def get_user_purchase_history(user_id: int, db: Session = Depends(get_db)):
             Order.id.label("order_id"),
             Order.total_amount,
             Order.created_at.label("completed_at"),
-            PayMethod.name.label("payment_method"),
+            func.coalesce(PayMethod.name, "No especificado").label("payment_method"),
             Order.pay_methods_ref.label("payment_reference"),
             Event.id.label("event_id"),
             Event.title.label("event_title"),
@@ -99,7 +99,7 @@ def get_user_purchase_history(user_id: int, db: Session = Depends(get_db)):
             Seat.seat_number,
             EventPricing.price,
         )
-        .join(PayMethod, Order.pay_method_id == PayMethod.id)
+        .outerjoin(PayMethod, Order.pay_method_id == PayMethod.id)
         .join(Ticket, Ticket.order_id == Order.id)
         .join(Event, Ticket.event_id == Event.id)
         .join(Venue, Event.venue_id == Venue.id)
@@ -170,7 +170,7 @@ def get_user_purchase_detail(user_id: int, order_id: int, db: Session = Depends(
             Order.id.label("order_id"),
             Order.total_amount,
             Order.created_at.label("completed_at"),
-            PayMethod.name.label("payment_method"),
+            func.coalesce(PayMethod.name, "No especificado").label("payment_method"),
             Order.pay_methods_ref.label("payment_reference"),
             Event.id.label("event_id"),
             Event.title.label("event_title"),
@@ -188,7 +188,7 @@ def get_user_purchase_detail(user_id: int, order_id: int, db: Session = Depends(
             Seat.seat_number,
             EventPricing.price,
         )
-        .join(PayMethod, Order.pay_method_id == PayMethod.id)
+        .outerjoin(PayMethod, Order.pay_method_id == PayMethod.id)
         .join(Ticket, Ticket.order_id == Order.id)
         .join(Event, Ticket.event_id == Event.id)
         .join(Venue, Event.venue_id == Venue.id)

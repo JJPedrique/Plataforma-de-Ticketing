@@ -7,7 +7,7 @@ function SelectInput({ label, values = [], setValue, initialValue = ""}) {
   const handleChange = (e) => {
     const newValue = e.target.value;
     setInputValue(newValue);
-    setValue(newValue);
+    setValue?.(newValue);
   };
 
   return (

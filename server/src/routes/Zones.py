@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from src.database import get_db
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 
 from src.schemas.Zone import *
@@ -70,7 +70,10 @@ def get_zones_prices(order_id: int, venue_id: int, event_id: int, db: Session = 
             func.is_seat_available(event_id, Seat.id, order_id).label("is_available"),
         )
         .join(EventPricing, EventPricing.zone_id == Zone.id)
-        .join(Seat, Seat.zone_id == Zone.id)
+        .outerjoin(
+            Seat,
+            and_(Seat.zone_id == Zone.id, Seat.is_active.is_(True)),
+        )
         .where(
             Zone.venue_id == venue_id,
             Zone.is_active.is_(True),
@@ -92,6 +95,9 @@ def get_zones_prices(order_id: int, venue_id: int, event_id: int, db: Session = 
                 "price": price,
                 "seats": []
             }
+
+        if seat is None:
+            continue
 
         zones_map[zone.id]["seats"].append({
             "id": seat.id,

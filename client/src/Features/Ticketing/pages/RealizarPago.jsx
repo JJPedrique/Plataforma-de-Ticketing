@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { CreditCard, Ticket, } from 'lucide-react';
 import Steps from '../components/Steps';
 import EventoCard from '../components/EventoCard';
@@ -16,6 +16,7 @@ function PrepararPago({ onReservar }) {
   const {event,seats,totalAmount,pay,setPay} = useContext(TicketingContext);
   const [isModalOpen, setIsModalOpen] = useState(false);  
   const [loading,setLoading] = useState(false);
+  const pagandoRef = useRef(false);
 
   useEffect(() => {
       const controller = new AbortController();
@@ -42,13 +43,24 @@ function PrepararPago({ onReservar }) {
     setIsModalOpen(false);
   }
 
-  function CompletarPago(){
-    setPay(prev => prev.pay_methods_ref = 
+  async function CompletarPago(){
+    if (pagandoRef.current) return;
+    pagandoRef.current = true;
+
+    const pay_methods_ref =
       pay?.id === 1 ? generarReferenciaBancaria() :
-      pay?.id === 3 ? generarTxHashCrypto() :         
-      pay?.id === 4 ? generarReferenciaPasarela() :         
-      "Pago en efectivo");
-    onReservar();
+      pay?.id === 3 ? generarTxHashCrypto() :
+      pay?.id === 4 ? generarReferenciaPasarela() :
+      "Pago en efectivo";
+
+    const updatedPay = { ...pay, pay_methods_ref };
+    setPay(updatedPay);
+
+    try {
+      await onReservar(updatedPay);
+    } finally {
+      pagandoRef.current = false;
+    }
   }
 
   return (

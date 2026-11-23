@@ -49,8 +49,15 @@ function Canvas({ Data = [], seats = [], onSeatChange }) {
         let currentY = ZONE_GAP;
 
         return Data.map((zone) => {
-            const width = getMaxWidth(zone.seats) * SEAT_SPACING + PADDING * 2 + SEAT_SPACING;
-            const height = getMaxHeight(zone.seats) * SEAT_SPACING + PADDING * 2 + TITLE_HEIGHT + SEAT_SPACING;
+            const minWidth = Math.max(220, String(zone.name || '').length * 14);
+            const width = Math.max(
+                minWidth,
+                getMaxWidth(zone.seats) * SEAT_SPACING + PADDING * 2 + SEAT_SPACING
+            );
+            const height = Math.max(
+                150,
+                getMaxHeight(zone.seats) * SEAT_SPACING + PADDING * 2 + TITLE_HEIGHT + SEAT_SPACING
+            );
             const y = currentY;
 
             // El siguiente bloque empezará exactamente después de esta zona + el gap uniforme
@@ -122,6 +129,19 @@ function Canvas({ Data = [], seats = [], onSeatChange }) {
                                     fontFamily="sans-serif"
                                     fill="#334155"
                                 />
+
+                                {zone.seats.length === 0 && (
+                                    <Text
+                                        x={0}
+                                        y={PADDING + TITLE_HEIGHT}
+                                        text="Sin sillas configuradas"
+                                        width={zone.layout.width}
+                                        align="center"
+                                        fontSize={16}
+                                        fontFamily="sans-serif"
+                                        fill="#94a3b8"
+                                    />
+                                )}
 
                                 {zone.seats.map((seat) => {
                                     const isSelected = seats.some((mySeat) => mySeat.seat.id === seat.id);

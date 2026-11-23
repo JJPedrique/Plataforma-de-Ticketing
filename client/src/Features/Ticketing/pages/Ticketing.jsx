@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import SeleccionarEvento from "./SeleccionarEvento";
 import SeleccionarAsiento from "./SeleccionarAsiento";
 import RealizarPago from "./RealizarPago";
@@ -19,36 +19,53 @@ function Ticketing() {
     const [isModalOpen, setIsModalOpen] = useState(false);  
     const [tab, setTab] = useState(1);
     const [loading,setLoading] = useState(false);
+    const creandoOrdenRef = useRef(false);
 
     useEffect(() => {
         const controller = new AbortController();
         const timer = setTimeout(async () => {
+        if (creandoOrdenRef.current) return;
+        creandoOrdenRef.current = true;
         try {
             setLoading(true);
             const data = await ticketingService.create({user_id: user.id});
             setOrder(data);
         } catch (error) {
             if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
+            creandoOrdenRef.current = false;
         } finally {setLoading(false);}
         }, 400);
 
         return () => {clearTimeout(timer); controller.abort();};
     }, []);    
 
-    function RealizarCompra(){
-        const controller = new AbortController();
-        const timer = setTimeout(async () => {
-        try {
-            setLoading(true);
-            await ticketingService.update(order.id,{pay_method_id: pay.id, total_amount: totalAmount.total,pay_methods_ref: pay.pay_methods_ref, status: "COMPLETED"});
-        } catch (error) {
-            if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
-        } finally {
-            setLoading(false);
-            setTab(4);}
-        }, 400);
+    function RealizarCompra(selectedPay = pay){
+        if (!order?.id) {
+            console.error('No hay una orden activa para completar la compra.');
+            return Promise.resolve();
+        }
 
-        return () => {clearTimeout(timer); controller.abort();};        
+        return new Promise((resolve) => {
+            const timer = setTimeout(async () => {
+            try {
+                setLoading(true);
+                await ticketingService.update(order.id, {
+                    pay_method_id: selectedPay?.id ?? null,
+                    total_amount: totalAmount.total ?? null,
+                    pay_methods_ref: selectedPay?.pay_methods_ref ?? null,
+                    status: "COMPLETED"
+                });
+                setTab(4);
+            } catch (error) {
+                if (error.name !== 'CanceledError') {
+                    console.error('Error completando la compra:', error.response?.data ?? error);
+                }
+            } finally {
+                setLoading(false);
+                resolve();
+            }
+            }, 400);
+        });
     }
   
     return ( 
@@ -76,7 +93,7 @@ function Ticketing() {
             <div className={`w-full ${tab !== 4 ? "pt-18 md:pt-20" : "pt-3"}`}>{
                 tab == 1? (<SeleccionarEvento/>):
                 tab == 2? ( <SeleccionarAsiento/>):
-                tab == 3? (<RealizarPago onReservar={()=>RealizarCompra()}/>):
+                tab == 3? (<RealizarPago onReservar={(selectedPay)=>RealizarCompra(selectedPay)}/>):
                 (<ReservaCompletada/>)}
             </div>
 
