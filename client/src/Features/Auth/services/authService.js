@@ -1,6 +1,19 @@
 import { apiRequest } from '../../../shared/api/http';
 import axiosClient from '../../../core/api/axiosClient';
 import { normalizeRole } from '../../../shared/constants/roles';
+import {
+  CEDULA_REGEX,
+  DIGIT_REGEX,
+  EMAIL_REGEX,
+  LOWERCASE_REGEX,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+  NAME_REGEX,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  SYMBOL_REGEX,
+  UPPERCASE_REGEX,
+} from '../../../shared/validation/rules';
 
 export const userService = {
   login: (loginData) => axiosClient.post('/Users/login', loginData),
@@ -41,19 +54,22 @@ function saveSession(session) {
 
 export const authService = {
   validatePassword: (password) => {
-    if (!password || password.length < 8) {
-      throw new Error('La contraseña debe tener al menos 8 caracteres.');
+    if (!password || password.length < PASSWORD_MIN_LENGTH) {
+      throw new Error(`La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.`);
     }
-    if (!/[A-Z]/.test(password)) {
+    if (password.length > PASSWORD_MAX_LENGTH) {
+      throw new Error(`La contraseña no puede exceder ${PASSWORD_MAX_LENGTH} caracteres.`);
+    }
+    if (!UPPERCASE_REGEX.test(password)) {
       throw new Error('La contraseña debe contener al menos una letra mayúscula.');
     }
-    if (!/[a-z]/.test(password)) {
+    if (!LOWERCASE_REGEX.test(password)) {
       throw new Error('La contraseña debe contener al menos una letra minúscula.');
     }
-    if (!/[0-9]/.test(password)) {
+    if (!DIGIT_REGEX.test(password)) {
       throw new Error('La contraseña debe contener al menos un número.');
     }
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    if (!SYMBOL_REGEX.test(password)) {
       throw new Error('La contraseña debe contener al menos un símbolo (!@#$%^&*...).');
     }
     return true;
@@ -61,7 +77,7 @@ export const authService = {
 
   normalizeCedula: (value) => {
     const raw = String(value ?? "").toUpperCase().replace(/\s+/g, "").replace(/[^VE0-9-]/g, "");
-    const match = raw.match(/^([VE])-?(\d{6,8})$/);
+    const match = CEDULA_REGEX.exec(raw);
     return match ? `${match[1]}-${match[2]}` : raw;
   },
 
@@ -70,7 +86,7 @@ export const authService = {
     if (!normalized) {
       throw new Error("La cédula es obligatoria.");
     }
-    if (!/^[VE]-\d{6,8}$/.test(normalized)) {
+    if (!CEDULA_REGEX.test(normalized)) {
       throw new Error("Formato válido: V-12345678 o E-12345678 (entre 6 y 8 dígitos).");
     }
     return normalized;
@@ -98,14 +114,14 @@ export const authService = {
     if (!cleaned) {
       throw new Error(`El ${fieldLabel} es obligatorio.`);
     }
-    if (cleaned.length < 2) {
-      throw new Error(`El ${fieldLabel} debe tener al menos 2 caracteres.`);
+    if (cleaned.length < NAME_MIN_LENGTH) {
+      throw new Error(`El ${fieldLabel} debe tener al menos ${NAME_MIN_LENGTH} caracteres.`);
     }
-    if (cleaned.length > 100) {
-      throw new Error(`El ${fieldLabel} no puede exceder 100 caracteres.`);
+    if (cleaned.length > NAME_MAX_LENGTH) {
+      throw new Error(`El ${fieldLabel} no puede exceder ${NAME_MAX_LENGTH} caracteres.`);
     }
-    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+$/.test(cleaned)) {
-      throw new Error(`El ${fieldLabel} solo puede contener letras, números, espacios, apóstrofes y guiones.`);
+    if (!NAME_REGEX.test(cleaned)) {
+      throw new Error(`El ${fieldLabel} solo puede contener letras, espacios, apóstrofes y guiones.`);
     }
     return cleaned;
   },
@@ -119,7 +135,7 @@ export const authService = {
     if (!cleanEmail || !password) {
       throw new Error('Todos los campos son obligatorios.');
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    if (!EMAIL_REGEX.test(cleanEmail)) {
       throw new Error('Ingresa un correo electrónico válido.');
     }
 

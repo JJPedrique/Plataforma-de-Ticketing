@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Calendar, MapPin, Search, X, UserRound, Palette }
 import { eventsApi, usersApi, venuesApi } from '../../../shared/api/adminApi';
 import { useAuth } from '../../Auth/Context/AuthContext';
 import { normalizeRole, ROLES } from '../../../shared/constants/roles';
+import { EVENT_DESCRIPTION_MAX_LENGTH, EVENT_TITLE_MAX_LENGTH } from '../../../shared/validation/rules';
 
 const emptyForm = { title: '', description: '', organizer_id: '', venue_id: '', start_date: '', end_date: '', is_active: true };
 
@@ -93,6 +94,10 @@ export default function GestionEventos() {
     const title = form.title.trim();
     if (!title) {
       setModalError('El título del evento es obligatorio.');
+      return;
+    }
+    if (title.length > EVENT_TITLE_MAX_LENGTH || form.description.trim().length > EVENT_DESCRIPTION_MAX_LENGTH) {
+      setModalError(`El título admite hasta ${EVENT_TITLE_MAX_LENGTH} caracteres y la descripción hasta ${EVENT_DESCRIPTION_MAX_LENGTH}.`);
       return;
     }
     const organizerId = isAdmin ? form.organizer_id : user?.id;
@@ -255,11 +260,11 @@ export default function GestionEventos() {
               )}
               <div>
                 <label htmlFor="event-title" className="block text-sm font-medium text-gray-700 mb-1.5">Título del evento</label>
-                <input id="event-title" name="title" required aria-required="true" aria-label="Título del evento" placeholder="Ej. Concierto de verano" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClassName} />
+                <input id="event-title" name="title" required aria-required="true" aria-label="Título del evento" maxLength={EVENT_TITLE_MAX_LENGTH} placeholder="Ej. Concierto de verano" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClassName} />
               </div>
               <div>
                 <label htmlFor="event-description" className="block text-sm font-medium text-gray-700 mb-1.5">Descripción</label>
-                <textarea id="event-description" name="description" aria-label="Descripción del evento" placeholder="Describe brevemente el evento, artistas, actividades o detalles relevantes" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClassName} rows={3} />
+                <textarea id="event-description" name="description" aria-label="Descripción del evento" maxLength={EVENT_DESCRIPTION_MAX_LENGTH} placeholder="Describe brevemente el evento, artistas, actividades o detalles relevantes" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClassName} rows={3} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {isAdmin ? (

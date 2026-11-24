@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Building2, Calendar, Check, Copy, Hash, Phone } from "lucide-react";
 import Modal from "../../../shared/components/Modal";
 import SelectInput from "../../../shared/components/SelectInput";
+import { PHONE_LENGTH, PHONE_PATTERN, PHONE_REGEX, REFERENCE_MAX_LENGTH, REFERENCE_MIN_LENGTH, REFERENCE_PATTERN, REFERENCE_REGEX } from '../../../shared/validation/rules';
 
 // Datos de la cuenta receptora: sustituir por la configuración real cuando esté disponible.
 const DESTINATION_ACCOUNTS = [
@@ -21,8 +22,6 @@ const ORIGIN_BANKS = [
 ];
 
 const OPERATOR_CODES = ['0412', '0414', '0424', '0416', '0426', '0422'];
-const PHONE_PATTERN = /^\d{7}$/;
-const REFERENCE_PATTERN = /^\d{6,16}$/;
 
 const inputClassName = 'w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
 
@@ -96,9 +95,9 @@ function ModalPagoMovil({ isOpen, onClose = () => {}, onSubmit, amount = 0 }) {
 
   const isValid = Boolean(
     form.originBank &&
-    PHONE_PATTERN.test(form.phone) &&
-    form.date &&
-    REFERENCE_PATTERN.test(form.reference)
+    PHONE_REGEX.test(form.phone) &&
+    form.date <= today &&
+    REFERENCE_REGEX.test(form.reference)
   );
 
   const updateField = (field, value) => setForm((current) => ({ ...current, [field]: value }));
@@ -191,10 +190,10 @@ function ModalPagoMovil({ isOpen, onClose = () => {}, onSubmit, amount = 0 }) {
                 </div>
                 <input
                   id="paymovil-phone" name="phone" type="tel" inputMode="numeric" required
-                  pattern="\d{7}" minLength={7} maxLength={7} placeholder="1234567"
+                  pattern={PHONE_PATTERN} minLength={PHONE_LENGTH} maxLength={PHONE_LENGTH} placeholder="1234567"
                   title="Ingresa los 7 dígitos de tu teléfono, sin el código de operadora"
                   value={form.phone}
-                  onChange={(e) => updateField('phone', e.target.value.replace(/\D/g, '').slice(0, 7))}
+                  onChange={(e) => updateField('phone', e.target.value.replace(/\D/g, '').slice(0, PHONE_LENGTH))}
                   className={inputClassName}
                 />
               </div>
@@ -224,10 +223,10 @@ function ModalPagoMovil({ isOpen, onClose = () => {}, onSubmit, amount = 0 }) {
               </div>
               <input
                 id="paymovil-reference" name="reference" type="text" inputMode="numeric" required
-                pattern="\d{6,16}" minLength={6} maxLength={16} placeholder="123456"
+                pattern={REFERENCE_PATTERN} minLength={REFERENCE_MIN_LENGTH} maxLength={REFERENCE_MAX_LENGTH} placeholder="123456"
                 title="Ingresa la referencia bancaria: entre 6 y 16 dígitos, sin espacios ni guiones"
                 value={form.reference}
-                onChange={(e) => updateField('reference', e.target.value.replace(/\D/g, '').slice(0, 16))}
+                onChange={(e) => updateField('reference', e.target.value.replace(/\D/g, '').slice(0, REFERENCE_MAX_LENGTH))}
                 className={`${inputClassName} font-mono`}
               />
             </div>

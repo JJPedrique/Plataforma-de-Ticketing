@@ -4,14 +4,19 @@ from typing import List
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.schemas.Seat import SeatAvailable
+from src.schemas.validation import (
+    COLOR_CODE_MAX_LENGTH,
+    HEX_COLOR_PATTERN,
+    ZONE_NAME_MAX_LENGTH,
+)
 
 
 class ZoneBase(BaseModel):
-    name: str | None = Field(default=None, max_length=100)
+    name: str | None = Field(default=None, max_length=ZONE_NAME_MAX_LENGTH)
     color_code: str | None = Field(
         default=None,
-        max_length=20,
-        pattern=r"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+        max_length=COLOR_CODE_MAX_LENGTH,
+        pattern=HEX_COLOR_PATTERN,
     )
     is_active: bool = Field(default=True)
 
@@ -22,11 +27,11 @@ class ZoneCreate(ZoneBase):
 
 class ZoneUpdate(BaseModel):
     venue_id: int | None = Field(default=None, gt=0)
-    name: str | None = Field(default=None, max_length=100)
+    name: str | None = Field(default=None, max_length=ZONE_NAME_MAX_LENGTH)
     color_code: str | None = Field(
         default=None,
-        max_length=20,
-        pattern=r"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+        max_length=COLOR_CODE_MAX_LENGTH,
+        pattern=HEX_COLOR_PATTERN,
     )
     is_active: bool | None = None
 

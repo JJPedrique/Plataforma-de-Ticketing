@@ -3,6 +3,12 @@ import { Plus, Pencil, Trash2, MapPin, Search, X } from 'lucide-react';
 import { venuesApi } from '../../../shared/api/adminApi';
 import TextInput from '../../../shared/components/TextInput';
 import SelectInput from '../../../shared/components/SelectInput';
+import {
+  VENUE_ADDRESS_MAX_LENGTH,
+  VENUE_CITY_MAX_LENGTH,
+  VENUE_IMG_URL_MAX_LENGTH,
+  VENUE_NAME_MAX_LENGTH,
+} from '../../../shared/validation/rules';
 
 const emptyForm = { name: '', address: '', city: '', img_url: '', is_active: true };
 
@@ -159,7 +165,7 @@ export default function GestionLugares() {
                 name="name"
                 placeholder="Ej. Teatro Nacional"
                 maxLengthOnly
-                maxLength={150}
+                maxLength={VENUE_NAME_MAX_LENGTH}
                 required
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -171,7 +177,7 @@ export default function GestionLugares() {
                   name="city"
                   placeholder="Ej. San José"
                   maxLengthOnly
-                  maxLength={100}
+                  maxLength={VENUE_CITY_MAX_LENGTH}
                   required={false}
                 />
                 <SelectInput
@@ -189,7 +195,7 @@ export default function GestionLugares() {
                 name="address"
                 placeholder="Ej. Avenida Central, Calle 3"
                 maxLengthOnly
-                maxLength={256}
+                maxLength={VENUE_ADDRESS_MAX_LENGTH}
                 required={false}
               />
               <TextInput
@@ -200,7 +206,7 @@ export default function GestionLugares() {
                 name="img_url"
                 placeholder="https://ejemplo.com/lugar.jpg"
                 maxLengthOnly
-                maxLength={500}
+                maxLength={VENUE_IMG_URL_MAX_LENGTH}
                 required={false}
               />
               <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">

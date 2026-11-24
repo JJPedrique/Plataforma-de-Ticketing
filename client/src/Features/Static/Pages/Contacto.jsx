@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  CONTACT_MESSAGE_MAX_LENGTH,
+  CONTACT_SUBJECT_MAX_LENGTH,
+  EMAIL_MAX_LENGTH,
+  NAME_MAX_LENGTH,
+} from '../../../shared/validation/rules';
 
 function Contacto() {
   const [form, setForm] = useState({ nombre: '', correo: '', asunto: '', mensaje: '' });
@@ -84,6 +90,7 @@ function Contacto() {
                     id="nombre"
                     name="nombre"
                     autoComplete="name"
+                    maxLength={NAME_MAX_LENGTH}
                     value={form.nombre}
                     onChange={handleChange}
                     required
@@ -98,6 +105,7 @@ function Contacto() {
                     type="email"
                     name="correo"
                     autoComplete="email"
+                    maxLength={EMAIL_MAX_LENGTH}
                     value={form.correo}
                     onChange={handleChange}
                     required
@@ -111,6 +119,7 @@ function Contacto() {
                 <input
                   id="asunto"
                   name="asunto"
+                  maxLength={CONTACT_SUBJECT_MAX_LENGTH}
                   value={form.asunto}
                   onChange={handleChange}
                   required
@@ -123,6 +132,7 @@ function Contacto() {
                 <textarea
                   id="mensaje"
                   name="mensaje"
+                  maxLength={CONTACT_MESSAGE_MAX_LENGTH}
                   value={form.mensaje}
                   onChange={handleChange}
                   required

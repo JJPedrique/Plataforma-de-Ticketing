@@ -1,7 +1,8 @@
 import { Mail } from "lucide-react";
 import { useState } from "react";
+import { EMAIL_MAX_LENGTH, EMAIL_PATTERN } from '../validation/rules';
 
-function EmailInput({ label = "Cédula de Identidad", setValue, initialValue= "", id="email", name="email", readOnly=false}) {
+function EmailInput({ label = "Correo electrónico", setValue, initialValue= "", id="email", name="email", readOnly=false}) {
   const [inputValue, setInputValue] =useState(initialValue);
   const handleChange = (e) => {
     if (readOnly) return;
@@ -19,7 +20,7 @@ function EmailInput({ label = "Cédula de Identidad", setValue, initialValue= ""
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Mail className="h-4 w-4 text-gray-400" aria-hidden="true" />
         </div>
-        <input onChange={handleChange} maxLength={255}
+        <input onChange={handleChange} maxLength={EMAIL_MAX_LENGTH} pattern={EMAIL_PATTERN}
         type="email" id={id} name={name} placeholder="tu@correo.com" required={!readOnly} readOnly={readOnly}
         className={readOnly
           ? "w-full pl-9 pr-3 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-700 cursor-default"

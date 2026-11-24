@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, MapPin, FileText, Type } from 'lucide-react';
 import { seedData } from '../../../Data/Mock';
+import { EVENT_DESCRIPTION_MAX_LENGTH, EVENT_TITLE_MAX_LENGTH } from '../../../shared/validation/rules';
 
 export function EventoForm({ evento, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -41,6 +42,10 @@ export function EventoForm({ evento, onSubmit, onCancel }) {
       setError('Todos los campos obligatorios deben ser completados');
       return;
     }
+    if (formData.title.length > EVENT_TITLE_MAX_LENGTH || formData.description.length > EVENT_DESCRIPTION_MAX_LENGTH) {
+      setError(`El título admite hasta ${EVENT_TITLE_MAX_LENGTH} caracteres y la descripción hasta ${EVENT_DESCRIPTION_MAX_LENGTH}.`);
+      return;
+    }
 
     onSubmit({
       ...formData,
@@ -74,6 +79,7 @@ export function EventoForm({ evento, onSubmit, onCancel }) {
               value={formData.title}
               onChange={handleChange}
               placeholder="Ej: Final de Campeonato"
+              maxLength={EVENT_TITLE_MAX_LENGTH}
               className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               required
             />
@@ -95,6 +101,7 @@ export function EventoForm({ evento, onSubmit, onCancel }) {
               onChange={handleChange}
               rows={3}
               placeholder="Describe el evento..."
+              maxLength={EVENT_DESCRIPTION_MAX_LENGTH}
               className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
               required
             />
