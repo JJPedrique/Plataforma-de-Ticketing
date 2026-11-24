@@ -6,6 +6,7 @@ import CedulaInput from '../../../shared/components/CedulaInput';
 import PasswordInput from '../../../shared/components/PasswordInput';
 import { userService } from '../services/authService';
 import Modal from '../../../shared/components/Modal';
+import { getErrorMessage } from '../../../shared/api/http';
 
 function RestablecerContrasena() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ function RestablecerContrasena() {
       navigate("/Inicio");
 
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || error.message || "Ocurrió un error al recuperar cuenta.";
+      const errorMsg = getErrorMessage(error, "Ocurrió un error al recuperar cuenta.");
       setMessage(errorMsg);
       setIsModalOpen(true);
     } finally {

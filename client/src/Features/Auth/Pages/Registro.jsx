@@ -4,6 +4,7 @@ import { userService } from '../services/authService';
 import { useAuth } from '../Context/AuthContext';
 import RegistroForm from '../../../shared/components/RegistroForm';
 import Modal from '../../../shared/components/Modal';
+import { getErrorMessage } from '../../../shared/api/http';
 import { X } from 'lucide-react';
 
 function Registro() {
@@ -33,9 +34,7 @@ function Registro() {
       login(data);
       navigate('/Inicio');
     } catch (error) {
-      handleError(
-        error.response?.data?.detail || error.message || 'Ocurrió un error al registrar.'
-      );
+      handleError(getErrorMessage(error, 'Ocurrió un error al registrar.'));
     } finally {
       setLoading(false);
     }

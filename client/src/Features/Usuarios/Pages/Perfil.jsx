@@ -7,6 +7,7 @@ import TextInput from '../../../shared/components/TextInput';
 import EmailInput from '../../../shared/components/EmailInput';
 import CedulaInput from '../../../shared/components/CedulaInput';
 import { getRoleLabel } from '../../../shared/constants/roles';
+import { getErrorMessage } from '../../../shared/api/http';
 
 function Perfil() {
   const { user, login, logout } = useAuth();
@@ -63,7 +64,7 @@ function Perfil() {
       login(data);
       resetView(data);
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || error.message || 'Ocurrió un error al actualizar el perfil.';
+      const errorMsg = getErrorMessage(error, 'Ocurrió un error al actualizar el perfil.');
       setMessage(errorMsg);
       setIsModalOpen(true);
     } finally {
@@ -79,7 +80,7 @@ function Perfil() {
       await userService.delete(user.id);
       logout();
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || error.message || 'Ocurrió un error al desactivar la cuenta.';
+      const errorMsg = getErrorMessage(error, 'Ocurrió un error al desactivar la cuenta.');
       setMessage(errorMsg);
       setIsModalOpen(true);
     } finally {
