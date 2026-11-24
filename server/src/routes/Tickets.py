@@ -4,12 +4,14 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from src.models.Ticket import Ticket
 from src.schemas.Ticket import *
+from src.messages import not_found
+from src.pagination import PaginationParams
 
 router = APIRouter(tags=["Tickets"])
 
 @router.get('/Tickets', response_model=list[TicketResponse])
-def get_Tickets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    stmt = select(Ticket).offset(skip).limit(limit)
+def get_Tickets(pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
+    stmt = select(Ticket).offset(pagination.skip).limit(pagination.limit)
     return db.scalars(stmt).all()
 
 @router.post('/Tickets')
@@ -26,7 +28,7 @@ def update_Ticket(Ticket_id: int, Ticket: TicketUpdate, db: Session = Depends(ge
     if not db_Ticket:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Ticketo con id {Ticket_id} no encontrado",
+            detail=not_found("Ticket", Ticket_id),
         )
 
     # exclude_unset=True evita sobrescribir con None los campos que no se enviaron
@@ -44,7 +46,7 @@ def delete_Ticket(Ticket_id: int, db: Session = Depends(get_db)):
     if not db_Ticket:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Ticketo con id {Ticket_id} no encontrado",
+            detail=not_found("Ticket", Ticket_id),
         )
 
     db.delete(db_Ticket)

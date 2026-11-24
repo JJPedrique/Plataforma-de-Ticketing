@@ -6,14 +6,7 @@ import { X } from 'lucide-react';
 import TextInput from '../../../shared/components/TextInput';
 import EmailInput from '../../../shared/components/EmailInput';
 import CedulaInput from '../../../shared/components/CedulaInput';
-
-function getRoleLabel(role) {
-  const r = String(role || '').toLowerCase();
-  if (r === 'admin') return 'Administrador';
-  if (r === 'organizer') return 'Organizador';
-  if (r === 'user' || r === 'client' || r === 'customer') return 'Cliente';
-  return role || 'Usuario';
-}
+import { getRoleLabel } from '../../../shared/constants/roles';
 
 function Perfil() {
   const { user, login, logout } = useAuth();

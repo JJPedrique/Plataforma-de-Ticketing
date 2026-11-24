@@ -1,5 +1,6 @@
 import { apiRequest } from '../../../shared/api/http';
 import axiosClient from '../../../core/api/axiosClient';
+import { normalizeRole } from '../../../shared/constants/roles';
 
 export const userService = {
   login: (loginData) => axiosClient.post('/Users/login', loginData),
@@ -75,7 +76,7 @@ export const authService = {
     return normalized;
   },
 
-  normalizeRole: (value) => String(value ?? "USER").toUpperCase(),
+  normalizeRole,
 
   toSession,
 

@@ -4,14 +4,11 @@ import { CalendarDays, Lock, MapPin, Palette, Pencil, Plus, RefreshCw, Trash2 } 
 import { eventsApi, eventZonePricesApi, venuesApi } from '../../../shared/api/adminApi';
 import { useAuth } from '../../Auth/Context/AuthContext';
 import Modal from '../../../shared/components/Modal';
+import { normalizeRole, ROLES } from '../../../shared/constants/roles';
 
 const emptyForm = { name: '', color_code: '#F97316', is_active: true, seat_count: 20, price: '' };
 const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
 const HEX_COLOR = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-
-function normalizeRole(role) {
-  return String(role || '').toUpperCase();
-}
 
 function formatMoney(value) {
   return `$${Number(value || 0).toLocaleString('es-VE', {
@@ -23,7 +20,7 @@ function formatMoney(value) {
 export default function GestionZonasPrecios() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
-  const isAdmin = normalizeRole(user?.role) === 'ADMIN';
+  const isAdmin = normalizeRole(user?.role) === ROLES.ADMIN;
 
   const [events, setEvents] = useState([]);
   const [venues, setVenues] = useState([]);

@@ -15,12 +15,14 @@ from src.models.Ticket import Ticket
 from src.models.Venue import Venue
 from src.models.Zone import Zone
 from src.schemas.Order import OrderCreate, OrderResponse, OrderUpdate, PurchaseHistorySchema, PurchasedSeatSchema
+from src.messages import not_found
+from src.pagination import PaginationParams
 
 router = APIRouter(tags=["Orders"])
 
 @router.get('/Orders', response_model=list[OrderResponse])
-def get_Orders(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    stmt = select(Order).offset(skip).limit(limit)
+def get_Orders(pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
+    stmt = select(Order).offset(pagination.skip).limit(pagination.limit)
     return db.scalars(stmt).all()
 
 @router.post('/Orders')
@@ -38,7 +40,7 @@ def update_Order(Order_id: int, order: OrderUpdate, db: Session = Depends(get_db
     if not db_Order:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Ordero con id {Order_id} no encontrado",
+            detail=not_found("Orden", Order_id, feminine=True),
         )
 
     # exclude_unset=True evita sobrescribir con None los campos que no se enviaron
@@ -56,7 +58,7 @@ def delete_Order(Order_id: int, db: Session = Depends(get_db)):
     if not db_Order:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Ordero con id {Order_id} no encontrado",
+            detail=not_found("Orden", Order_id, feminine=True),
         )
 
     db.delete(db_Order)

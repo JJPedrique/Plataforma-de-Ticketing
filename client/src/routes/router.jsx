@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { ProtectedRoute, PublicOnlyRoute } from './ProtectedRoute'
+import { ROLES } from '../shared/constants/roles'
 import { Layout } from '../core/layout/Layout'
 
 import App from '../Features/Static/Pages/App'
@@ -65,7 +66,7 @@ export const router = createBrowserRouter([
     
       // Rutas protegidas con restricción de rol
       {
-        element: <ProtectedRoute allowedRoles={["CUSTOMER"]} />,
+        element: <ProtectedRoute allowedRoles={[ROLES.USER]} />,
         children: [
           { path: '/Ticketing', element: <Ticketing/> },
           { path: '/MisTickets', element: <HistorialTickets/> },
@@ -74,7 +75,7 @@ export const router = createBrowserRouter([
 
       // Rutas compartidas entre ORGANIZER y ADMIN
       {
-        element: <ProtectedRoute allowedRoles={["ORGANIZER", "ADMIN"]} />,
+        element: <ProtectedRoute allowedRoles={[ROLES.ORGANIZER, ROLES.ADMIN]} />,
         children: [
           { path: '/Dashboard', element: <Dashboard /> },
           { path: '/GestorEventos', element: <GestionEventos /> },
@@ -84,7 +85,7 @@ export const router = createBrowserRouter([
 
       // Rutas exclusivas de ADMIN
       {
-        element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
+        element: <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />,
         children: [
           { path: '/PanelAdministrador', element: <Dashboard /> },
           { path: '/GestorUsuarios', element: <GestionUsuarios /> },

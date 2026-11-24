@@ -16,6 +16,8 @@ from src.schemas.User import (
     UserResponse,
     UserUpdate,
 )
+from src.messages import not_found
+from src.pagination import PaginationParams
 
 router = APIRouter(tags=["Users"])
 
@@ -70,7 +72,7 @@ def _email_taken(db: Session, email: str | None, exclude_user_id: int | None = N
 def _get_user_or_404(user_id: int, db: Session) -> User:
     db_user = db.get(User, user_id)
     if not db_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Usuario"),)
     return db_user
 
 
@@ -81,7 +83,7 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado."
+            detail=not_found("Usuario"),
         )
     if not user.is_active:
         raise HTTPException(
@@ -147,8 +149,8 @@ def register_user(payload: UserRegister, db: Session = Depends(get_db)):
 
 
 @router.get('/Users', response_model=list[UserResponse])
-def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    stmt = select(User).offset(skip).limit(limit)
+def get_users(pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
+    stmt = select(User).offset(pagination.skip).limit(pagination.limit)
     return db.scalars(stmt).all()
 
 

@@ -183,7 +183,7 @@ function Canvas({ Data = [], seats = [], onSeatChange }) {
 
                                 {zone.seats.map((seat) => {
                                     const isSelected = seats.some((mySeat) => mySeat.seat.id === seat.id);
-                                    const fillColor = !seat.is_availble
+                                    const fillColor = !seat.is_available
                                         ? "oklch(44.6% 0.03 256.802)"
                                         : isSelected
                                         ? "oklch(70.5% 0.213 47.604)"
@@ -204,8 +204,8 @@ function Canvas({ Data = [], seats = [], onSeatChange }) {
                                             }
                                             radius={SEAT_RADIUS}
                                             fill={fillColor}
-                                            onClick={seat.is_availble ? () => onSeatChange(zone, seat) : undefined}
-                                            onTap={seat.is_availble ? () => onSeatChange(zone, seat) : undefined}
+                                            onClick={seat.is_available ? () => onSeatChange(zone, seat) : undefined}
+                                            onTap={seat.is_available ? () => onSeatChange(zone, seat) : undefined}
                                             onMouseEnter={(e) => {
                                                 const stage = e.target.getStage();
                                                 stage.container().style.cursor = "pointer";

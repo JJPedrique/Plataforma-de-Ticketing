@@ -3,18 +3,14 @@ import { Link } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Calendar, MapPin, Search, X, UserRound, Palette } from 'lucide-react';
 import { eventsApi, usersApi, venuesApi } from '../../../shared/api/adminApi';
 import { useAuth } from '../../Auth/Context/AuthContext';
+import { normalizeRole, ROLES } from '../../../shared/constants/roles';
 
 const emptyForm = { title: '', description: '', organizer_id: '', venue_id: '', start_date: '', end_date: '', is_active: true };
 
 const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
 
 // Roles permitidos para ser asignados como organizador de un evento.
-// Modificar este arreglo para ampliar o restringir el filtro (ej. ['organizer', 'admin']).
-const EVENT_ORGANIZER_ROLES = ['organizer'];
-
-function normalizeRole(role) {
-  return String(role || '').toUpperCase();
-}
+const EVENT_ORGANIZER_ROLES = [ROLES.ORGANIZER];
 
 function toInputDateTime(value) {
   if (!value) return '';
@@ -26,7 +22,7 @@ function toInputDateTime(value) {
 
 export default function GestionEventos() {
   const { user } = useAuth();
-  const isAdmin = normalizeRole(user?.role) === 'ADMIN';
+  const isAdmin = normalizeRole(user?.role) === ROLES.ADMIN;
 
   const [items, setItems] = useState([]);
   const [users, setUsers] = useState([]);
@@ -273,9 +269,7 @@ export default function GestionEventos() {
                       <option value="">Selecciona un organizador</option>
                       {users
                         .filter((u) => {
-                          const role = String(u.role || '').toLowerCase();
-                          const allowedRoles = EVENT_ORGANIZER_ROLES.map((r) => String(r).toLowerCase());
-                          const isAllowedRole = allowedRoles.includes(role);
+                          const isAllowedRole = EVENT_ORGANIZER_ROLES.includes(normalizeRole(u.role));
                           const isCurrentSelection = editing && String(u.id) === String(form.organizer_id);
                           return u.is_active && (isAllowedRole || isCurrentSelection);
                         })
