@@ -1,11 +1,20 @@
 import { apiRequest } from './http';
 
+const withActingUser = (path, actingUserId) =>
+  actingUserId == null
+    ? path
+    : `${path}${path.includes('?') ? '&' : '?'}acting_user_id=${encodeURIComponent(actingUserId)}`;
+
 export const usersApi = {
   list: () => apiRequest('/Users'),
   get: (id) => apiRequest(`/Users/${id}`),
   create: (data) => apiRequest('/Users', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id, data) => apiRequest(`/Users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  remove: (id) => apiRequest(`/Users/${id}`, { method: 'DELETE' }),
+  update: (id, data, actingUserId) => apiRequest(withActingUser(`/Users/${id}`, actingUserId), {
+    method: 'PUT', body: JSON.stringify(data),
+  }),
+  remove: (id, actingUserId) => apiRequest(withActingUser(`/Users/${id}`, actingUserId), {
+    method: 'DELETE',
+  }),
 };
 
 export const venuesApi = {

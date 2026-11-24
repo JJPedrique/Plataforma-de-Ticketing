@@ -76,6 +76,11 @@ def _get_user_or_404(user_id: int, db: Session) -> User:
     return db_user
 
 
+def _is_self_action(user_id: int, acting_user_id: int | None) -> bool:
+    """El gestor envía quién ejecuta la acción; el perfil propio no lo envía."""
+    return acting_user_id is not None and int(acting_user_id) == int(user_id)
+
+
 @router.post('/Users/login', response_model=UserResponse)
 def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     user = db.scalars(select(User).where(User.email == payload.email)).first()
@@ -190,9 +195,15 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/Users/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)):
+def update_user(user_id: int, payload: UserUpdate, acting_user_id: int | None = None, db: Session = Depends(get_db)):
     current = _get_user_or_404(user_id, db)
     data = payload.model_dump(exclude_unset=True)
+
+    if _is_self_action(user_id, acting_user_id) and ("role" in data or "is_active" in data):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes cambiar tu propio rol ni estado desde la gestión de usuarios.",
+        )
 
     if data.get("email") and _email_taken(db, data["email"], exclude_user_id=user_id):
         raise HTTPException(
@@ -221,8 +232,13 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
 
 
 @router.delete("/Users/{user_id}", response_model=UserResponse)
-def deactivate_user(user_id: int, db: Session = Depends(get_db)):
+def deactivate_user(user_id: int, acting_user_id: int | None = None, db: Session = Depends(get_db)):
     current = _get_user_or_404(user_id, db)
+    if _is_self_action(user_id, acting_user_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes desactivar tu propia cuenta desde la gestión de usuarios.",
+        )
     current.is_active = False
     db.commit()
     db.refresh(current)

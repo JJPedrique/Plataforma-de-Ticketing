@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Plus, Pencil, Trash2, Users, Search, X } from 'lucide-react';
 import { usersApi } from '../../../shared/api/adminApi';
 import RegistroForm from '../../../shared/components/RegistroForm';
+import { useAuth } from '../../Auth/Context/AuthContext';
 
 const emptyInitialValues = {
   first_name: '',
@@ -21,6 +22,10 @@ export default function GestionUsuarios() {
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
+  const { user: currentUser } = useAuth();
+
+  const currentUserId = currentUser?.id != null ? Number(currentUser.id) : null;
+  const isSelf = (user) => currentUserId !== null && Number(user.id) === currentUserId;
 
   const load = async () => {
     try {
@@ -69,9 +74,13 @@ export default function GestionUsuarios() {
       if (values.password) {
         payload.password = values.password;
       }
+      if (editing && isSelf(editing)) {
+        delete payload.role;
+        delete payload.is_active;
+      }
 
       if (editing) {
-        await usersApi.update(editing.id, payload);
+        await usersApi.update(editing.id, payload, currentUserId);
       } else {
         await usersApi.create(payload);
       }
@@ -89,7 +98,7 @@ export default function GestionUsuarios() {
     if (!window.confirm(`¿Desactivar al usuario "${user.email}"? El registro no se eliminará de la base de datos.`)) return;
     try {
       setError('');
-      await usersApi.remove(user.id);
+      await usersApi.remove(user.id, currentUserId);
       await load();
     } catch (e) {
       setError(e.message || 'No se pudo desactivar el usuario.');
@@ -136,6 +145,12 @@ export default function GestionUsuarios() {
       </div>
 
       {error && <div className="mb-4 border border-red-200 bg-red-50 text-red-800 rounded-lg px-4 py-3">{error}</div>}
+
+      {items.some(isSelf) && (
+        <div className="mb-4 border border-blue-200 bg-blue-50 text-blue-800 rounded-lg px-4 py-3" role="status">
+          Tu cuenta aparece en la lista. Puedes editar tus datos, pero no desactivarte ni cambiar tu rol desde aquí.
+        </div>
+      )}
 
       {loading ? (
         <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-600">Cargando usuarios...</div>
@@ -193,25 +208,40 @@ export default function GestionUsuarios() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredItems.map((user) => (
-                      <tr key={user.id} className="border-t border-gray-100">
-                        <td className="px-4 py-3 text-gray-900">{[user.first_name, user.last_name].filter(Boolean).join(' ') || '-'}</td>
-                        <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{user.cedula || '-'}</td>
-                        <td className="px-4 py-3 text-gray-700">{user.email}</td>
-                        <td className="px-4 py-3"><span className="inline-flex px-2 py-1 rounded-md bg-gray-100 text-gray-800 capitalize">{user.role}</span></td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex px-2 py-1 rounded-md ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.is_active ? 'Activo' : 'Inactivo'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex justify-end gap-2">
-                            <button onClick={() => openEdit(user)} className="p-2 rounded-md border border-gray-200 hover:bg-gray-50" title="Editar"><Pencil className="w-4 h-4" /></button>
-                            <button onClick={() => remove(user)} className="p-2 rounded-md border border-red-200 text-red-700 hover:bg-red-50" title="Desactivar/Eliminar"><Trash2 className="w-4 h-4" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredItems.map((user) => {
+                      const self = isSelf(user);
+                      return (
+                        <tr key={user.id} className={`border-t border-gray-100 ${self ? 'bg-blue-50/40' : ''}`}>
+                          <td className="px-4 py-3 text-gray-900">
+                            {[user.first_name, user.last_name].filter(Boolean).join(' ') || '-'}
+                            {self && <span className="ml-2 text-xs font-medium text-blue-700">(tú)</span>}
+                          </td>
+                          <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{user.cedula || '-'}</td>
+                          <td className="px-4 py-3 text-gray-700">{user.email}</td>
+                          <td className="px-4 py-3"><span className="inline-flex px-2 py-1 rounded-md bg-gray-100 text-gray-800 capitalize">{user.role}</span></td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex px-2 py-1 rounded-md ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                              {user.is_active ? 'Activo' : 'Inactivo'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => openEdit(user)} className="p-2 rounded-md border border-gray-200 hover:bg-gray-50" title="Editar"><Pencil className="w-4 h-4" /></button>
+                              <button
+                                onClick={() => remove(user)}
+                                disabled={self}
+                                title={self ? 'No puedes desactivar tu propia cuenta' : 'Desactivar/Eliminar'}
+                                className={`p-2 rounded-md border ${self
+                                  ? 'cursor-not-allowed border-gray-200 text-gray-400 opacity-60'
+                                  : 'border-red-200 text-red-700 hover:bg-red-50'}`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -242,6 +272,7 @@ export default function GestionUsuarios() {
               loading={saving}
               isEditing={Boolean(editing)}
               showAdminFields
+              isSelf={Boolean(editing && isSelf(editing))}
               submitLabel={editing ? 'Guardar cambios' : 'Crear usuario'}
               loadingLabel="Guardando..."
               onCancel={closeModal}
