@@ -15,7 +15,10 @@ export const CEDULA_TITLE = 'Formato válido: V-12345678 o E-12345678 (entre 6 y
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
-export const PASSWORD_PATTERN = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^A-Za-z0-9\\s]).{8,}$";
+export const PASSWORD_PATTERN = "^(?!.*\\s)(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^A-Za-z0-9\\s]).{8,}$";
+export const PASSWORD_REGEX = new RegExp(PASSWORD_PATTERN);
+export const PASSWORD_SPACE_PATTERN = "\\s";
+export const PASSWORD_SPACE_REGEX = new RegExp(PASSWORD_SPACE_PATTERN);
 export const UPPERCASE_REGEX = /[A-Z]/;
 export const LOWERCASE_REGEX = /[a-z]/;
 export const DIGIT_REGEX = /\d/;
@@ -25,6 +28,11 @@ export const PASSWORD_TITLE = 'Mínimo 8 caracteres, 1 mayúscula, 1 minúscula,
 export const EMAIL_MAX_LENGTH = 255;
 export const EMAIL_PATTERN = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
 export const EMAIL_REGEX = new RegExp(EMAIL_PATTERN);
+
+/** Quita cualquier espacio del correo antes de validarlo o enviarlo. */
+export function sanitizeEmail(value) {
+  return String(value ?? '').replace(/\s+/g, '').trim();
+}
 
 export const PHONE_LENGTH = 7;
 export const PHONE_PATTERN = "\\d{7}";

@@ -4,7 +4,7 @@ import EmailInput from './EmailInput';
 import PasswordInput from './PasswordInput';
 import CedulaInput from './CedulaInput';
 import { authService } from '../../Features/Auth/services/authService';
-import { EMAIL_REGEX } from '../validation/rules';
+import { EMAIL_REGEX, sanitizeEmail } from '../validation/rules';
 
 const ROLE_OPTIONS = [
   { value: 'ADMIN', label: 'Administrador' },
@@ -60,7 +60,7 @@ export default function RegistroForm({
       const cleanFirstName = authService.validatePersonName(firstName, 'nombre');
       const cleanLastName = authService.validatePersonName(lastName, 'apellido');
       const cleanCedula = authService.validateCedula(cedula);
-      const cleanEmail = String(email).trim().toLowerCase();
+      const cleanEmail = sanitizeEmail(email).toLowerCase();
 
       if (!EMAIL_REGEX.test(cleanEmail)) {
         throw new Error('Ingresa un correo electrónico válido.');

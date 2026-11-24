@@ -5,6 +5,7 @@ import {
   CONTACT_SUBJECT_MAX_LENGTH,
   EMAIL_MAX_LENGTH,
   NAME_MAX_LENGTH,
+  sanitizeEmail,
 } from '../../../shared/validation/rules';
 
 function Contacto() {
@@ -13,7 +14,7 @@ function Contacto() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: name === 'correo' ? sanitizeEmail(value) : value }));
   };
 
   const handleSubmit = (e) => {

@@ -11,7 +11,9 @@ import {
   NAME_REGEX,
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
+  PASSWORD_SPACE_REGEX,
   SYMBOL_REGEX,
+  sanitizeEmail,
   UPPERCASE_REGEX,
 } from '../../../shared/validation/rules';
 
@@ -60,6 +62,9 @@ export const authService = {
     if (password.length > PASSWORD_MAX_LENGTH) {
       throw new Error(`La contraseña no puede exceder ${PASSWORD_MAX_LENGTH} caracteres.`);
     }
+    if (PASSWORD_SPACE_REGEX.test(password)) {
+      throw new Error('La contraseña no puede contener espacios.');
+    }
     if (!UPPERCASE_REGEX.test(password)) {
       throw new Error('La contraseña debe contener al menos una letra mayúscula.');
     }
@@ -97,12 +102,13 @@ export const authService = {
   toSession,
 
   login: async (email, password) => {
-    if (!email || !password) {
+    const cleanEmail = sanitizeEmail(email).toLowerCase();
+    if (!cleanEmail || !password) {
       throw new Error('Correo y contraseña son obligatorios.');
     }
     const user = await apiRequest('/Users/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: cleanEmail, password }),
     });
     return saveSession(toSession(user));
   },
@@ -130,7 +136,7 @@ export const authService = {
     const cleanFirstName = authService.validatePersonName(firstName, 'nombre');
     const cleanLastName = authService.validatePersonName(lastName, 'apellido');
     const cleanCedula = authService.validateCedula(cedula);
-    const cleanEmail = String(email ?? '').trim().toLowerCase();
+    const cleanEmail = sanitizeEmail(email).toLowerCase();
 
     if (!cleanEmail || !password) {
       throw new Error('Todos los campos son obligatorios.');

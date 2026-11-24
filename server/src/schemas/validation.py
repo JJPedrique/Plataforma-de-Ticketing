@@ -8,7 +8,8 @@ import re
 NAME_PATTERN = r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$"
 CEDULA_PATTERN = r"^([VE])-?(\d{6,8})$"
 EMAIL_PATTERN = r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
-PASSWORD_PATTERN = r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$"
+PASSWORD_PATTERN = r"^(?!.*\s)(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$"
+PASSWORD_SPACE_PATTERN = r"\s"
 HEX_COLOR_PATTERN = r"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
 
 # Texto libre: solo límite de longitud, sin patrón.
@@ -26,12 +27,15 @@ PAY_METHOD_DESCRIPTION_MAX_LENGTH = 255
 NAME_REGEX = re.compile(NAME_PATTERN)
 CEDULA_REGEX = re.compile(CEDULA_PATTERN)
 PASSWORD_REGEX = re.compile(PASSWORD_PATTERN)
+PASSWORD_SPACE_REGEX = re.compile(PASSWORD_SPACE_PATTERN)
 
 
 def validate_password_complexity(value: str, field_label: str = "contraseña") -> str:
     """Misma regla que client/src/shared/validation/rules.js."""
     if value is None:
         return value
+    if PASSWORD_SPACE_REGEX.search(str(value)):
+        raise ValueError("La contraseña no puede contener espacios.")
     if not PASSWORD_REGEX.match(str(value)):
         raise ValueError(
             f"La {field_label} debe tener al menos 8 caracteres, "

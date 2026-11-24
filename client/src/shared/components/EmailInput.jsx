@@ -1,12 +1,12 @@
 import { Mail } from "lucide-react";
 import { useState } from "react";
-import { EMAIL_MAX_LENGTH, EMAIL_PATTERN } from '../validation/rules';
+import { EMAIL_MAX_LENGTH, EMAIL_PATTERN, sanitizeEmail } from '../validation/rules';
 
 function EmailInput({ label = "Correo electrónico", setValue, initialValue= "", id="email", name="email", readOnly=false}) {
   const [inputValue, setInputValue] =useState(initialValue);
   const handleChange = (e) => {
     if (readOnly) return;
-    const clean = e.target.value.replace(/\s+/g, '').trim();
+    const clean = sanitizeEmail(e.target.value);
     setInputValue(clean); 
     setValue?.(clean);
   };  
