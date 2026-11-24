@@ -36,9 +36,9 @@ function Header() {
   const isAdmin = normalizedRole === 'ADMIN'
 
   return (
-    <header className="sticky top-0 z-30 bg-background/85 backdrop-blur border-b border-gray-200 shadow-sm">
-      <div className="mx-auto flex flex-wrap items-center gap-4 px-6 py-3 max-w-7xl">
-        <Link to="/Inicio" className="flex items-center gap-3 group">
+    <header className="sticky top-0 z-30 h-16 bg-background/85 backdrop-blur border-b border-gray-200 shadow-sm">
+      <div className="mx-auto flex h-full flex-nowrap items-center gap-3 px-4 sm:gap-4 sm:px-6 max-w-7xl">
+        <Link to="/Inicio" className="flex shrink-0 items-center gap-2 group sm:gap-3">
           <span className="grid size-10 place-items-center rounded-full bg-linear-to-br from-orange-500 to-orange-600 shadow-md shadow-orange-500/20 group-hover:shadow-lg group-hover:shadow-orange-500/30 transition-shadow">
             <TicketCheck className="size-5 text-white" />
           </span>
@@ -48,7 +48,7 @@ function Header() {
           </span>
         </Link>
 
-        <nav className="ml-auto flex items-center gap-2">
+        <nav className="ml-auto flex min-w-0 items-center gap-2">
           <NavLink to="/Inicio" className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
             <Home className="h-4 w-4" />
@@ -59,14 +59,14 @@ function Header() {
             <>
               <div className="relative">
               <button onClick={() => setShowMenu(!showMenu)}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex min-w-0 max-w-56 items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-colors sm:max-w-[16rem]"
                 aria-expanded={showMenu} aria-haspopup="true">
-                <div className="flex items-center justify-center size-9 rounded-full bg-linear-to-br from-orange-500 to-orange-600 text-white font-semibold text-sm shadow-md">
+                <div className="flex shrink-0 items-center justify-center size-9 rounded-full bg-linear-to-br from-orange-500 to-orange-600 text-white font-semibold text-sm shadow-md">
                   {getInitials(user?.first_name+" "+user?.last_name)}
                 </div>
-                <div className="hidden lg:block text-left">
-                  <p className="text-sm font-medium text-gray-900 leading-none">{user?.first_name+" "+user?.last_name}</p>
-                  <p className="text-xs text-gray-500 leading-none mt-1">{getRoleLabel(user?.role)}</p>
+                <div className="hidden min-w-0 max-w-40 lg:block text-left sm:max-w-48">
+                  <p title={`${user?.first_name || ''} ${user?.last_name || ''}`.trim()} className="truncate text-sm font-medium text-gray-900 leading-none">{user?.first_name+" "+user?.last_name}</p>
+                  <p className="truncate text-xs text-gray-500 leading-none mt-1">{getRoleLabel(user?.role)}</p>
                 </div>
                 <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${showMenu ? 'rotate-180' : ''}`} />
               </button>
@@ -81,7 +81,7 @@ function Header() {
                           {getInitials(user?.first_name+" "+user?.last_name)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{user?.first_name+" "+user?.last_name}</p>
+                          <p title={`${user?.first_name || ''} ${user?.last_name || ''}`.trim()} className="text-sm font-semibold text-gray-900 truncate">{user?.first_name+" "+user?.last_name}</p>
                           <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                           <p className="text-xs text-orange-600 font-medium mt-1">{getRoleLabel(user?.role)}</p>
                         </div>
