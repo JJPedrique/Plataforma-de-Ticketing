@@ -185,7 +185,7 @@ export default function GestionUsuarios() {
                   <thead className="bg-gray-50 text-gray-700">
                     <tr>
                       <th className="text-left px-4 py-3 font-semibold">Nombre</th>
-                      <th className="text-left px-4 py-3 font-semibold">Cédula</th>
+                      <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Cédula</th>
                       <th className="text-left px-4 py-3 font-semibold">Correo</th>
                       <th className="text-left px-4 py-3 font-semibold">Rol</th>
                       <th className="text-left px-4 py-3 font-semibold">Estado</th>
@@ -196,7 +196,7 @@ export default function GestionUsuarios() {
                     {filteredItems.map((user) => (
                       <tr key={user.id} className="border-t border-gray-100">
                         <td className="px-4 py-3 text-gray-900">{[user.first_name, user.last_name].filter(Boolean).join(' ') || '-'}</td>
-                        <td className="px-4 py-3 text-gray-700">{user.cedula || '-'}</td>
+                        <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{user.cedula || '-'}</td>
                         <td className="px-4 py-3 text-gray-700">{user.email}</td>
                         <td className="px-4 py-3"><span className="inline-flex px-2 py-1 rounded-md bg-gray-100 text-gray-800 capitalize">{user.role}</span></td>
                         <td className="px-4 py-3">
