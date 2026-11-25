@@ -59,9 +59,9 @@ function SeleccionarAsiento() {
     <>
         <Steps Number='2' Text='Elige tu asiento.' subText='Selecciona los asientos que deseas reservar' />
  
-        <div className='grid lg:grid-cols-3 gap-4'>
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
         
-            <div className="col-span-2 bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border-b border-gray-100">
                     <div>
                         <h3 className="font-semibold text-gray-900">Mapa de asientos</h3>

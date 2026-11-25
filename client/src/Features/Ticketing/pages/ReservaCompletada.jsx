@@ -30,9 +30,9 @@ function ReservaCompletada() {
 
  return ( 
         // Agregamos items-start para que la columna izquierda no se estire al alto de la derecha
-        <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-8">
             {/* Cambiamos sticky-top por top-6 (o top-0) y self-start */}
-            <div className="sticky top-27 self-start min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+            <div className="lg:sticky lg:top-27 self-start min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
                 <div className="relative mb-6">
                     <div className="absolute inset-0 bg-green-500/20 rounded-full blur-2xl"></div>
                     <CheckCircle className="relative size-24 text-white bg-linear-to-br from-green-500 to-green-600 p-5 rounded-full shadow-lg shadow-green-500/30" />

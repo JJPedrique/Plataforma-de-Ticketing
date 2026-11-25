@@ -49,7 +49,7 @@ function EventoCard({Data, isDisabled=false, onClick}) {
       className={`group relative w-full text-left rounded-2xl border bg-white overflow-hidden transition-all duration-300 ${
         selectable ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1 hover:border-orange-200' : 'cursor-default'
       } ${
-        dimmed ? 'opacity-75' : 'opacity-100'
+        dimmed ? 'opacity-75 cursor-not-allowed' : 'opacity-100'
       } ${
         Data.id===event?.id 
           ? 'border-orange-500 shadow-lg shadow-orange-500/10 ring-2 ring-orange-500/20' 
@@ -57,7 +57,7 @@ function EventoCard({Data, isDisabled=false, onClick}) {
       }`}
     >
       {finished && (
-        <div className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-gray-800 text-white text-xs font-semibold rounded-full shadow-lg">
+        <div className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-red-800 text-white text-xs font-semibold rounded-full shadow-lg">
           {EVENT_STATUS_LABELS[eventStatus]}
         </div>
       )}
@@ -78,7 +78,7 @@ function EventoCard({Data, isDisabled=false, onClick}) {
             decoding="async"
             referrerPolicy="no-referrer"
             onError={() => setImgError(true)}
-            className="absolute inset-0 h-full w-full object-cover"
+            className={`absolute inset-0 h-full w-full object-cover ${finished && "grayscale"}`}
           />
         ) : (
           <Ticket className="relative h-16 w-16 text-orange-500/40" />
@@ -87,7 +87,7 @@ function EventoCard({Data, isDisabled=false, onClick}) {
       </div>
 
       <div className="p-5">
-        <h3 className="text-lg font-bold tracking-tight text-gray-900 line-clamp-2 mb-2 group-hover:text-orange-600 transition-colors">
+        <h3 className={`"text-lg font-bold tracking-tight text-gray-900 line-clamp-2 mb-2 ${!finished && "group-hover:text-orange-600"}  transition-colors"`}>
           {Data.title}
         </h3>
 

@@ -85,7 +85,7 @@ function Header() {
                         <NavLink to="/Ticketing" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <TicketCheck className="h-4 w-4" />
-                          <span className="hidden sm:inline">Comprar boletos</span>
+                          Comprar boletos
                         </NavLink>
 
                         <NavLink to="/MisTickets" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -99,17 +99,17 @@ function Header() {
                         <NavLink to="/Dashboard" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <LayoutDashboard className="h-4 w-4" />
-                          <span className="hidden sm:inline">Panel</span>
+                          Panel
                         </NavLink> 
                         <NavLink to="/GestorEventos" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <CalendarDays className="h-4 w-4" />
-                          <span className="hidden sm:inline">Mis Eventos</span>
+                          Mis Eventos
                         </NavLink>
                         <NavLink to="/GestorZonasPrecios" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <Palette className="h-4 w-4" />
-                          <span className="hidden sm:inline">Zonas y Precios</span>
+                          Zonas y Precios
                         </NavLink>
                       </>)}    
 
@@ -117,32 +117,32 @@ function Header() {
                         <NavLink to="/PanelAdministrador" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <LayoutDashboard className="h-4 w-4" />
-                          <span className="hidden sm:inline">Panel de Administración</span>
+                          Panel de Administración
                         </NavLink>
                         <NavLink to="/GestorUsuarios" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <UsersRound className="h-4 w-4" />
-                          <span className="hidden sm:inline">Gestor de Usuarios</span>
+                          Gestor de Usuarios
                         </NavLink>
                         <NavLink to="/GestorLugares" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <MapPin className="h-4 w-4" />
-                          <span className="hidden sm:inline">Gestor de Lugares</span>
+                          Gestor de Lugares
                         </NavLink>
                         <NavLink to="/GestorEventos" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <CalendarDays className="h-4 w-4" />
-                          <span className="hidden sm:inline">Gestionar Eventos</span>
+                          Gestionar Eventos
                         </NavLink>
                         <NavLink to="/GestorZonasPrecios" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <Palette className="h-4 w-4" />
-                          <span className="hidden sm:inline">Zonas y Precios</span>
+                          Zonas y Precios
                         </NavLink>
                         <NavLink to="/GestorMetodosPago" onClick={() => setShowMenu(false)} className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive ? 'bg-orange-100 text-orange-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}>
                           <CreditCard className="h-4 w-4" />
-                          <span className="hidden sm:inline">Gestor de Métodos de Pago</span>
+                          Gestor de Métodos de Pago
                         </NavLink>                     
                       </>)}          
 
@@ -150,7 +150,7 @@ function Header() {
                       <Link className="w-full px-4 py-2 flex items-center gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       to="/Perfil" onClick={() => setShowMenu(false)}>
                         <User className="h-4 w-4" />
-                        <span>Ver perfil</span>
+                        Ver perfil
                       </Link>
                         
                        <div className="m-3 border-b border-gray-300"></div>
@@ -158,7 +158,7 @@ function Header() {
                       <button onClick={() => { setShowMenu(false); logout(); }}
                         className="w-full px-4 py-2 flex items-center gap-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
                         <LogOut className="h-4 w-4" />
-                        <span>Cerrar sesión</span>
+                        Cerrar sesión
                       </button>
                     </div>
                   </div>
