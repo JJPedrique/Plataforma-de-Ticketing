@@ -2,35 +2,7 @@ import { Calendar, Clock, MapPin, Ticket } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
 import { EVENT_STATUS_FINISHED, EVENT_STATUS_LABELS, getEventStatus } from '../../../shared/validation/rules';
-
-function resolveImageUrl(url) {
-  if (!url) return url;
-  try {
-    const parsed = new URL(url);
-    const host = parsed.hostname.toLowerCase();
-
-    // Google Imágenes: "Copiar enlace" suele traer la imagen real en imgurl.
-    if (/(^|\.)google\.[a-z.]+$/.test(host)) {
-      const direct = parsed.searchParams.get('imgurl');
-      if (direct && /^https?:\/\//i.test(direct)) return direct;
-    }
-
-    // Wikipedia / Commons: la página "Archivo:" no es la imagen.
-    if (/(^|\.)(wikipedia|wikimedia)\.org$/.test(host)) {
-      const match = parsed.pathname.match(/^\/wiki\/(?:Archivo|File):(.+)$/i);
-      if (match) {
-        const fileName = decodeURIComponent(match[1]);
-        return `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(fileName)}`;
-      }
-    }
-
-    // Cualquier otra URL se usa tal cual: el navegador decide según Content-Type,
-    // no según la extensión del archivo.
-    return url;
-  } catch {
-    return url;
-  }
-}
+import { resolveImageUrl } from '../../../shared/utils/resolveImageUrl';
 
 function EventoCard({Data, isDisabled=false, onClick}) {
   const { event } = useContext(TicketingContext);
@@ -69,7 +41,9 @@ function EventoCard({Data, isDisabled=false, onClick}) {
         </div>
       )}
       
-      <div className="relative flex h-48 w-full items-center justify-center bg-linear-to-br from-orange-100 via-orange-50 to-amber-50 overflow-hidden">
+      <div className={`relative h-48 w-full overflow-hidden ${
+        imageUrl && !imgError ? '' : 'flex items-center justify-center bg-linear-to-br from-orange-100 via-orange-50 to-amber-50'
+      }`}>
         {imageUrl && !imgError ? (
           <img
             src={imageUrl}
@@ -78,7 +52,7 @@ function EventoCard({Data, isDisabled=false, onClick}) {
             decoding="async"
             referrerPolicy="no-referrer"
             onError={() => setImgError(true)}
-            className={`absolute inset-0 h-full w-full object-cover ${finished && "grayscale"}`}
+            className={`absolute inset-0 block h-full w-full object-cover object-top ${finished ? 'grayscale' : ''}`}
           />
         ) : (
           <Ticket className="relative h-16 w-16 text-orange-500/40" />

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Pencil, Trash2, MapPin, Search, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, MapPin, Search, X, ImageOff } from 'lucide-react';
 import { venuesApi } from '../../../shared/api/adminApi';
 import TextInput from '../../../shared/components/TextInput';
 import SelectInput from '../../../shared/components/SelectInput';
+import { resolveImageUrl } from '../../../shared/utils/resolveImageUrl';
 import {
   VENUE_ADDRESS_MAX_LENGTH,
   VENUE_CITY_MAX_LENGTH,
@@ -11,6 +12,57 @@ import {
 } from '../../../shared/validation/rules';
 
 const emptyForm = { name: '', address: '', city: '', img_url: '', is_active: true };
+
+// Previsualiza la misma URL que usará la tarjeta del evento y avisa si no carga.
+function ImageUrlPreview({ url }) {
+  const [debouncedUrl, setDebouncedUrl] = useState(url);
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedUrl(url), 350);
+    return () => clearTimeout(timer);
+  }, [url]);
+
+  const previewUrl = resolveImageUrl(debouncedUrl.trim());
+
+  if (!previewUrl) {
+    return (
+      <p className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+        <ImageOff className="h-3.5 w-3.5 shrink-0" /> Pega una URL para verificar la imagen.
+      </p>
+    );
+  }
+
+  const status = result?.url === previewUrl ? result.status : 'loading';
+
+  return (
+    <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-2">
+      <div className="relative flex h-28 w-full items-center justify-center overflow-hidden rounded-md bg-gray-100">
+        <img
+          key={previewUrl}
+          src={previewUrl}
+          alt="Previsualización de la imagen del lugar"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onLoad={() => setResult({ url: previewUrl, status: 'loaded' })}
+          onError={() => setResult({ url: previewUrl, status: 'error' })}
+          className={`h-full max-w-full object-cover object-center self-center transition-opacity ${status === 'loaded' ? 'opacity-100' : 'opacity-0'}`}
+        />
+        {status === 'loading' && (
+          <span className="absolute inset-0 flex items-center justify-center text-xs text-gray-500">Verificando enlace...</span>
+        )}
+        {status === 'error' && (
+          <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-xs text-red-700">
+            <ImageOff className="h-4 w-4" /> La imagen no cargó
+          </span>
+        )}
+      </div>
+      <p className={`mt-1.5 truncate text-xs ${status === 'error' ? 'text-red-700' : status === 'loaded' ? 'text-green-700' : 'text-gray-500'}`} title={previewUrl}>
+        {status === 'loaded' ? 'La imagen cargó correctamente.' : status === 'error' ? 'No se pudo cargar la imagen con este enlace.' : 'Verificando enlace...'}
+      </p>
+    </div>
+  );
+}
 
 export default function GestionLugares() {
   const [items, setItems] = useState([]);
@@ -209,6 +261,7 @@ export default function GestionLugares() {
                 maxLength={VENUE_IMG_URL_MAX_LENGTH}
                 required={false}
               />
+              <ImageUrlPreview url={form.img_url} />
               <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
                 <button type="button" onClick={() => !saving && (setShowForm(false), setModalError(''))} disabled={saving} className="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700">Cancelar</button>
                 <button type="submit" disabled={saving} className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-60 font-medium">{saving ? 'Guardando...' : (editing ? 'Guardar cambios' : 'Crear lugar')}</button>
