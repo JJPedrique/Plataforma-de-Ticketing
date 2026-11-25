@@ -7,16 +7,18 @@ from src.schemas.Zone import *
 from src.models.Zone import Zone
 from src.models.EventPricing import EventPricing
 from src.models.Seat import Seat
+from src.messages import not_found
+from src.pagination import PaginationParams
 
 router = APIRouter(tags=["Zones"])
 
 
 @router.get('/Zones', response_model=list[ZoneResponse])
-def get_Zones(venue_id: int | None = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_Zones(venue_id: int | None = None, pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
     stmt = select(Zone)
     if venue_id is not None:
         stmt = stmt.where(Zone.venue_id == venue_id)
-    stmt = stmt.offset(skip).limit(limit)
+    stmt = stmt.offset(pagination.skip).limit(pagination.limit)
     return db.scalars(stmt).all()
 
 
@@ -33,7 +35,7 @@ def create_Zone(payload: ZoneCreate, db: Session = Depends(get_db)):
 def update_Zone(Zone_id: int, payload: ZoneUpdate, db: Session = Depends(get_db)):
     db_Zone = db.get(Zone, Zone_id)
     if not db_Zone:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Zona no encontrada.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Zona", feminine=True),)
 
     update_data = payload.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -48,7 +50,7 @@ def update_Zone(Zone_id: int, payload: ZoneUpdate, db: Session = Depends(get_db)
 def delete_Zone(Zone_id: int, db: Session = Depends(get_db)):
     db_Zone = db.get(Zone, Zone_id)
     if not db_Zone:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Zona no encontrada.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Zona", feminine=True),)
 
     try:
         db.delete(db_Zone)
@@ -105,7 +107,7 @@ def get_zones_prices(order_id: int, venue_id: int, event_id: int, db: Session = 
             "seat_number": seat.seat_number,
             "coord_x": seat.coord_x,
             "coord_y": seat.coord_y,
-            "is_availble": is_available
+            "is_available": is_available
         })
 
     return list(zones_map.values())

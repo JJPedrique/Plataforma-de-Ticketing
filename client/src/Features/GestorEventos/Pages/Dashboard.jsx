@@ -19,14 +19,11 @@ import {
   venuesApi,
 } from '../../../shared/api/adminApi';
 import { useAuth } from '../../Auth/Context/AuthContext';
-
-function normalizeRole(role) {
-  return String(role || '').toUpperCase();
-}
+import { normalizeRole, ROLES } from '../../../shared/constants/roles';
 
 function Dashboard() {
   const { user } = useAuth();
-  const isAdmin = normalizeRole(user?.role) === 'ADMIN';
+  const isAdmin = normalizeRole(user?.role) === ROLES.ADMIN;
 
   const [events, setEvents] = useState([]);
   const [venues, setVenues] = useState([]);

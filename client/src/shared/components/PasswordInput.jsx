@@ -1,13 +1,13 @@
 import { Eye, EyeOff, Lock } from "lucide-react";
 import { useState } from "react";
+import { PASSWORD_MAX_LENGTH, PASSWORD_PATTERN, PASSWORD_TITLE } from '../validation/rules';
 
-function PasswordInput({ label = "Cédula de Identidad", setValue, initialValue= "", id="password", name="password", placeholder="Ingresa tu contraseña", required=true}) {
+function PasswordInput({ label = "Contraseña", setValue, initialValue= "", id="password", name="password", placeholder="Ingresa tu contraseña", required=true}) {
   const [inputValue, setInputValue] =useState(initialValue);
   const handleChange = (e) => {
-    const clean = e.target.value.replace(/\s+/g, '').trim();
-    setInputValue(clean); 
-    setValue(clean);
-  };  
+    setInputValue(e.target.value);
+    setValue?.(e.target.value);
+  };
 
   const [isShowPassword, setIsShowPassword] = useState(false);
         
@@ -23,9 +23,9 @@ function PasswordInput({ label = "Cédula de Identidad", setValue, initialValue=
         <input onChange={handleChange}
         id={id} name={name} placeholder={placeholder} required={required} type={isShowPassword ? 'text' : "password"}
         className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
-        pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$"
-        maxLength={128}
-        title="Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo"
+        pattern={PASSWORD_PATTERN}
+        maxLength={PASSWORD_MAX_LENGTH}
+        title={PASSWORD_TITLE}
         value={inputValue}/>
         <button
             type="button"

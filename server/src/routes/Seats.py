@@ -6,12 +6,14 @@ from sqlalchemy.orm import Session, joinedload
 
 from src.models.Seat import Seat
 from src.schemas.Seat import *
+from src.messages import not_found
+from src.pagination import PaginationParams
 
 router = APIRouter(tags=["Seats"])
 
 @router.get('/Seats', response_model=list[SeatResponse])
-def get_Seats(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    stmt = select(Seat).offset(skip).limit(limit)
+def get_Seats(pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
+    stmt = select(Seat).offset(pagination.skip).limit(pagination.limit)
     return db.scalars(stmt).all()
 
 @router.post('/Seats')
@@ -28,7 +30,7 @@ def update_Seat(Seat_id: int, Seat: SeatUpdate, db: Session = Depends(get_db)):
     if not db_Seat:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Seato con id {Seat_id} no encontrado",
+            detail=not_found("Asiento", Seat_id),
         )
 
     # exclude_unset=True evita sobrescribir con None los campos que no se enviaron
@@ -46,7 +48,7 @@ def delete_Seat(Seat_id: int, db: Session = Depends(get_db)):
     if not db_Seat:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Seato con id {Seat_id} no encontrado",
+            detail=not_found("Asiento", Seat_id),
         )
 
     db.delete(db_Seat)

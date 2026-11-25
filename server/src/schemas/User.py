@@ -2,9 +2,12 @@ from enum import Enum
 import re
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
-NAME_REGEX = re.compile(r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9' -]+$")
-CEDULA_REGEX = re.compile(r"^([VE])-?(\d{6,8})$")
+from src.schemas.validation import (
+    CEDULA_REGEX,
+    EMAIL_PATTERN,
+    NAME_REGEX,
+    validate_password_complexity,
+)
 
 
 def _validate_person_name(value: str | None, field_label: str) -> str | None:
@@ -18,7 +21,7 @@ def _validate_person_name(value: str | None, field_label: str) -> str | None:
     if len(cleaned) > 100:
         raise ValueError(f"El {field_label} no puede exceder 100 caracteres.")
     if not NAME_REGEX.match(cleaned):
-        raise ValueError(f"El {field_label} solo puede contener letras, números, espacios, apóstrofes y guiones.")
+        raise ValueError(f"El {field_label} solo puede contener letras, espacios, apóstrofes y guiones.")
     return cleaned
 
 
@@ -73,6 +76,15 @@ class UserNormalizationMixin(BaseModel):
         return _normalize_role(value)
 
 
+class PasswordComplexityMixin(BaseModel):
+    """Complejidad para altas/cambios de contraseña (no para login)."""
+
+    @field_validator("password", check_fields=False)
+    @classmethod
+    def validate_password(cls, value):
+        return validate_password_complexity(value)
+
+
 class RoleType(str, Enum):
     ADMIN = "ADMIN"
     ORGANIZER = "ORGANIZER"
@@ -80,7 +92,7 @@ class RoleType(str, Enum):
 
 
 class UserBase(UserNormalizationMixin):
-    email: str = Field(..., max_length=255)
+    email: str = Field(..., max_length=255, pattern=EMAIL_PATTERN)
     first_name: str | None = Field(default=None, max_length=100)
     last_name: str | None = Field(default=None, max_length=100)
     cedula: str | None = Field(default=None, max_length=20)
@@ -88,38 +100,43 @@ class UserBase(UserNormalizationMixin):
     is_active: bool = Field(default=True)
 
 
-class UserCreate(UserBase):
+class UserCreate(UserBase, PasswordComplexityMixin):
     first_name: str = Field(..., min_length=2, max_length=100)
     last_name: str = Field(..., min_length=2, max_length=100)
     cedula: str = Field(..., max_length=20)
     password: str = Field(..., min_length=8, max_length=128)
 
 
-class UserRegister(UserNormalizationMixin):
+class UserRegister(UserNormalizationMixin, PasswordComplexityMixin):
     first_name: str = Field(..., min_length=2, max_length=100)
     last_name: str = Field(..., min_length=2, max_length=100)
     cedula: str = Field(..., max_length=20)
-    email: str = Field(..., max_length=255)
+    email: str = Field(..., max_length=255, pattern=EMAIL_PATTERN)
     password: str = Field(..., min_length=8, max_length=128)
 
 
 class UserLogin(UserNormalizationMixin):
-    email: str = Field(..., max_length=255)
+    email: str = Field(..., max_length=255, pattern=EMAIL_PATTERN)
     password: str = Field(..., min_length=1, max_length=128)
 
 
-class UserChangePassword(UserNormalizationMixin):
+class UserChangePassword(UserNormalizationMixin, PasswordComplexityMixin):
     cedula: str = Field(..., max_length=20)
-    email: str = Field(..., max_length=255)
+    email: str = Field(..., max_length=255, pattern=EMAIL_PATTERN)
     password: str = Field(..., min_length=8, max_length=128)
     confirmPassword: str = Field(..., min_length=8, max_length=128)
 
+    @field_validator("confirmPassword")
+    @classmethod
+    def validate_confirm_password(cls, value):
+        return validate_password_complexity(value, "confirmación de contraseña")
 
-class UserUpdate(UserNormalizationMixin):
+
+class UserUpdate(UserNormalizationMixin, PasswordComplexityMixin):
     first_name: str | None = Field(default=None, min_length=2, max_length=100)
     last_name: str | None = Field(default=None, min_length=2, max_length=100)
     cedula: str | None = Field(default=None, max_length=20)
-    email: str | None = Field(default=None, max_length=255)
+    email: str | None = Field(default=None, max_length=255, pattern=EMAIL_PATTERN)
     role: RoleType | None = Field(default=None)
     is_active: bool | None = Field(default=None)
     password: str | None = Field(default=None, min_length=8, max_length=128)

@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../Features/Auth/Context/AuthContext';
+import { normalizeRole } from '../shared/constants/roles';
 
 export function ProtectedRoute({ allowedRoles }) {
   const { isAuthenticated, user, loading } = useAuth();
@@ -13,14 +14,7 @@ export function ProtectedRoute({ allowedRoles }) {
     return <Navigate to="/IniciarSesion" state={{ from: location }} replace />;
   }
 
-  // Extrae el rol sin importar si viene como string ("admin") o como objeto ({ name: "ADMIN" })
-  const rawRole = typeof user?.role === 'object' ? user?.role?.name : user?.role;
-  const normalized = rawRole ? String(rawRole).toUpperCase() : null;
-  const roleAliases = {
-    USER: 'CUSTOMER',
-    CLIENT: 'CUSTOMER',
-  };
-  const userRole = normalized ? (roleAliases[normalized] || normalized) : null;
+  const userRole = normalizeRole(user?.role);
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {
     return <Navigate to="/NoAutorizado" replace />;

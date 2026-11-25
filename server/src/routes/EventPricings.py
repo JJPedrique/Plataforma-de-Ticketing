@@ -19,6 +19,8 @@ from src.schemas.EventPricing import (
     EventZonePriceDetail,
     EventZonePriceUpdate,
 )
+from src.messages import not_found
+from src.pagination import PaginationParams
 
 router = APIRouter(tags=["Event Pricings"])
 
@@ -26,18 +28,18 @@ router = APIRouter(tags=["Event Pricings"])
 def _get_pricing_or_404(pricing_id: int, db: Session) -> EventPricing:
     pricing = db.get(EventPricing, pricing_id)
     if not pricing:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Precio no encontrado.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Precio"),)
     return pricing
 
 
 def _validate_event_zone(db: Session, event_id: int, zone_id: int, exclude_pricing_id: int | None = None) -> None:
     event = db.get(Event, event_id)
     if not event:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Evento"),)
 
     zone = db.get(Zone, zone_id)
     if not zone:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Zona no encontrada.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Zona", feminine=True),)
 
     if zone.venue_id != event.venue_id:
         raise HTTPException(
@@ -216,11 +218,11 @@ def _to_detail(pricing: EventPricing, zone: Zone, db: Session) -> dict:
 
 
 @router.get('/EventZonePrices', response_model=list[EventZonePriceDetail])
-def get_event_zone_prices(event_id: int | None = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_event_zone_prices(event_id: int | None = None, pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
     stmt = select(EventPricing, Zone).join(Zone, EventPricing.zone_id == Zone.id)
     if event_id is not None:
         stmt = stmt.where(EventPricing.event_id == event_id)
-    stmt = stmt.offset(skip).limit(limit)
+    stmt = stmt.offset(pagination.skip).limit(pagination.limit)
     return [_to_detail(pricing, zone, db) for pricing, zone in db.execute(stmt).all()]
 
 
@@ -228,7 +230,7 @@ def get_event_zone_prices(event_id: int | None = None, skip: int = 0, limit: int
 def create_event_zone_price(payload: EventZonePriceCreate, db: Session = Depends(get_db)):
     event = db.get(Event, payload.event_id)
     if not event:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Evento"),)
 
     if _zone_name_taken(db, event.id, payload.name):
         raise HTTPException(
@@ -259,7 +261,7 @@ def update_event_zone_price(pricing_id: int, payload: EventZonePriceUpdate, db: 
     pricing = _get_pricing_or_404(pricing_id, db)
     zone = db.get(Zone, pricing.zone_id)
     if not zone:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Zona no encontrada.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Zona", feminine=True),)
 
     data = payload.model_dump(exclude_unset=True)
 
@@ -317,11 +319,11 @@ def delete_event_zone_price(pricing_id: int, db: Session = Depends(get_db)):
 
 
 @router.get('/EventPricings', response_model=list[EventPricingResponse])
-def get_EventPricings(event_id: int | None = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def get_EventPricings(event_id: int | None = None, pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
     stmt = select(EventPricing)
     if event_id is not None:
         stmt = stmt.where(EventPricing.event_id == event_id)
-    stmt = stmt.offset(skip).limit(limit)
+    stmt = stmt.offset(pagination.skip).limit(pagination.limit)
     return db.scalars(stmt).all()
 
 

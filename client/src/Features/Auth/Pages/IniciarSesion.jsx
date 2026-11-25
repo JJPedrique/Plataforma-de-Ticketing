@@ -4,6 +4,7 @@ import { useAuth } from "../Context/AuthContext";
 import { userService } from "../services/authService";
 import { X } from "lucide-react";
 import Modal from "../../../shared/components/Modal";
+import { getErrorMessage } from "../../../shared/api/http";
 import EmailInput from "../../../shared/components/EmailInput";
 import PasswordInput from "../../../shared/components/PasswordInput";
 
@@ -28,7 +29,7 @@ function IniciarSesion() {
       login(data);
       navigate("/Inicio");
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || error.message || "Ocurrió un error al iniciar sesión.";
+      const errorMsg = getErrorMessage(error, "Ocurrió un error al iniciar sesión.");
       setMessage(errorMsg);
       setIsModalOpen(true);
     } finally {

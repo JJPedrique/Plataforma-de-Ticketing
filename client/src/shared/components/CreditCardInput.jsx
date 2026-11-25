@@ -1,58 +1,21 @@
 import { CreditCard } from "lucide-react";
 import { useState } from "react";
+import { getCardConfig } from '../validation/rules';
 
-const CARD_CONFIGS = {
-    Visa: {
-        placeholder: "4123 4567 8901 2345",
-        maxLength: 19,
-        pattern: "^4[0-9]{3}\\s?[0-9]{4}\\s?[0-9]{4}\\s?[0-9](?:[0-9]{3})?$",
-        title: "Visa debe iniciar con 4 y tener 13 o 16 dígitos",
-    },
-    Mastercard: {
-        placeholder: "5412 3456 7890 1234",
-        maxLength: 19,
-        pattern: "^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)\\s?[0-9]{4}\\s?[0-9]{4}\\s?[0-9]{4}$",
-        title: "Mastercard debe iniciar con 51-55 o 2221-2720 y tener 16 dígitos",
-    },
-    Amex: {
-        placeholder: "3712 345678 90123",
-        maxLength: 17,
-        pattern: "^3[47][0-9]{2}\\s?[0-9]{6}\\s?[0-9]{5}$",
-        title: "American Express debe iniciar con 34 o 37 y tener 15 dígitos",
-    },
-    Other: {
-        placeholder: "1234 5678 9012 3456",
-        maxLength: 23,
-        pattern: "^(?:[0-9]\\s?){12,18}[0-9]$",
-        title: "Ingresa un número de tarjeta válido de 13 a 19 dígitos",
-    },
+const formatCardNumber = (value) => {
+  const digits = value.replace(/\D/g, "").slice(0, 19);
+  return digits.replace(/(.{4})/g, "$1 ").trim();
 };
 
-const formatCardNumber = (value, cardType) => {
-  const digits = value.replace(/\D/g, "");
-
-  if (cardType === "amex") {
-    const limited = digits.slice(0, 15);
-    return [limited.slice(0, 4), limited.slice(4, 10), limited.slice(10, 15)]
-      .filter(Boolean)
-      .join(" ");
-  }
-
-  const maxDigits = cardType === "other" ? 19 : 16;
-  const limited = digits.slice(0, maxDigits);
-  return limited.replace(/(.{4})/g, "$1 ").trim();
-};
-
-function CreditCardInput({ type = "other", label, setValue, initialValue = ""}) {
-  const normalizedType = type?.toLowerCase() || "other";
-  const config = CARD_CONFIGS[normalizedType] || CARD_CONFIGS.Other;
+function CreditCardInput({ label, setValue, initialValue = ""}) {
+  const config = getCardConfig().number;
 
   const [inputValue, setInputValue] = useState(() =>
-    formatCardNumber(initialValue, normalizedType)
+    formatCardNumber(initialValue)
   );
 
   const handleChange = (e) => {
-    const formatted = formatCardNumber(e.target.value, normalizedType);
+    const formatted = formatCardNumber(e.target.value);
     const rawDigits = formatted.replace(/\s/g, "");
 
     setInputValue(formatted);

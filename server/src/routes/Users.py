@@ -16,6 +16,8 @@ from src.schemas.User import (
     UserResponse,
     UserUpdate,
 )
+from src.messages import not_found
+from src.pagination import PaginationParams
 
 router = APIRouter(tags=["Users"])
 
@@ -70,8 +72,13 @@ def _email_taken(db: Session, email: str | None, exclude_user_id: int | None = N
 def _get_user_or_404(user_id: int, db: Session) -> User:
     db_user = db.get(User, user_id)
     if not db_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Usuario"),)
     return db_user
+
+
+def _is_self_action(user_id: int, acting_user_id: int | None) -> bool:
+    """El gestor envía quién ejecuta la acción; el perfil propio no lo envía."""
+    return acting_user_id is not None and int(acting_user_id) == int(user_id)
 
 
 @router.post('/Users/login', response_model=UserResponse)
@@ -81,7 +88,7 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado."
+            detail=not_found("Usuario"),
         )
     if not user.is_active:
         raise HTTPException(
@@ -147,8 +154,8 @@ def register_user(payload: UserRegister, db: Session = Depends(get_db)):
 
 
 @router.get('/Users', response_model=list[UserResponse])
-def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    stmt = select(User).offset(skip).limit(limit)
+def get_users(pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
+    stmt = select(User).offset(pagination.skip).limit(pagination.limit)
     return db.scalars(stmt).all()
 
 
@@ -188,9 +195,15 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/Users/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)):
+def update_user(user_id: int, payload: UserUpdate, acting_user_id: int | None = None, db: Session = Depends(get_db)):
     current = _get_user_or_404(user_id, db)
     data = payload.model_dump(exclude_unset=True)
+
+    if _is_self_action(user_id, acting_user_id) and ("role" in data or "is_active" in data):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes cambiar tu propio rol ni estado desde la gestión de usuarios.",
+        )
 
     if data.get("email") and _email_taken(db, data["email"], exclude_user_id=user_id):
         raise HTTPException(
@@ -219,8 +232,13 @@ def update_user(user_id: int, payload: UserUpdate, db: Session = Depends(get_db)
 
 
 @router.delete("/Users/{user_id}", response_model=UserResponse)
-def deactivate_user(user_id: int, db: Session = Depends(get_db)):
+def deactivate_user(user_id: int, acting_user_id: int | None = None, db: Session = Depends(get_db)):
     current = _get_user_or_404(user_id, db)
+    if _is_self_action(user_id, acting_user_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes desactivar tu propia cuenta desde la gestión de usuarios.",
+        )
     current.is_active = False
     db.commit()
     db.refresh(current)

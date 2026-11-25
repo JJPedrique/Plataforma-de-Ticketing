@@ -18,7 +18,7 @@ function FormCreditCard({ onReservar }) {
       <div className="mb-4">
         <h2 className="text-xl font-semibold text-gray-800">Pago con Tarjeta</h2>
         <p className="text-sm text-gray-500">
-          Selecciona el tipo e ingresa los datos de tu tarjeta.
+          Selecciona el tipo e ingresa los datos de tu tarjeta. La validación es la misma para todas las franquicias.
         </p>
       </div>
 
@@ -27,9 +27,9 @@ function FormCreditCard({ onReservar }) {
       <TextInput label="Nombre de la tarjeta"/>
 
       {selectedCard && <>
-        <CreditCardInput type={selectedCard} label={selectedCard}/>
+        <CreditCardInput label={selectedCard}/>
         <div className="grid grid-cols-2 gap-4">
-          <CvcInput type={selectedCard}/>
+          <CvcInput/>
           <VencimientoInput label="Vencimiento"/>
         </div>
       </>}

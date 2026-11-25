@@ -1,5 +1,6 @@
 import { IdCard } from "lucide-react";
 import { useState } from "react";
+import { CEDULA_MAX_LENGTH, CEDULA_MIN_LENGTH, CEDULA_PATTERN, CEDULA_TITLE } from '../validation/rules';
 
 function CedulaInput({ label = "Cédula de Identidad", setValue, initialValue= "", id="cedula", name="cedula", readOnly=false}) {
   const [inputValue, setInputValue] =useState(initialValue);
@@ -7,7 +8,7 @@ function CedulaInput({ label = "Cédula de Identidad", setValue, initialValue= "
     if (readOnly) return;
     const clean = e.target.value.toUpperCase().replace(/[^VE0-9-]/g, "").replace(/\s+/g, '').trim();
     setInputValue(clean); 
-    setValue(clean);
+    setValue?.(clean);
   };  
 
   return (
@@ -19,8 +20,8 @@ function CedulaInput({ label = "Cédula de Identidad", setValue, initialValue= "
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <IdCard className="h-4 w-4 text-gray-400" aria-hidden="true" />
         </div>
-        <input onChange={handleChange} type="text" id={id} name={name} placeholder="V-12345678" required={!readOnly} readOnly={readOnly} pattern="^[VEve]-?\d{6,8}$" minLength="7" maxLength="10"
-          title="Formato válido: V-12345678 o E-12345678 (entre 6 y 8 dígitos)"
+        <input onChange={handleChange} type="text" id={id} name={name} placeholder="V-12345678" required={!readOnly} readOnly={readOnly} pattern={CEDULA_PATTERN} minLength={CEDULA_MIN_LENGTH} maxLength={CEDULA_MAX_LENGTH}
+          title={CEDULA_TITLE}
           className={readOnly
             ? "w-full pl-9 pr-3 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-900 cursor-default uppercase"
             : "w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors uppercase"}

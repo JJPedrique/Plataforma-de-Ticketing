@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from 'react';
 import { eventService } from '../services/Eventos';
 import { TicketingContext } from '../Context/TicketingContext';
 import { ticketService } from '../services/Asientos';
+import { EVENT_STATUS_FINISHED, getEventStatus } from '../../../shared/validation/rules';
 
 function SeleccionarEvento() {
 
@@ -21,6 +22,7 @@ function SeleccionarEvento() {
             setLoading(true);
             const params = {title: search.trim() || undefined};
             const data = await eventService.getAll(params, controller.signal);
+            // /EventsVenues ya devuelve los eventos ordenados por start_date DESC.
             setAllEvents(data);
         } catch (error) {
             if (error.name !== 'CanceledError') {console.error('Error cargando eventos:', error);}
@@ -30,7 +32,8 @@ function SeleccionarEvento() {
         return () => {clearTimeout(timer); controller.abort();};
     }, [search]);
 
-    function ElegirEvento(newEvent){ 
+    function ElegirEvento(newEvent){
+        if (getEventStatus(newEvent.start_date, newEvent.end_date) === EVENT_STATUS_FINISHED) return;
         setEvent((prev) => (prev === newEvent ? null : newEvent));
         if(!event){return;}
 

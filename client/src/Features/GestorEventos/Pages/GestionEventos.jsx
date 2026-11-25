@@ -3,18 +3,23 @@ import { Link } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Calendar, MapPin, Search, X, UserRound, Palette } from 'lucide-react';
 import { eventsApi, usersApi, venuesApi } from '../../../shared/api/adminApi';
 import { useAuth } from '../../Auth/Context/AuthContext';
+import { normalizeRole, ROLES } from '../../../shared/constants/roles';
+import {
+  EVENT_DESCRIPTION_MAX_LENGTH,
+  EVENT_STATUS_FINISHED,
+  EVENT_STATUS_LABELS,
+  EVENT_STATUS_ONGOING,
+  EVENT_TITLE_MAX_LENGTH,
+  getEventStatus,
+  validateEventDates,
+} from '../../../shared/validation/rules';
 
 const emptyForm = { title: '', description: '', organizer_id: '', venue_id: '', start_date: '', end_date: '', is_active: true };
 
 const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
 
 // Roles permitidos para ser asignados como organizador de un evento.
-// Modificar este arreglo para ampliar o restringir el filtro (ej. ['organizer', 'admin']).
-const EVENT_ORGANIZER_ROLES = ['organizer'];
-
-function normalizeRole(role) {
-  return String(role || '').toUpperCase();
-}
+const EVENT_ORGANIZER_ROLES = [ROLES.ORGANIZER];
 
 function toInputDateTime(value) {
   if (!value) return '';
@@ -24,9 +29,18 @@ function toInputDateTime(value) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+const isFinishedEvent = (ev) => getEventStatus(ev.start_date, ev.end_date) === EVENT_STATUS_FINISHED;
+
+// Orden descendente por fecha de inicio; los eventos sin fecha válida van al final.
+const byStartDateDesc = (a, b) => {
+  const aTime = a.start_date ? new Date(a.start_date).getTime() : -Infinity;
+  const bTime = b.start_date ? new Date(b.start_date).getTime() : -Infinity;
+  return (Number.isNaN(bTime) ? -Infinity : bTime) - (Number.isNaN(aTime) ? -Infinity : aTime);
+};
+
 export default function GestionEventos() {
   const { user } = useAuth();
-  const isAdmin = normalizeRole(user?.role) === 'ADMIN';
+  const isAdmin = normalizeRole(user?.role) === ROLES.ADMIN;
 
   const [items, setItems] = useState([]);
   const [users, setUsers] = useState([]);
@@ -34,11 +48,13 @@ export default function GestionEventos() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [modalError, setModalError] = useState('');
+  const [editNotice, setEditNotice] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
+  const [nowInputValue] = useState(() => toInputDateTime(new Date()));
 
   const venuesById = useMemo(() => Object.fromEntries(venues.map(v => [v.id, v])), [venues]);
   const usersById = useMemo(() => Object.fromEntries(users.map(u => [u.id, u])), [users]);
@@ -50,14 +66,16 @@ export default function GestionEventos() {
 
   const filteredItems = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return visibleItems;
-    return visibleItems.filter((ev) => {
-      const venue = venuesById[ev.venue_id];
-      const org = usersById[ev.organizer_id];
-      const orgName = org ? `${org.first_name || ''} ${org.last_name || ''}`.trim() || org.email : '';
-      const status = ev.is_active ? 'activo' : 'inactivo';
-      return [ev.title, venue?.name, orgName, status].some((val) => String(val || '').toLowerCase().includes(q));
-    });
+    if (!q) return [...visibleItems].sort(byStartDateDesc);
+    return visibleItems
+      .filter((ev) => {
+        const venue = venuesById[ev.venue_id];
+        const org = usersById[ev.organizer_id];
+        const orgName = org ? `${org.first_name || ''} ${org.last_name || ''}`.trim() || org.email : '';
+        const status = `${ev.is_active ? 'activo' : 'inactivo'} ${EVENT_STATUS_LABELS[getEventStatus(ev.start_date, ev.end_date)]}`;
+        return [ev.title, venue?.name, orgName, status].some((val) => String(val || '').toLowerCase().includes(q));
+      })
+      .sort(byStartDateDesc);
   }, [visibleItems, search, venuesById, usersById]);
 
   const load = async () => {
@@ -75,6 +93,7 @@ export default function GestionEventos() {
     setEditing(null);
     setForm({ ...emptyForm, organizer_id: isAdmin ? '' : String(user?.id ?? '') });
     setModalError('');
+    setEditNotice('');
     setShowForm(true);
   };
 
@@ -89,6 +108,9 @@ export default function GestionEventos() {
       start_date: toInputDateTime(ev.start_date), end_date: toInputDateTime(ev.end_date), is_active: ev.is_active !== false,
     });
     setModalError('');
+    setEditNotice(isFinishedEvent(ev)
+      ? 'Este evento ya finalizó y es histórico: no admite nuevas ventas. Puedes corregir sus fechas; el estado se recalculará automáticamente.'
+      : '');
     setShowForm(true);
   };
 
@@ -99,6 +121,10 @@ export default function GestionEventos() {
       setModalError('El título del evento es obligatorio.');
       return;
     }
+    if (title.length > EVENT_TITLE_MAX_LENGTH || form.description.trim().length > EVENT_DESCRIPTION_MAX_LENGTH) {
+      setModalError(`El título admite hasta ${EVENT_TITLE_MAX_LENGTH} caracteres y la descripción hasta ${EVENT_DESCRIPTION_MAX_LENGTH}.`);
+      return;
+    }
     const organizerId = isAdmin ? form.organizer_id : user?.id;
     if (!form.venue_id || !organizerId) {
       setModalError(isAdmin
@@ -106,8 +132,13 @@ export default function GestionEventos() {
         : 'Seleccione un lugar. Si no existen, créelo primero en el gestor de lugares.');
       return;
     }
-    if (form.start_date && form.end_date && new Date(form.start_date) >= new Date(form.end_date)) {
-      setModalError('La fecha y hora de inicio debe ser anterior a la fecha y hora de fin.');
+    const dateError = validateEventDates(
+      form.start_date,
+      form.end_date,
+      editing ? { existingStart: editing.start_date, existingEnd: editing.end_date } : {},
+    );
+    if (dateError) {
+      setModalError(dateError);
       return;
     }
     try {
@@ -117,8 +148,8 @@ export default function GestionEventos() {
         description: form.description.trim(),
         organizer_id: Number(organizerId),
         venue_id: Number(form.venue_id),
-        start_date: form.start_date ? new Date(form.start_date).toISOString() : null,
-        end_date: form.end_date ? new Date(form.end_date).toISOString() : null,
+        start_date: new Date(form.start_date).toISOString(),
+        end_date: new Date(form.end_date).toISOString(),
         is_active: form.is_active,
       };
       if (editing) await eventsApi.update(editing.id, payload); else await eventsApi.create(payload);
@@ -145,8 +176,10 @@ export default function GestionEventos() {
     return user?.name || user?.email || 'Organizador actual';
   })();
 
+  const minStartDate = editing && isFinishedEvent(editing) ? undefined : nowInputValue;
+
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 md:p-6">
+    <div className="w-full max-w-7xl mx-auto p-4 md:p-6">
       <div className="flex items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{isAdmin ? 'Gestión de Eventos' : 'Mis Eventos'}</h1>
@@ -199,30 +232,51 @@ export default function GestionEventos() {
           ) : (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full table-fixed text-sm">
               <thead className="bg-gray-50 text-gray-700"><tr>
-                <th className="text-left px-4 py-3 font-semibold">Título</th>
-                <th className="text-left px-4 py-3 font-semibold">Lugar</th>
-                <th className="text-left px-4 py-3 font-semibold">Organizador</th>
-                <th className="text-left px-4 py-3 font-semibold">Inicio</th>
-                <th className="text-left px-4 py-3 font-semibold">Estado</th>
-                <th className="text-right px-4 py-3 font-semibold">Acciones</th>
+                <th className="w-[24%] text-left px-3 py-3 font-semibold whitespace-nowrap">Título</th>
+                <th className="w-[18%] text-left px-3 py-3 font-semibold whitespace-nowrap">Lugar</th>
+                <th className="w-[18%] text-left px-3 py-3 font-semibold whitespace-nowrap">Organizador</th>
+                <th className="w-[15%] text-left px-3 py-3 font-semibold whitespace-nowrap">Inicio</th>
+                <th className="w-[12%] text-left px-3 py-3 font-semibold whitespace-nowrap">Estado</th>
+                <th className="w-[13%] text-right px-3 py-3 font-semibold whitespace-nowrap">Acciones</th>
               </tr></thead>
               <tbody>
                 {filteredItems.map((ev) => {
                   const venue = venuesById[ev.venue_id];
                   const org = usersById[ev.organizer_id];
+                  const venueName = venue?.name || `Lugar #${ev.venue_id}`;
+                  const organizerName = org ? `${org.first_name || ''} ${org.last_name || ''}`.trim() || org.email : `Usuario #${ev.organizer_id}`;
+                  const eventStatus = getEventStatus(ev.start_date, ev.end_date);
                   return (
                     <tr key={ev.id} className="border-t border-gray-100">
-                      <td className="px-4 py-3 text-gray-900 font-medium">{ev.title}</td>
-                      <td className="px-4 py-3 text-gray-700"><span className="inline-flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{venue?.name || `Lugar #${ev.venue_id}`}</span></td>
-                      <td className="px-4 py-3 text-gray-700">{org ? `${org.first_name || ''} ${org.last_name || ''}`.trim() || org.email : `Usuario #${ev.organizer_id}`}</td>
-                      <td className="px-4 py-3 text-gray-700">{ev.start_date ? new Date(ev.start_date).toLocaleString() : '-'}</td>
-                      <td className="px-4 py-3"><span className={`inline-flex px-2 py-1 rounded-md ${ev.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{ev.is_active ? 'Activo' : 'Inactivo'}</span></td>
-                      <td className="px-4 py-3"><div className="flex justify-end gap-2">
-                        <Link to={`/GestorZonasPrecios?evento=${ev.id}`} className="p-2 rounded-md border border-orange-200 text-orange-700 hover:bg-orange-50" title="Zonas y precios"><Palette className="w-4 h-4" /></Link>
-                        <button onClick={() => openEdit(ev)} className="p-2 rounded-md border border-gray-200 hover:bg-gray-50" title="Editar"><Pencil className="w-4 h-4" /></button>
-                        <button onClick={() => remove(ev)} className="p-2 rounded-md border border-red-200 text-red-700 hover:bg-red-50" title="Eliminar/Desactivar"><Trash2 className="w-4 h-4" /></button>
+                      <td className="px-3 py-3 text-gray-900 font-medium whitespace-nowrap overflow-hidden">
+                        <span className="block w-full truncate" title={ev.title}>{ev.title}</span>
+                      </td>
+                      <td className="px-3 py-3 text-gray-700 whitespace-nowrap overflow-hidden">
+                        <span className="flex min-w-0 items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <span className="block min-w-0 truncate" title={venueName}>{venueName}</span>
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 text-gray-700 whitespace-nowrap overflow-hidden">
+                        <span className="block w-full truncate" title={organizerName}>{organizerName}</span>
+                      </td>
+                      <td className="px-3 py-3 text-gray-700 whitespace-nowrap overflow-hidden">
+                        <span className="block w-full truncate" title={ev.start_date ? new Date(ev.start_date).toLocaleString() : '-'}>
+                          {ev.start_date ? new Date(ev.start_date).toLocaleString() : '-'}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap overflow-hidden">
+                        <div className="flex flex-nowrap items-center gap-1">
+                          <span className={`inline-flex shrink-0 items-center rounded-md px-1 py-1 text-[11px] leading-none ${eventStatus === EVENT_STATUS_FINISHED ? 'bg-gray-200 text-gray-700' : eventStatus === EVENT_STATUS_ONGOING ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'}`}>{EVENT_STATUS_LABELS[eventStatus]}</span>
+                          <span className={`inline-flex shrink-0 items-center rounded-md px-1 py-1 text-[11px] leading-none ${ev.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{ev.is_active ? 'Activo' : 'Inactivo'}</span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap overflow-hidden"><div className="flex flex-nowrap items-center justify-end gap-1">
+                        <Link to={`/GestorZonasPrecios?evento=${ev.id}`} className="p-1.5 rounded-md border border-orange-200 text-orange-700 hover:bg-orange-50" title="Zonas y precios"><Palette className="w-3.5 h-3.5" /></Link>
+                        <button onClick={() => openEdit(ev)} className="p-1.5 rounded-md border border-gray-200 hover:bg-gray-50" title="Editar"><Pencil className="w-3.5 h-3.5" /></button>
+                        <button onClick={() => remove(ev)} className="p-1.5 rounded-md border border-red-200 text-red-700 hover:bg-red-50" title="Eliminar/Desactivar"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div></td>
                     </tr>
                   );
@@ -257,13 +311,18 @@ export default function GestionEventos() {
                   {modalError}
                 </div>
               )}
+              {editNotice && (
+                <div className="border border-amber-200 bg-amber-50 text-amber-900 rounded-lg px-4 py-3 text-sm" role="status">
+                  {editNotice}
+                </div>
+              )}
               <div>
                 <label htmlFor="event-title" className="block text-sm font-medium text-gray-700 mb-1.5">Título del evento</label>
-                <input id="event-title" name="title" required aria-required="true" aria-label="Título del evento" placeholder="Ej. Concierto de verano" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClassName} />
+                <input id="event-title" name="title" required aria-required="true" aria-label="Título del evento" maxLength={EVENT_TITLE_MAX_LENGTH} placeholder="Ej. Concierto de verano" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClassName} />
               </div>
               <div>
                 <label htmlFor="event-description" className="block text-sm font-medium text-gray-700 mb-1.5">Descripción</label>
-                <textarea id="event-description" name="description" aria-label="Descripción del evento" placeholder="Describe brevemente el evento, artistas, actividades o detalles relevantes" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClassName} rows={3} />
+                <textarea id="event-description" name="description" aria-label="Descripción del evento" maxLength={EVENT_DESCRIPTION_MAX_LENGTH} placeholder="Describe brevemente el evento, artistas, actividades o detalles relevantes" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={inputClassName} rows={3} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {isAdmin ? (
@@ -273,9 +332,7 @@ export default function GestionEventos() {
                       <option value="">Selecciona un organizador</option>
                       {users
                         .filter((u) => {
-                          const role = String(u.role || '').toLowerCase();
-                          const allowedRoles = EVENT_ORGANIZER_ROLES.map((r) => String(r).toLowerCase());
-                          const isAllowedRole = allowedRoles.includes(role);
+                          const isAllowedRole = EVENT_ORGANIZER_ROLES.includes(normalizeRole(u.role));
                           const isCurrentSelection = editing && String(u.id) === String(form.organizer_id);
                           return u.is_active && (isAllowedRole || isCurrentSelection);
                         })
@@ -302,11 +359,11 @@ export default function GestionEventos() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="event-start" className="block text-sm font-medium text-gray-700 mb-1.5">Fecha y hora de inicio</label>
-                  <input id="event-start" name="start_date" type="datetime-local" aria-label="Fecha y hora de inicio" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} className={inputClassName} />
+                  <input id="event-start" name="start_date" type="datetime-local" required aria-required="true" aria-label="Fecha y hora de inicio" min={minStartDate} value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} className={inputClassName} />
                 </div>
                 <div>
                   <label htmlFor="event-end" className="block text-sm font-medium text-gray-700 mb-1.5">Fecha y hora de fin</label>
-                  <input id="event-end" name="end_date" type="datetime-local" aria-label="Fecha y hora de fin" min={form.start_date || undefined} value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className={inputClassName} />
+                  <input id="event-end" name="end_date" type="datetime-local" required aria-required="true" aria-label="Fecha y hora de fin" min={form.start_date || undefined} value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className={inputClassName} />
                 </div>
               </div>
               <div>

@@ -2,6 +2,7 @@ import { TicketCheck, Home, LogOut, User, ChevronDown, Ticket, LayoutDashboard, 
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from "../../Features/Auth/Context/AuthContext";
+import { getRoleLabel, normalizeRole, ROLES } from '../../shared/constants/roles';
 
 function Header() {
   const { logout, user } = useAuth();
@@ -22,18 +23,10 @@ function Header() {
       .slice(0, 2)
   }
 
-  const getRoleLabel = (role) => {
-    const r = String(role || '').toUpperCase()
-    if (r === 'ADMIN') return 'Administrador'
-    if (r === 'CUSTOMER' || r === 'USER' || r === 'CLIENT') return 'Cliente'
-    if (r === 'ORGANIZER') return 'Organizador'
-    return role
-  }
-
-  const normalizedRole = String(user?.role || '').toUpperCase()
-  const isCustomer = ['CUSTOMER', 'USER', 'CLIENT'].includes(normalizedRole)
-  const isOrganizer = normalizedRole === 'ORGANIZER'
-  const isAdmin = normalizedRole === 'ADMIN'
+  const normalizedRole = normalizeRole(user?.role)
+  const isCustomer = normalizedRole === ROLES.USER
+  const isOrganizer = normalizedRole === ROLES.ORGANIZER
+  const isAdmin = normalizedRole === ROLES.ADMIN
 
   return (
     <header className="sticky top-0 z-30 h-16 bg-background/85 backdrop-blur border-b border-gray-200 shadow-sm">

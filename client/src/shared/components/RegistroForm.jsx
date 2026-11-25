@@ -4,6 +4,7 @@ import EmailInput from './EmailInput';
 import PasswordInput from './PasswordInput';
 import CedulaInput from './CedulaInput';
 import { authService } from '../../Features/Auth/services/authService';
+import { EMAIL_REGEX, sanitizeEmail } from '../validation/rules';
 
 const ROLE_OPTIONS = [
   { value: 'ADMIN', label: 'Administrador' },
@@ -27,6 +28,7 @@ export default function RegistroForm({
   loading = false,
   isEditing = false,
   showAdminFields = false,
+  isSelf = false,
   submitLabel = 'Registrar Cuenta',
   loadingLabel = 'Guardando...',
   idPrefix = 'registro',
@@ -59,9 +61,9 @@ export default function RegistroForm({
       const cleanFirstName = authService.validatePersonName(firstName, 'nombre');
       const cleanLastName = authService.validatePersonName(lastName, 'apellido');
       const cleanCedula = authService.validateCedula(cedula);
-      const cleanEmail = String(email).trim().toLowerCase();
+      const cleanEmail = sanitizeEmail(email).toLowerCase();
 
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      if (!EMAIL_REGEX.test(cleanEmail)) {
         throw new Error('Ingresa un correo electrónico válido.');
       }
 
@@ -88,8 +90,8 @@ export default function RegistroForm({
         last_name: cleanLastName,
         cedula: cleanCedula,
         email: cleanEmail,
-        role: authService.normalizeRole(role),
-        is_active: isActive,
+        role: isSelf ? authService.normalizeRole(initialValues.role ?? 'USER') : authService.normalizeRole(role),
+        is_active: isSelf ? initialValues.is_active !== false : isActive,
         password: cleanPassword,
       });
     } catch (err) {
@@ -144,43 +146,52 @@ export default function RegistroForm({
       </div>
 
       {showAdminFields && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor={`${idPrefix}-role`} className="block text-sm font-medium text-gray-700 mb-1.5">
-              Rol
-            </label>
-            <select
-              id={`${idPrefix}-role`}
-              name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className={selectClassName}
-              aria-label="Rol del usuario"
-              required
-            >
-              {ROLE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor={`${idPrefix}-role`} className="block text-sm font-medium text-gray-700 mb-1.5">
+                Rol
+              </label>
+              <select
+                id={`${idPrefix}-role`}
+                name="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                disabled={isSelf}
+                className={`${selectClassName} ${isSelf ? 'cursor-not-allowed bg-gray-100 text-gray-500' : ''}`}
+                aria-label="Rol del usuario"
+                required
+              >
+                {ROLE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor={`${idPrefix}-status`} className="block text-sm font-medium text-gray-700 mb-1.5">
+                Estado
+              </label>
+              <select
+                id={`${idPrefix}-status`}
+                name="is_active"
+                value={String(isActive)}
+                onChange={(e) => setIsActive(e.target.value === 'true')}
+                disabled={isSelf}
+                className={`${selectClassName} ${isSelf ? 'cursor-not-allowed bg-gray-100 text-gray-500' : ''}`}
+                aria-label="Estado del usuario"
+                required
+              >
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label htmlFor={`${idPrefix}-status`} className="block text-sm font-medium text-gray-700 mb-1.5">
-              Estado
-            </label>
-            <select
-              id={`${idPrefix}-status`}
-              name="is_active"
-              value={String(isActive)}
-              onChange={(e) => setIsActive(e.target.value === 'true')}
-              className={selectClassName}
-              aria-label="Estado del usuario"
-              required
-            >
-              <option value="true">Activo</option>
-              <option value="false">Inactivo</option>
-            </select>
-          </div>
-        </div>
+          {isSelf && (
+            <p className="mt-2 text-sm text-blue-700" role="status">
+              Tu cuenta: el rol y el estado no se pueden cambiar aquí. Usa Perfil para desactivarla.
+            </p>
+          )}
+        </>
       )}
 
       <PasswordInput

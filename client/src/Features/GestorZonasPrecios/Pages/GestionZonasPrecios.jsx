@@ -4,14 +4,12 @@ import { CalendarDays, Lock, MapPin, Palette, Pencil, Plus, RefreshCw, Trash2 } 
 import { eventsApi, eventZonePricesApi, venuesApi } from '../../../shared/api/adminApi';
 import { useAuth } from '../../Auth/Context/AuthContext';
 import Modal from '../../../shared/components/Modal';
+import { normalizeRole, ROLES } from '../../../shared/constants/roles';
+import { COLOR_CODE_MAX_LENGTH, HEX_COLOR_REGEX, ZONE_NAME_MAX_LENGTH } from '../../../shared/validation/rules';
 
 const emptyForm = { name: '', color_code: '#F97316', is_active: true, seat_count: 20, price: '' };
 const inputClassName = 'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors';
-const HEX_COLOR = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 
-function normalizeRole(role) {
-  return String(role || '').toUpperCase();
-}
 
 function formatMoney(value) {
   return `$${Number(value || 0).toLocaleString('es-VE', {
@@ -23,7 +21,7 @@ function formatMoney(value) {
 export default function GestionZonasPrecios() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
-  const isAdmin = normalizeRole(user?.role) === 'ADMIN';
+  const isAdmin = normalizeRole(user?.role) === ROLES.ADMIN;
 
   const [events, setEvents] = useState([]);
   const [venues, setVenues] = useState([]);
@@ -126,7 +124,7 @@ export default function GestionZonasPrecios() {
     if (name.length > 100) { setFormError('El nombre no puede superar los 100 caracteres.'); return; }
 
     const color = form.color_code.trim();
-    if (color && !HEX_COLOR.test(color)) {
+    if (color && !HEX_COLOR_REGEX.test(color)) {
       setFormError('El color debe ser hexadecimal, por ejemplo #F97316.');
       return;
     }
@@ -359,17 +357,17 @@ export default function GestionZonasPrecios() {
           )}
           <div>
             <label htmlFor="zone-name" className="block text-sm font-medium text-gray-700 mb-1.5">Nombre de la zona</label>
-            <input id="zone-name" value={form.name} maxLength={100}
+            <input id="zone-name" value={form.name} maxLength={ZONE_NAME_MAX_LENGTH}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Ej. Platea" className={inputClassName} />
           </div>
           <div>
             <label htmlFor="zone-color" className="block text-sm font-medium text-gray-700 mb-1.5">Color</label>
             <div className="flex items-center gap-3">
-              <input type="color" value={HEX_COLOR.test(form.color_code) ? form.color_code : '#F97316'}
+              <input type="color" value={HEX_COLOR_REGEX.test(form.color_code) ? form.color_code : '#F97316'}
                 onChange={(e) => setForm({ ...form, color_code: e.target.value })}
                 className="w-12 h-10 p-1 border border-gray-200 rounded-lg bg-white cursor-pointer" aria-label="Selector de color" />
-              <input id="zone-color" value={form.color_code} maxLength={20}
+              <input id="zone-color" value={form.color_code} maxLength={COLOR_CODE_MAX_LENGTH}
                 onChange={(e) => setForm({ ...form, color_code: e.target.value })}
                 placeholder="#F97316" className={inputClassName} />
             </div>
