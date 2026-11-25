@@ -8,8 +8,22 @@ from src.models.Venue import Venue
 from src.schemas.Event import EventCreate, EventResponse, EventUpdate, EventVenueResponse
 from src.messages import not_found
 from src.pagination import PaginationParams
+from src.schemas.validation import validate_event_update
 
 router = APIRouter(tags=["Events"])
+
+
+def _validate_update_window(db_event: Event, data: dict) -> None:
+    try:
+        validate_event_update(
+            db_event.start_date,
+            db_event.end_date,
+            data.get("start_date", db_event.start_date),
+            data.get("end_date", db_event.end_date),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
 
 @router.get('/Events', response_model=list[EventResponse])
 def get_events(pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
@@ -40,7 +54,9 @@ def update_event(event_id: int, payload: EventUpdate, db: Session = Depends(get_
     if not db_event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=not_found("Evento"),)
 
-    for key, value in payload.model_dump(exclude_unset=True).items():
+    data = payload.model_dump(exclude_unset=True)
+    _validate_update_window(db_event, data)
+    for key, value in data.items():
         setattr(db_event, key, value)
 
     db.commit()
@@ -63,9 +79,11 @@ def delete_event(event_id: int, db: Session = Depends(get_db)):
         db.commit()
     return None
 
+
 @router.get('/EventsVenues', response_model=list[EventVenueResponse])
 def get_events(title = "", pagination: PaginationParams = Depends(), db: Session = Depends(get_db)):
     # un evento solo es visible si él y su lugar están activos.
+    # El orden se aplica en SQL, antes del LIMIT, para que la paginación sea correcta.
     stmt = (
         select(Event)
         .where(
@@ -74,6 +92,7 @@ def get_events(title = "", pagination: PaginationParams = Depends(), db: Session
             Event.title.ilike(f"%{title}%"),
         )
         .options(joinedload(Event.venue))
+        .order_by(Event.start_date.desc())
         .offset(pagination.skip)
         .limit(pagination.limit)
     )

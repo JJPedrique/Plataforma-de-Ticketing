@@ -1,6 +1,7 @@
 import { Calendar, Clock, MapPin, Ticket } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { TicketingContext } from '../Context/TicketingContext';
+import { EVENT_STATUS_FINISHED, EVENT_STATUS_LABELS, getEventStatus } from '../../../shared/validation/rules';
 
 function resolveImageUrl(url) {
   if (!url) return url;
@@ -35,17 +36,32 @@ function EventoCard({Data, isDisabled=false, onClick}) {
   const { event } = useContext(TicketingContext);
   const imageUrl = resolveImageUrl(Data.venue?.img_url);
   const [imgError, setImgError] = useState(false);
+  const eventStatus = getEventStatus(Data.start_date, Data.end_date);
+  const finished = eventStatus === EVENT_STATUS_FINISHED;
+  const selectable = !isDisabled && !finished;
+  // Solo el selector marca el histórico; en métodos de pago el card se muestra normal.
+  const dimmed = finished && !isDisabled;
 
   useEffect(() => { setImgError(false); }, [imageUrl]);
 
   return (
-    <button disabled={isDisabled} onClick={() => onClick(Data)}
-      className={`group relative w-full text-left rounded-2xl border bg-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+    <button type="button" disabled={!selectable} onClick={() => selectable && onClick(Data)}
+      className={`group relative w-full text-left rounded-2xl border bg-white overflow-hidden transition-all duration-300 ${
+        selectable ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1 hover:border-orange-200' : 'cursor-default'
+      } ${
+        dimmed ? 'opacity-75' : 'opacity-100'
+      } ${
         Data.id===event?.id 
           ? 'border-orange-500 shadow-lg shadow-orange-500/10 ring-2 ring-orange-500/20' 
-          : 'border-gray-200 shadow-md hover:border-orange-200'
+          : 'border-gray-200 shadow-md'
       }`}
     >
+      {finished && (
+        <div className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-gray-800 text-white text-xs font-semibold rounded-full shadow-lg">
+          {EVENT_STATUS_LABELS[eventStatus]}
+        </div>
+      )}
+
       { Data.id===event?.id  && (
         <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 bg-orange-500 text-white text-xs font-semibold rounded-full shadow-lg">
           <Ticket className="h-3.5 w-3.5" />

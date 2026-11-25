@@ -25,11 +25,11 @@ class Event(Base):
     )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    start_date: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True
+    start_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
     )
-    end_date: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True
+    end_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 

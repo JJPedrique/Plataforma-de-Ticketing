@@ -4,6 +4,7 @@ Si cambias una regex aquí, cámbiala también en el cliente.
 """
 
 import re
+from datetime import datetime
 
 NAME_PATTERN = r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$"
 CEDULA_PATTERN = r"^([VE])-?(\d{6,8})$"
@@ -23,6 +24,62 @@ ZONE_NAME_MAX_LENGTH = 100
 COLOR_CODE_MAX_LENGTH = 20
 PAY_METHOD_NAME_MAX_LENGTH = 100
 PAY_METHOD_DESCRIPTION_MAX_LENGTH = 255
+
+EVENT_STATUS_UPCOMING = "UPCOMING"
+EVENT_STATUS_ONGOING = "ONGOING"
+EVENT_STATUS_FINISHED = "FINISHED"
+
+
+def to_local_naive(value: datetime) -> datetime:
+    """Fechas datetime-local se comparan como hora local del servidor."""
+    if value.tzinfo is not None:
+        return value.astimezone().replace(tzinfo=None)
+    return value
+
+
+def get_event_status(start_date: datetime, end_date: datetime, now: datetime | None = None) -> str:
+    current = to_local_naive(now or datetime.now())
+    start = to_local_naive(start_date)
+    end = to_local_naive(end_date)
+    if current > end:
+        return EVENT_STATUS_FINISHED
+    if current >= start:
+        return EVENT_STATUS_ONGOING
+    return EVENT_STATUS_UPCOMING
+
+
+def validate_event_dates(start_date: datetime, end_date: datetime, allow_past: bool = False) -> None:
+    """Regla compartida: fin > inicio e inicio >= ahora salvo corrección histórica."""
+    start = to_local_naive(start_date)
+    end = to_local_naive(end_date)
+    if end <= start:
+        raise ValueError("La fecha de fin debe ser posterior a la fecha de inicio.")
+    if not allow_past and start < to_local_naive(datetime.now()):
+        raise ValueError("La fecha de inicio debe ser mayor o igual a la fecha actual.")
+
+
+def validate_event_update(
+    existing_start: datetime,
+    existing_end: datetime,
+    new_start: datetime,
+    new_end: datetime,
+) -> None:
+    """Edición: fin > inicio siempre; un evento no finalizado no pasa a histórico
+    y uno que aún no empezó no puede moverse al pasado."""
+    current = to_local_naive(datetime.now())
+    start = to_local_naive(new_start)
+    end = to_local_naive(new_end)
+    if end <= start:
+        raise ValueError("La fecha de fin debe ser posterior a la fecha de inicio.")
+    if get_event_status(existing_start, existing_end) == EVENT_STATUS_FINISHED:
+        return
+    if end <= current:
+        raise ValueError(
+            "La fecha de fin debe ser futura; de lo contrario el evento pasaría a histórico."
+        )
+    if start < current and to_local_naive(existing_start) >= current:
+        raise ValueError("La fecha de inicio debe ser mayor o igual a la fecha actual.")
+
 
 NAME_REGEX = re.compile(NAME_PATTERN)
 CEDULA_REGEX = re.compile(CEDULA_PATTERN)

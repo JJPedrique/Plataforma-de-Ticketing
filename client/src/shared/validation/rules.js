@@ -60,6 +60,51 @@ export const VENUE_ADDRESS_MAX_LENGTH = 256;
 export const VENUE_IMG_URL_MAX_LENGTH = 500;
 export const EVENT_TITLE_MAX_LENGTH = 200;
 export const EVENT_DESCRIPTION_MAX_LENGTH = 2000;
+
+// Estado del evento derivado de fechas (espejo de server/src/schemas/validation.py).
+export const EVENT_STATUS_UPCOMING = 'UPCOMING';
+export const EVENT_STATUS_ONGOING = 'ONGOING';
+export const EVENT_STATUS_FINISHED = 'FINISHED';
+export const EVENT_STATUS_LABELS = {
+  [EVENT_STATUS_UPCOMING]: 'Próximo',
+  [EVENT_STATUS_ONGOING]: 'En curso',
+  [EVENT_STATUS_FINISHED]: 'Finalizado',
+};
+
+export function getEventStatus(startDate, endDate, now = new Date()) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const current = new Date(now);
+  if (current > end) return EVENT_STATUS_FINISHED;
+  if (current >= start) return EVENT_STATUS_ONGOING;
+  return EVENT_STATUS_UPCOMING;
+}
+
+/** Devuelve '' cuando es válido; existingStart/existingEnd habilitan la corrección histórica. */
+export function validateEventDates(startDate, endDate, options = {}) {
+  const { existingStart, existingEnd, now = new Date() } = options;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return 'Debe indicar la fecha y hora de inicio y de fin.';
+  }
+  if (end <= start) return 'La fecha y hora de fin debe ser posterior a la de inicio.';
+
+  const current = new Date(now);
+  if (existingStart && existingEnd) {
+    if (getEventStatus(existingStart, existingEnd, current) === EVENT_STATUS_FINISHED) return '';
+    if (end <= current) {
+      return 'La fecha de fin debe ser futura; de lo contrario el evento pasaría a histórico.';
+    }
+    if (start < current && new Date(existingStart) >= current) {
+      return 'La fecha de inicio debe ser mayor o igual a la fecha actual.';
+    }
+    return '';
+  }
+  if (start < current) return 'La fecha de inicio debe ser mayor o igual a la fecha actual.';
+  return '';
+}
+
 export const ZONE_NAME_MAX_LENGTH = 100;
 export const COLOR_CODE_MAX_LENGTH = 20;
 export const PAY_METHOD_NAME_MAX_LENGTH = 100;
